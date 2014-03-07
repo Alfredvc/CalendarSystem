@@ -1,11 +1,21 @@
 package com.proj.model;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Alfredo
- * Date: 06.03.14
- * Time: 14:43
- * To change this template use File | Settings | File Templates.
- */
+
 public class Employee {
+	private String
+		name,
+		email,
+		telephone;
+
+	public String getName() {
+		return name;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public String getTelephone() {
+		return telephone;
+	}	
 }
