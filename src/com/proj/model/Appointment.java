@@ -21,6 +21,23 @@ public class Appointment {
 	private ArrayList<Notification> notifications = new ArrayList<>();
 	private MeetingRoom meetingRoom;
 	
+	
+	public Appointment(Participant leader,Date startTime, Date endTime, String location ){   //burde description vere obligatorisk??
+		this.setLeader(leader);
+		this.setEndTime(endTime);
+		this.setStartTime(startTime);
+		this.setLocation(location);
+	}
+	
+	public Appointment(Participant leader,Date startTime, Date endTime, MeetingRoom meetingRoom ){   //burde description vere obligatorisk??
+		this.setLeader(leader);
+		this.setEndTime(endTime);
+		this.setStartTime(startTime);
+		this.setMeetingRoom(meetingRoom);
+		
+	}
+	
+	
 	public UUID getId() {
 		return id;
 	}
@@ -63,6 +80,13 @@ public class Appointment {
 	
 	public void addParticipant(Participant participant) {
 		participants.add(participant);
+	}
+	
+	public void removeParticipant(Participant participant){
+		if(participant.equals(this.leader)==false){ 		//passer på at møtelederen ikke kan slettes
+			participants.remove(participant);
+		}
+
 	}
 	
 	public Participant getLeader() {
