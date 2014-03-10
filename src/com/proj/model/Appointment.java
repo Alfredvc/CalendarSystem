@@ -14,7 +14,7 @@ public class Appointment {
 	
 	private Date
 			startTime,
-			EndTime;
+			endTime;
 	
 	private ArrayList<Participant> participants = new ArrayList<>();
 	private Participant leader;
@@ -50,11 +50,11 @@ public class Appointment {
 	}
 	
 	public Date getEndTime() {
-		return EndTime;
+		return endTime;
 	}
 	
 	public void setEndTime(Date endTime) {
-		EndTime = endTime;
+		this.endTime = endTime;
 	}
 	
 	public Participant[] getParticipants() {
