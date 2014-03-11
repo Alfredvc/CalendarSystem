@@ -1,42 +1,30 @@
 package com.proj.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 
 public class Model {
-	private ArrayList <Appointment> appointments;
+	private HashMap<UUID,Appointment> appointments;
 	private ArrayList <Employee> employees;
 	private ArrayList <Group> groups;
 	
 	
 	
-	
-	
-	
-	
 	public void deleteAppointment(UUID id){                //her staar det int i klassediagrammet, men det er vel UUID vi gikk for??
-		for(int i=0; i<appointments.size(); i++){
-			if(appointments.get(i).getId()==id){
-				appointments.remove(i);
-			}
-		}
+		this.appointments.remove(id);
 	}
 	
-	public void changeAppointment(Appointment app){
-		                            						//??	
-	}
 
-	//public void addAppointment(Appointment app){}  // Naar en appointment addes, skal den først addes i modellaget for den gaar til databasen??
+
+	public void addAppointment(Appointment app){this.appointments.put(app.getId(), app);}  // Naar en appointment addes, skal den først addes i modellaget for den gaar til databasen??
+
 	
-	
-	
-	
-	
-	public ArrayList<Appointment> getAppointments() {
+	public HashMap<UUID,Appointment> getAppointments() {
 		return appointments;
 	}
 
-	public void setAppointments(ArrayList<Appointment> appointments) {
+	public void setAppointments(HashMap<UUID,Appointment> appointments) {
 		this.appointments = appointments;
 	}
 
