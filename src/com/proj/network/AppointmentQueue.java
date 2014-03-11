@@ -1,7 +1,10 @@
 package com.proj.network;
 
+import com.proj.model.Appointment;
+
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * Created with IntelliJ IDEA.
@@ -12,8 +15,8 @@ import java.util.Deque;
  */
 public class AppointmentQueue {
 
-    private Deque<Appointment> queue1;
-    private Deque<Appointment> queue2;
+    private ConcurrentLinkedDeque<Appointment> queue1;
+    private ConcurrentLinkedDeque<Appointment> queue2;
 
     private boolean locked;
     private boolean queue1IsMain;
@@ -39,14 +42,15 @@ public class AppointmentQueue {
     }
 
     public Appointment[] getNewAppointments(){
-        Apppointment[] result;
         if (queue1IsMain){
-            result = queue1.toArray(result);
+            Appointment[] result = queue1.toArray(new Appointment[0]);
             queue1.clear();
+            return result;
         }
         else {
-            result = queue2.toArray(result);
+            Appointment[] result = queue2.toArray(new Appointment[0]);
             queue2.clear();
+            return result;
         }
 
     }
