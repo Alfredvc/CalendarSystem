@@ -15,10 +15,10 @@ public class Appointment {
 	private Date
 			startTime,
 			endTime;
-	
-	private ArrayList<Participant> participants = new ArrayList<>();
+
+	private ArrayList<Participant> participants = new ArrayList();
 	private Participant leader;
-	private ArrayList<Notification> notifications = new ArrayList<>();
+	private ArrayList<Notification> notifications = new ArrayList();
 	private MeetingRoom meetingRoom;
 	
 	
