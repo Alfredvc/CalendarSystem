@@ -79,7 +79,7 @@ public class ClientNetworking extends Networking implements Runnable{
                     }
 
                     if (key.isWritable()){
-                        if (key.attachment().equals(readyToLogIn) && username != null && password != null){
+                        if (key.attachment() != null && key.attachment().equals(readyToLogIn) && username != null && password != null){
                             System.out.println("Starting login with as: " + username + ":" + password);
 
                             try {
@@ -95,11 +95,14 @@ public class ClientNetworking extends Networking implements Runnable{
                             }
 
                         }
+
+                        sendPendingAppointments(clientChannel, key);
+
                     }
 
                     if (key.isReadable()){
 
-                        if (key.attachment().equals(awaitingLoginResponse)){
+                        if (key.attachment()!= null && key.attachment().equals(awaitingLoginResponse)){
                             System.out.println("Reading response");
                             ByteBuffer inBuffer = ByteBuffer.allocate(32);
                             clientChannel.read(inBuffer);
@@ -119,7 +122,29 @@ public class ClientNetworking extends Networking implements Runnable{
                             loginThread.interrupt();
                         }
 
+                        if (key.attachment() != null && key.attachment() instanceof ConcurrentLinkedDeque){
+                            System.out.println("Reading appointment...");
+                            ByteBuffer inBuffer = ByteBuffer.allocate(1024);
+                            int readBytes = clientChannel.read(inBuffer);
+                            if (readBytes == 0){
+                                System.out.println("Nothing read........");
+                                continue;
+                            }
+                            inBuffer.flip();
+                            byte[] array = new byte[inBuffer.limit()];
+                            inBuffer.get(array);
+                            try {
+                                Appointment recvAppointment = Networking.byteArrayToAppointment(array);
+                                receivedAppointment(recvAppointment);
+                                System.out.println("Received: " + recvAppointment);
+                            } catch (ClassNotFoundException e) {
+                                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                            }
+                        }
+
                     }
+                    refreshQueues();
+
                 }
             }
         }

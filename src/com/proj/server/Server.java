@@ -13,16 +13,11 @@ import com.proj.network.ServerNetworking;
 public class Server {
 
     Model model;
-    ServerNetworking networking;
+    public ServerNetworking networking;
 
     public Server(Model model){
         this.model = model;
         networking = new ServerNetworking(model);
-        networking.serveForever();
+        new Thread(networking).start();
     }
-
-    public static void main(String args[]){
-        Server server = new Server(new Model());
-    }
-
 }
