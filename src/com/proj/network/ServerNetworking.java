@@ -1,6 +1,14 @@
 package com.proj.network;
 
+import com.proj.model.Appointment;
+import com.proj.model.Employee;
+import com.proj.model.Model;
+import com.proj.model.Participant;
+
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.Buffer;
@@ -12,6 +20,7 @@ import java.nio.channels.SocketChannel;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * Created with IntelliJ IDEA.
@@ -24,8 +33,9 @@ public class ServerNetworking extends Networking {
 
     String ipAddr = "127.0.0.1";
     int portNr = 8989;
+    ServerSocketChannel serverSocketChannel;
     Deque<Appointment> appointmentQueue;
-    final int selectionTimeout = 1000;
+
     final Object awaitingLogin = new Object();
     final Object awaitingAllAppointments = new Object();
 
@@ -59,7 +69,7 @@ public class ServerNetworking extends Networking {
         while(run){
 
             try {
-                selector.select(selectionTimeout);
+                selector.select();
                 Set selectedKeys = selector.selectedKeys();
                 Iterator iterator = selectedKeys.iterator();
 
@@ -77,7 +87,7 @@ public class ServerNetworking extends Networking {
                                 + ":" + client.socket().getLocalPort());
 
                         client.configureBlocking(false);
-                        client.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE, awaitingLogin);
+                        client.register(selector, SelectionKey.OP_READ, awaitingLogin);
 
                     }
                     if(key.isReadable()){
@@ -90,22 +100,25 @@ public class ServerNetworking extends Networking {
 
                         client.read(buffer);
 
-                        System.out.println("Finished reading from client at s" + client.socket().getInetAddress()
+                        System.out.println("Finished reading from client at " + client.socket().getInetAddress()
                                 + ":" + client.socket().getLocalPort());
 
                         if (key.attachment().equals(awaitingLogin)){
-                            boolean successful = requestLogin(buffer.flip());
+                            boolean successful = requestLogin(buffer);
 
-                            if (successful) key.attach(awaitingAllAppointments);
+                            if (successful){
+                                key.attach(awaitingAllAppointments);
+                                key.interestOps(SelectionKey.OP_WRITE);
+                            }
 
                             //Sends response to client
 
-                            byte response = successful ? Networking.loginSuccessful : Networking.loginFailed;
+                            String response = successful ? Networking.loginSuccessful : Networking.loginFailed;
 
                             System.out.println("Sending response " + response + " to client at " + client.socket().getInetAddress()
                                     + ":" + client.socket().getLocalPort());
 
-                            client.write( ByteBuffer.wrap(new byte[] {response}));
+                            client.write( ByteBuffer.wrap(response.getBytes()));
                         }
                         else{
                             newChangedAppointment(client, buffer.flip());
@@ -118,12 +131,16 @@ public class ServerNetworking extends Networking {
                         System.out.println("Writing to client at " + client.socket().getInetAddress()
                                 + ":" + client.socket().getLocalPort());
 
-                        if (key.attachment().equals(awaitingAllAppointments)){
-                            boolean successful = sendAllApointments(client);
-                            if (successful) key.attach(null);
+                        if (key.attachment() != null && key.attachment().equals(awaitingAllAppointments)){
+                            key.attach(getAllAppointmentsAsQueue());
                         }
-                        else{
-                            sendChangedAppointments(client);
+
+                        if (key.attachment() != null && key.attachment() instanceof ConcurrentLinkedDeque){
+                            Appointment currentAppointment = (Appointment)((ConcurrentLinkedDeque) key.attachment()).poll();
+                            while (currentAppointment != null){
+                                sendAppointment(client, currentAppointment);
+                                currentAppointment = (Appointment)((ConcurrentLinkedDeque) key.attachment()).poll();
+                            }
                         }
 
                         System.out.println("Finished sending to client at " + client.socket().getInetAddress()
@@ -134,16 +151,45 @@ public class ServerNetworking extends Networking {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+                try {
+                    selector.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
             }
 
         }
     }
 
-    private boolean requestLogin(Buffer buffer){
+    private ConcurrentLinkedDeque<Appointment> getAllAppointmentsAsQueue(){
+        //test data
+        ConcurrentLinkedDeque<Appointment> currentList = new ConcurrentLinkedDeque<Appointment>();
+        currentList.push(new Appointment(null, null, null, "test stuff"));
+        return currentList;
+    }
+
+    private boolean requestLogin(ByteBuffer buffer){
+        System.out.println("Starting log in");
+        buffer.flip();
+        byte[] array = new byte[buffer.limit()];
+        buffer.get(array);
+        System.out.println("Received: " + new String(array));
+
         return true;
     }
 
-    private boolean sendAllApointments(SocketChannel client){
+    private boolean sendAppointment(SocketChannel client, Appointment appointment){
+        System.out.println("Sending appointment " + appointment + "...");
+        boolean sent = false;
+        while (!sent){
+            try {
+                client.write( ByteBuffer.wrap(Networking.appointmentToByteArray(appointment)));
+                sent = true;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         return true;
     }
     private boolean newChangedAppointment(SocketChannel client, Buffer buffer){
@@ -151,6 +197,7 @@ public class ServerNetworking extends Networking {
     }
 
     private boolean sendChangedAppointments(SocketChannel client){
+        System.out.println("Sending changed appointments");
         return true;
     }
 
