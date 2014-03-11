@@ -2,6 +2,7 @@ package com.proj.client;
 
 import com.proj.model.Model;
 import com.proj.network.ClientNetworking;
+import com.proj.test.RandomGenerator;
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,17 +14,12 @@ import com.proj.network.ClientNetworking;
 public class Client {
 
     Model model;
-    ClientNetworking networking;
+    public ClientNetworking networking;
 
     public Client(Model model){
         this.model = model;
         networking = new ClientNetworking(model);
         new Thread(networking).start();
-    }
-
-    public static void main(String args[]){
-        Client client = new Client(new Model());
-        client.logIn("username", "password");
     }
 
     public boolean logIn(String username, String password){
