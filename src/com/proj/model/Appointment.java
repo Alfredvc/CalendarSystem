@@ -1,6 +1,6 @@
 package com.proj.model;
 
-import java.sql.Date;
+import java.util.Date;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -90,7 +90,7 @@ public class Appointment {
 	}
 	
 	public Participant[] getParticipants() {
-		return (Participant[]) participants.toArray();
+		return (Participant[]) participants.toArray(new Participant[participants.size()]);
 	}
 	
 	public void addParticipant(Participant participant) {
@@ -119,7 +119,7 @@ public class Appointment {
 	}
 	
 	public Notification[] getNotifications() {
-		return (Notification[]) notifications.toArray();
+		return (Notification[]) notifications.toArray(new Notification[notifications.size()]);
 	}
 	
 	public void addNotification(Notification notification) {
@@ -136,5 +136,10 @@ public class Appointment {
 	
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
 		pcs.addPropertyChangeListener(listener);
+	}
+	
+	public int getDuration() {
+		//TODO: Implement this one!
+		return 10;
 	}
 }

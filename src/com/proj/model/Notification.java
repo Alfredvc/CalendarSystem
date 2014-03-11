@@ -1,6 +1,7 @@
 package com.proj.model;
 
-import java.sql.Date;
+import java.util.Calendar;
+import java.util.Date;
 
 public class Notification {
 	private String text;
@@ -8,7 +9,7 @@ public class Notification {
 	
 	public Notification(String text) {
 		this.text = text;
-		//this.date= ??; TODO
+		timestamp = Calendar.getInstance().getTime();
 	}
 	
 	public String getText() {

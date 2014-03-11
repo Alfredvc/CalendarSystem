@@ -6,6 +6,12 @@ public class Employee {
 		name,
 		email,
 		telephone;
+	
+	public Employee(String email, String name, String telephone) {
+		this.name = name;
+		this.email = email;
+		this.telephone = telephone;
+	}
 
 	public String getName() {
 		return name;
