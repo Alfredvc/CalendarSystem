@@ -7,6 +7,10 @@ public class Employee {
 		email,
 		telephone;
 
+    public Employee(){
+
+    }
+
 	public String getName() {
 		return name;
 	}

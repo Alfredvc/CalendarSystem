@@ -1,10 +1,11 @@
 package com.proj.model;
 
+import java.io.Serializable;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.UUID;
 
-public class Appointment {
+public class Appointment implements Serializable{
 
 	private UUID id;
 	
