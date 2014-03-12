@@ -4,6 +4,7 @@ import java.util.Date;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.UUID;
 
 public class Appointment {
@@ -24,23 +25,36 @@ public class Appointment {
 	private ArrayList<Notification> notifications = new ArrayList<>();
 	private MeetingRoom meetingRoom;
 	private PropertyChangeSupport pcs= new PropertyChangeSupport(this);
+
 	
-	
-	public Appointment(Participant leader,Date startTime, Date endTime, String location ){   //burde description vere obligatorisk??
-		this.id=UUID.randomUUID();
+	public Appointment(UUID id, Participant leader,Date startTime){
+		this.id = id;
 		this.setLeader(leader);
-		this.setEndTime(endTime);
 		this.setStartTime(startTime);
 		this.setLocation(location);
 	}
 	
-	public Appointment(Participant leader,Date startTime, Date endTime, MeetingRoom meetingRoom ){   //burde description vere obligatorisk??
-		this.id=UUID.randomUUID();
-		this.setLeader(leader);
+	public Appointment(Participant leader, Date startTime, Date endTime) {
+		this(UUID.randomUUID(), leader, startTime);
 		this.setEndTime(endTime);
-		this.setStartTime(startTime);
+	}
+	
+	public Appointment(Participant leader,Date startTime, Date endTime, String location ) {
+		this(leader, startTime, endTime);
+		this.setLocation(location);
+	}
+	
+	public Appointment(Participant leader,Date startTime, Date endTime, MeetingRoom meetingRoom ) {
+		this(leader, startTime, endTime);
 		this.setMeetingRoom(meetingRoom);
-		
+	}
+	
+	public Appointment(Participant leader, Date startTime, int duration) {
+		this(UUID.randomUUID(), leader, startTime);
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(startTime);
+		calendar.add(Calendar.MINUTE, duration);
+		this.setEndTime(calendar.getTime());
 	}
 	
 	

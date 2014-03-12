@@ -6,7 +6,8 @@ import java.util.UUID;
 
 public class Model {
 	private HashMap<UUID,Appointment> appointments;
-	private ArrayList <Employee> employees;
+	private HashMap <String, Employee> employees;
+	private HashMap <String, MeetingRoom> meetingRooms;
 	private ArrayList <Group> groups;
 	
 	
@@ -27,21 +28,37 @@ public class Model {
 	public void setAppointments(HashMap<UUID,Appointment> appointments) {
 		this.appointments = appointments;
 	}
-
-	public ArrayList<Employee> getEmployees() {
-		return employees;
+	
+	public Appointment getAppointment(UUID id) {
+		return appointments.get(id);
+	}
+	
+	public void addMeetingRoom(MeetingRoom meetingRoom) {
+		meetingRooms.put(meetingRoom.getRoomNr(), meetingRoom);
+	}
+	
+	public MeetingRoom getMeetingRoom(String roomNr) {
+		return meetingRooms.get(roomNr);
 	}
 
-	public void setEmployees(ArrayList<Employee> employees) {
-		this.employees = employees;
+	public Employee[] getEmployees() {
+		return (Employee[]) employees.values().toArray(new Employee[employees.size()]);
+	}
+	
+	public Employee getEmployee(String email) {
+		return employees.get(email);
+	}
+
+	public void addEmployee(Employee employee) {
+		employees.put(employee.getEmail(), employee);
 	}
 
 	public ArrayList<Group> getGroups() {
 		return groups;
 	}
-
-	public void setGroups(ArrayList<Group> groups) {
-		this.groups = groups;
+	
+	public void addGroup(Group group) {
+		groups.add(group);
 	}
 	
 }
