@@ -28,6 +28,11 @@ public class Appointment implements Serializable{
 		this.setEndTime(endTime);
 		this.setStartTime(startTime);
 		this.setLocation(location);
+        this.description = null;
+        this.id = UUID.randomUUID();
+        this.meetingRoom = null;
+        participants = new ArrayList<Participant>();
+        notifications = new ArrayList<Notification>();
 	}
 	
 	public Appointment(Participant leader,Date startTime, Date endTime, MeetingRoom meetingRoom ){   //burde description vere obligatorisk??
@@ -35,7 +40,11 @@ public class Appointment implements Serializable{
 		this.setEndTime(endTime);
 		this.setStartTime(startTime);
 		this.setMeetingRoom(meetingRoom);
-		
+        this.location = null;
+        this.description = null;
+        this.id = UUID.randomUUID();
+        participants = new ArrayList<Participant>();
+        notifications = new ArrayList<Notification>();
 	}
 	
 	
@@ -113,4 +122,16 @@ public class Appointment implements Serializable{
 	public void setMeetingRoom(MeetingRoom meetingRoom) {
 		this.meetingRoom = meetingRoom;
 	}
+
+    @Override
+    public String toString(){
+        return "Appointment " + id + ", " + description;
+    }
+
+    @Override
+    public boolean equals(Object other){
+        if (!(other instanceof Appointment)) return false;
+        return this.id.equals(((Appointment)other).getId());
+    }
+
 }

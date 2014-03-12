@@ -74,15 +74,18 @@ public abstract class Networking {
         System.out.println("Pushing appointment " + appointment + " to outgoing queue");
 
         outgoingAppointments.push(appointment);
-        for (SelectionKey key : selector.keys()){
-            key.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
-        }
     }
 
     protected void refreshQueues(){
 
         Appointment currentAppointment = outgoingAppointments.poll();
-        if (currentAppointment != null) System.out.println("Refreshing queues for thread " + Thread.currentThread());
+        if (currentAppointment == null) return;
+        System.out.println("Refreshing queues for thread " + Thread.currentThread());
+        for (SelectionKey key : selector.keys()){
+            if (key.channel() instanceof ServerSocketChannel) continue;
+            System.out.println("Updating interestOps for key ");
+            key.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+        }
         while (currentAppointment != null){
             for (SelectionKey key : selector.keys()){
                 if (key.attachment() != null && key.attachment() instanceof ConcurrentLinkedDeque){
