@@ -10,6 +10,13 @@ public class Participant {
 		this.employee = employee;
 	}
 	
+	public Participant(Employee employee, Status status, boolean alarm, boolean hidden) {
+		this(employee);
+		this.status = status;
+		this.alarm = alarm;
+		this.hidden = hidden;
+	}
+	
 	public Employee getEmployee() {
 		return employee;
 	}
