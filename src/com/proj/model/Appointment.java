@@ -123,7 +123,9 @@ public class Appointment {
 	}
 	
 	public void addNotification(Notification notification) {
+		int index=notifications.size();
 		notifications.add(notification);
+		pcs.fireIndexedPropertyChange("notifications", index-1, null, notification);
 	}
 	
 	public MeetingRoom getMeetingRoom() {
@@ -131,7 +133,9 @@ public class Appointment {
 	}
 	
 	public void setMeetingRoom(MeetingRoom meetingRoom) {
+		MeetingRoom oldValue=this.meetingRoom;
 		this.meetingRoom = meetingRoom;
+		pcs.firePropertyChange("meetingroom", oldValue, this.meetingRoom);
 	}
 	
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
