@@ -13,6 +13,10 @@ public class Employee {
 		this.telephone = telephone;
 	}
 
+    public Employee(){
+
+    }
+
 	public String getName() {
 		return name;
 	}

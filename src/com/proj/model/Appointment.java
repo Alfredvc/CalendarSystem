@@ -1,13 +1,17 @@
 package com.proj.model;
 
+
 import java.util.Date;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
+
+import java.io.Serializable;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.UUID;
 
-public class Appointment {
+public class Appointment implements Serializable{
 
 	private final UUID id;
 	
@@ -19,10 +23,10 @@ public class Appointment {
 	private Date
 			startTime,
 			endTime;
-	
-	private ArrayList<Participant> participants = new ArrayList<>();
+
+	private ArrayList<Participant> participants = new ArrayList();
 	private Participant leader;
-	private ArrayList<Notification> notifications = new ArrayList<>();
+	private ArrayList<Notification> notifications = new ArrayList();
 	private MeetingRoom meetingRoom;
 	private PropertyChangeSupport pcs= new PropertyChangeSupport(this);
 
@@ -32,6 +36,10 @@ public class Appointment {
 		this.setLeader(leader);
 		this.setStartTime(startTime);
 		this.setLocation(location);
+        this.description = null;
+        this.meetingRoom = null;
+        participants = new ArrayList<Participant>();
+        notifications = new ArrayList<Notification>();
 	}
 	
 	public Appointment(Participant leader, Date startTime, Date endTime) {
@@ -55,6 +63,13 @@ public class Appointment {
 		calendar.setTime(startTime);
 		calendar.add(Calendar.MINUTE, duration);
 		this.setEndTime(calendar.getTime());
+
+        this.location = null;
+        this.description = null;
+        
+        participants = new ArrayList<Participant>();
+        notifications = new ArrayList<Notification>();
+
 	}
 	
 	
@@ -155,4 +170,16 @@ public class Appointment {
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
 		pcs.addPropertyChangeListener(listener);
 	}
+
+    @Override
+    public String toString(){
+        return "Appointment " + id + ", " + description;
+    }
+
+    @Override
+    public boolean equals(Object other){
+        if (!(other instanceof Appointment)) return false;
+        return this.id.equals(((Appointment)other).getId());
+    }
+
 }
