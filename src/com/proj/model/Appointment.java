@@ -49,12 +49,13 @@ public class Appointment {
 		this.setMeetingRoom(meetingRoom);
 	}
 	
-	public Appointment(Participant leader, Date startTime, int duration) {
-		this(UUID.randomUUID(), leader, startTime);
+	public Appointment(UUID id, Participant leader, Date startTime, int duration, String description) {
+		this(id, leader, startTime);
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(startTime);
 		calendar.add(Calendar.MINUTE, duration);
 		this.setEndTime(calendar.getTime());
+		this.setDescription(description);
 	}
 	
 	

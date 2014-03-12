@@ -4,6 +4,8 @@ import com.proj.model.*;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.UUID;
 import java.sql.Timestamp;
 import java.util.Properties;
 import java.io.FileInputStream;
@@ -12,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
 
@@ -43,7 +46,215 @@ public class Database implements PresistanceBackend {
 		
 	}
 	
+	/**
+	 * Fetches all data from database and adds it to the model
+	 */
+	public boolean load(Model model) {
+		if (connection == null) {
+			throw new IllegalStateException("No database connection present!");
+		}
+		
+		try {
+			// Load stuff
+			loadEmployees(model);
+			loadGroups(model);
+			loadMeetingRooms(model);			
+			loadAppointments(model);
+			loadNotifications(model);
+			loadParticipants(model);
+			
+		} catch (SQLException e) {
+			System.err.println("Could not load model: " + e.getMessage());
+		}
+		
+		
+		
+		return false;
+	}
+	
+	
+	/**
+	 * Loads and adds all appointments from db to model
+	 * @param model
+	 * @throws SQLException
+	 */
+	private void loadAppointments(Model model) throws SQLException {
+		ResultSet resultSet = connection.prepareStatement(
+				"SELECT * FROM `Appointment`;"
+			).executeQuery();
+		
+		while (resultSet.next()) {
+			// Get meeting leader!
+			//TODO: Database cannot reflect the "participant" part, only the employee!
+			Participant leader = new Participant(
+					model.getEmployee(resultSet.getString(AppointmentColumns.Leader.colNr()))
+				);
+			
+			// Instantiate appointment
+			Appointment appointment = new Appointment(
+					UUID.fromString(resultSet.getString(AppointmentColumns.Id.colNr())),
+					leader,
+					getDate(resultSet.getTimestamp(AppointmentColumns.Date.colNr())),
+					resultSet.getInt(AppointmentColumns.Duration.colNr()),
+					resultSet.getString(AppointmentColumns.Description.colNr())
+				);
+			
+			// Set correct meeting room or location
+			String roomNr = resultSet.getString(AppointmentColumns.MeetingRoom.colNr());	
+			if (roomNr != null) {
+				appointment.setMeetingRoom(model.getMeetingRoom(roomNr));
+			} else {
+				appointment.setLocation(resultSet.getString(AppointmentColumns.Location.colNr()));
+			}
+			
+			// Add our new appointment!
+			model.addAppointment(appointment);
+		}
+	}
+	
+	
+	/**
+	 * Loads and adds all notifications from database to model.
+	 */
+	private void loadNotifications(Model model) throws SQLException {
+		ResultSet resultSet = connection.prepareStatement(
+				"SELECT * FROM `Notification`;"
+			).executeQuery();
+		
+		while (resultSet.next()) {
+			// Instantiate notification
+			Notification notification = new Notification(
+					resultSet.getString(NotificationColumns.Text.colNr())
+					//TODO: Creation time!
+				);
+			
+			// Get appointment id
+			UUID appointmentId = UUID.fromString(
+					resultSet.getString(NotificationColumns.Appointment.colNr())
+				);
+			
+			// Add notification to appointmnet
+			model.getAppointment(appointmentId).addNotification(notification);
+		}
+	}
+	
+	
+	/**
+	 * Loads all employees from database and adds them to the model.
+	 */
+	private void loadEmployees(Model model) throws SQLException {
+		ResultSet resultSet = connection.prepareStatement(
+				"SELECT * FROM `Employee`;"
+			).executeQuery();
+		
+		while (resultSet.next()) {
+			// Instantiate
+			Employee employee = new Employee(
+					resultSet.getString(EmployeeColumns.Email.colNr()),
+					resultSet.getString(EmployeeColumns.Name.colNr()),
+					resultSet.getInt(EmployeeColumns.Telephone.colNr())
+				);
+			
+			// Add to model
+			model.addEmployee(employee);
+		}
+	}
+	
+	
+	/**
+	 * Loads all groups and their employees from database and adds to model.
+	 */
+	private void loadGroups(Model model) throws SQLException {
+		// Handle group names first
+		ResultSet groupResultSet = connection.prepareStatement(
+				"SELECT * FROM `Group`;"
+			).executeQuery();
+		
+		HashMap<Integer, Group> groups = new HashMap<>();
+		
+		while (groupResultSet.next()) {
+			String name = groupResultSet.getString(GroupColumns.Name.colNr());
+			int groupId = groupResultSet.getInt(GroupColumns.Id.colNr());
+			
+			groups.put(new Integer(groupId), new Group(name));
+		}
+		
+		// Handle members of groups
+		ResultSet memberpResultSet = connection.prepareStatement(
+				"SELECT * FROM `Member_of`;"
+			).executeQuery();
+		
+		while (memberpResultSet.next()) {
+			// Get relevant employee
+			Employee employee = model.getEmployee(
+					memberpResultSet.getString(MemberOfColumns.EmployeeEmail.colNr())
+				);
+			
+			// Find group and add employee
+			int groupId = memberpResultSet.getInt(MemberOfColumns.GroupId.colNr());
+			groups.get(new Integer(groupId)).addEmployee(employee);
+		}
+		
+		// Add groups to model
+		for (Group group : groups.values()) {
+			model.addGroup(group);
+		}
+	}
+	
+	
+	/**
+	 * Loads all meeting rooms from database and add them to the model
+	 */
+	private void loadMeetingRooms(Model model) throws SQLException {
+		ResultSet resultSet = connection.prepareStatement(
+				"SELECT * FROM `MeetingRoom`;"
+			).executeQuery();
+		
+		while (resultSet.next()) {
+			// Instantiate
+			MeetingRoom meetingRoom = new MeetingRoom(
+					resultSet.getString(MeetingRoomColumns.RoomNumber.colNr()),
+					resultSet.getInt(MeetingRoomColumns.Capacity.colNr()),
+					resultSet.getString(MeetingRoomColumns.Name.colNr()),
+					resultSet.getString(MeetingRoomColumns.Notes.colNr())
+				);
+			
+			// Add to model
+			model.addMeetingRoom(meetingRoom);
+		}
+	}
+	
+	
+	/**
+	 * Load participants and add them to the appointments in the model.
+	 */
+	private void loadParticipants(Model model) throws SQLException {
+		ResultSet resultSet = connection.prepareStatement(
+				"SELECT * FROM `Invited_to`;"
+			).executeQuery();
+		
+		while (resultSet.next()) {
+			Employee employee = model.getEmployee(
+					resultSet.getString(InvitedToColumns.EmployeeEmail.colNr())
+				);
+			
+			String uuid = resultSet.getString(InvitedToColumns.AppointmentId.colNr());
 
+			
+			Participant participant = new Participant(
+					employee,
+					Status.valueOf(resultSet.getString(InvitedToColumns.Attending.colNr())),
+					resultSet.getBoolean(InvitedToColumns.Alarm.colNr()),
+					resultSet.getBoolean(InvitedToColumns.Hidden.colNr())
+				);
+
+			model.getAppointment(
+					UUID.fromString(uuid)
+				).addParticipant(participant);
+		}
+	}
+
+	
 	/**
 	 * Loads database configuration from file
 	 * @return Properties from file
@@ -134,6 +345,15 @@ public class Database implements PresistanceBackend {
 		return new Timestamp(date.getTime());
 	}
 	
+	/**
+	 * Converts a java.sql.Timestamp to a java.util.Date
+	 */
+	private Date getDate(Timestamp timestamp) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTimeInMillis(timestamp.getTime());
+		return calendar.getTime();
+	}
+	
 	
 	/**
 	 * Saves the given appointment and all relationships to database
@@ -152,13 +372,13 @@ public class Database implements PresistanceBackend {
 				);
 			
 			// Copy arguments from  appointment
-			statement.setString(1, appointment.getId().toString());
-			statement.setString(2, appointment.getDescription());
-			statement.setTimestamp(3, getSqlTimestamp(appointment.getStartTime()));
-			statement.setInt(4, appointment.getDuration());
-			statement.setString(5, appointment.getLocation());
-			statement.setString(6, appointment.getMeetingRoom().getRoomNr());
-			statement.setString(7, appointment.getLeader().getEmployee().getEmail());
+			statement.setString(AppointmentColumns.Id.colNr(), appointment.getId().toString());
+			statement.setString(AppointmentColumns.Description.colNr(), appointment.getDescription());
+			statement.setTimestamp(AppointmentColumns.Date.colNr(), getSqlTimestamp(appointment.getStartTime()));
+			statement.setInt(AppointmentColumns.Duration.colNr(), appointment.getDuration());
+			statement.setString(AppointmentColumns.Location.colNr(), appointment.getLocation());
+			statement.setString(AppointmentColumns.MeetingRoom.colNr(), appointment.getMeetingRoom().getRoomNr());
+			statement.setString(AppointmentColumns.Leader.colNr(), appointment.getLeader().getEmployee().getEmail());
 
 			// Execute query and save relations
 			return statement.execute() &
@@ -173,33 +393,20 @@ public class Database implements PresistanceBackend {
 	
 	
 	public static void main(String[] args) {
+		Model model = new Model();
 		Database database = new Database();
+		database.load(model);
 		
-		Participant leader = new Participant(
-				new Employee("mons@company.com", "Mons Minasen", "94934455")
-			);
-		
-		Calendar calendar = Calendar.getInstance();
-		
-		calendar.set(2014,2,1, 14, 10, 0);
-		Date startTime = calendar.getTime();
-		
-		calendar.set(2014, 2, 1, 14, 40, 0);
-		Date endTime = calendar.getTime();
-		
-		Appointment a = new Appointment(
-				leader,
-				startTime,
-				endTime,
-				new MeetingRoom("R1", 200)
-			);
-		
-		a.setDescription("Testbeskrivelse");
-		a.addNotification(new Notification("Haha"));
-		a.addNotification(new Notification("hnotheunt"));
-		
-		database.save(a);
-		System.out.println("Ferdig!");
+		// Print debug data for model
+		for (Appointment a : model.getAppointments().values()){
+			System.out.println("\n" + a.getId());
+			System.out.println(a.getDescription());
+			System.out.println(a.getLeader());
+		}
 
+		for (Employee e : model.getEmployees()) {
+			System.out.println("\n" + e.getEmail());
+			System.out.println(e.getName());
+		}
 	}
 }

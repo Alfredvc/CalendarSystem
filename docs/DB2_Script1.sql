@@ -118,7 +118,7 @@ CREATE  TABLE IF NOT EXISTS `Invited_to` (
   `Appointment_ID` CHAR(36) NOT NULL ,
   `alarm` TINYINT(1) NOT NULL DEFAULT 0 ,
   `hidden` TINYINT(1) NOT NULL DEFAULT 0 ,
-  `attending` ENUM('attending','pending','declined') NOT NULL ,
+  `attending` ENUM('Attending','Pending','Declined') NOT NULL ,
   PRIMARY KEY (`Employee_email`, `Appointment_ID`) ,
   INDEX `fk_Employee_has_Appointment_Employee1_idx` (`Employee_email` ASC) ,
   INDEX `fk_Employee_has_Appointment_Appointment1_idx` (`Appointment_ID` ASC) ,

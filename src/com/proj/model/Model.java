@@ -5,10 +5,10 @@ import java.util.HashMap;
 import java.util.UUID;
 
 public class Model {
-	private HashMap<UUID,Appointment> appointments;
-	private HashMap <String, Employee> employees;
-	private HashMap <String, MeetingRoom> meetingRooms;
-	private ArrayList <Group> groups;
+	private HashMap<UUID,Appointment> appointments = new HashMap<>();
+	private HashMap<String, Employee> employees = new HashMap<>();
+	private HashMap<String, MeetingRoom> meetingRooms = new HashMap<>();
+	private ArrayList <Group> groups = new ArrayList<>();
 	
 	
 	
