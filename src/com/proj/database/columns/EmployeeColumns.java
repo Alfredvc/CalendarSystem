@@ -1,4 +1,5 @@
-package com.proj.database;
+package com.proj.database.columns;
+
 
 public enum EmployeeColumns implements Columns {
 	Email,
