@@ -177,5 +177,9 @@ public abstract class Networking {
         selector.wakeup();
     }
 
+    public Model getModel(){
+        return this.model;
+    }
+
 
 }
