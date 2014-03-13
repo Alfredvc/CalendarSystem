@@ -12,6 +12,7 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -68,6 +69,11 @@ public class ServerNetworking extends Networking implements Runnable{
         while(run){
 
             try {
+                if (!selector.isOpen()){
+                    System.out.println("Selector unexpectedly closed, shutting down...");
+                    run = false;
+                    continue;
+                }
                 selector.select();
                 Set selectedKeys = selector.selectedKeys();
                 Iterator iterator = selectedKeys.iterator();
@@ -90,14 +96,26 @@ public class ServerNetworking extends Networking implements Runnable{
 
                     }
                     if(key.isReadable()){
-
                         SocketChannel client = (SocketChannel) key.channel();
+                        Socket socket = client.socket();
                         ByteBuffer buffer = ByteBuffer.allocate(1024);
 
                         System.out.println("Reading from client at " + client.socket().getInetAddress()
                                 + ":" + client.socket().getLocalPort());
+                        int readBytes = -2;
 
-                        int readBytes = client.read(buffer);
+                        try{
+                            readBytes = client.read(buffer);
+                        } catch (IOException e){
+                            if (e.getMessage().contains("forcibly closed")){
+                                System.out.println("Client disconnected at " + client.socket().getInetAddress()
+                                        + ":" + client.socket().getLocalPort());
+                                client.close();
+                                continue;
+                            } else{
+                                e.printStackTrace();
+                            }
+                        }
 
                         System.out.println("Read " + readBytes + " bytes");
 
@@ -125,7 +143,7 @@ public class ServerNetworking extends Networking implements Runnable{
 
                             client.write( ByteBuffer.wrap(response.getBytes()));
                         }
-                        else{
+                        else {
                             buffer.flip();
                             byte[] array = new byte[buffer.limit()];
                             buffer.get(array);
@@ -167,6 +185,13 @@ public class ServerNetworking extends Networking implements Runnable{
             }
 
         }
+
+        try {
+            selector.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private ConcurrentLinkedDeque<Appointment> getAllAppointmentsAsQueue(){
