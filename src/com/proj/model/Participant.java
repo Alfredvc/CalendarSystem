@@ -1,6 +1,8 @@
 package com.proj.model;
 
-public class Participant {
+import java.io.Serializable;
+
+public class Participant implements Serializable{
 	private Employee employee;
 	private Status status;
 	private boolean alarm;

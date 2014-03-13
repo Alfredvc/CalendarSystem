@@ -88,8 +88,8 @@ public abstract class Networking {
         }
         while (currentAppointment != null){
             for (SelectionKey key : selector.keys()){
-                if (key.attachment() != null && key.attachment() instanceof ConcurrentLinkedDeque){
-                    ((ConcurrentLinkedDeque) key.attachment()).push(currentAppointment);
+                if (key.attachment() != null && key.attachment() instanceof ChannelAttachment){
+                    ((ChannelAttachment) key.attachment()).queue.push(currentAppointment);
                 }
             }
             currentAppointment = outgoingAppointments.poll();
@@ -98,10 +98,10 @@ public abstract class Networking {
 
     protected void sendPendingAppointments(SocketChannel channel, SelectionKey key){
 
-        if (key.attachment() != null && key.attachment() instanceof ConcurrentLinkedDeque){
+        if (key.attachment() != null && key.attachment() instanceof ChannelAttachment){
             System.out.println("Sending pending appointments to " + channel.socket().getInetAddress()
                     + ":" + channel.socket().getLocalPort());
-            ConcurrentLinkedDeque<Appointment> queue = (ConcurrentLinkedDeque)key.attachment();
+            ConcurrentLinkedDeque<Appointment> queue = ((ChannelAttachment) key.attachment()).queue;
             Appointment currentAppointment = queue.poll();
             while (currentAppointment != null){
                 sendAppointment(channel, currentAppointment);
@@ -120,7 +120,10 @@ public abstract class Networking {
             try {
                 byte[] outArray = Networking.appointmentToByteArray(appointment);
                 System.out.println("Sending " + outArray.length + ":"+ outArray);
-                channel.write(ByteBuffer.wrap(outArray));
+                ByteBuffer sendingBuffer = ByteBuffer.allocate(outArray.length + 4);
+                sendingBuffer.putInt(outArray.length);
+                sendingBuffer.put(outArray);
+                channel.write(sendingBuffer);
                 sent = true;
             } catch (IOException e) {
                 e.printStackTrace();
@@ -169,6 +172,19 @@ public abstract class Networking {
 
     protected void receivedAppointment(Appointment appointment){
         System.out.println("Received appointment " + appointment);
+        model.addAppointment(appointment);
+        //Do sutff with it
+    }
+
+    public void receivedAppointment(byte[] bytes){
+        System.out.println("Received appointment " + bytes);
+        try {
+            model.addAppointment(byteArrayToAppointment(bytes));
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
         //Do sutff with it
     }
 

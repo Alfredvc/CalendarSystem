@@ -15,9 +15,8 @@ import com.proj.server.Server;
 public class NetworkingServerTest {
 
     public static void main(String args[]){
-        Appointment testAppointment = RandomGenerator.newAppointment();
         Model model1 = new Model();
-        model1.setAppointments(RandomGenerator.newAppointments(1));
+        model1.setAppointments(RandomGenerator.generateAppointments(5));
         Server server = new Server(model1);
         //server.networking.sendAppointment(testAppointment);
     }

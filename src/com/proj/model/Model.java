@@ -12,11 +12,15 @@ public class Model {
 	private HashMap <String, Employee> employees;
 	private HashMap <String, MeetingRoom> meetingRooms;
 	private ArrayList <Group> groups;
-	
-	
-	
-	
-	public void deleteAppointment(UUID id){                
+
+    public Model() {
+        appointments = new HashMap<UUID, Appointment>();
+        employees = new HashMap<String, Employee>();
+        meetingRooms = new HashMap<String, MeetingRoom>();
+        groups = new ArrayList<Group>();
+    }
+
+    public void deleteAppointment(UUID id){
 		this.appointments.remove(id);
 	}
 	
@@ -30,7 +34,7 @@ public class Model {
 	
 	
 	public Appointment[]  getAppointments() {
-		return (Appointment[]) appointments.values().toArray();
+		return appointments.values().toArray(new Appointment[appointments.size()]);
 	}
 
 	public void setAppointments(Appointment [] apps) {
@@ -77,7 +81,7 @@ public class Model {
 	}
 	
 	public ArrayList<MeetingRoom> getFreeMeetingRooms(Date startTime, Date endTime){
-		ArrayList<MeetingRoom> freeRooms= new ArrayList<>(Arrays.asList(this.getMeetingRooms()));
+		ArrayList<MeetingRoom> freeRooms= new ArrayList<MeetingRoom>(Arrays.asList(this.getMeetingRooms()));
 		for(UUID key: appointments.keySet()){
 			Appointment app=appointments.get(key);
 			if((app.getStartTime().before(endTime) && app.getEndTime().after(endTime)) ||

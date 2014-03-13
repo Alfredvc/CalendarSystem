@@ -17,9 +17,9 @@ import java.util.ArrayList;
 public class NetworkingMainTest {
 
     public static void main (String args[]){
-        Appointment testAppointment = RandomGenerator.newAppointment();
+        Appointment testAppointment = RandomGenerator.generateAppointment();
         Model model1 = new Model();
-        model1.setAppointments(RandomGenerator.newAppointments(1));
+        model1.setAppointments(RandomGenerator.generateAppointments(1));
         Server server = new Server(model1);
         Client client = new Client(new Model());
         client.logIn("username", "password");

@@ -19,6 +19,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.Set;
@@ -98,7 +99,7 @@ public class ServerNetworking extends Networking implements Runnable{
                     if(key.isReadable()){
                         SocketChannel client = (SocketChannel) key.channel();
                         Socket socket = client.socket();
-                        ByteBuffer buffer = ByteBuffer.allocate(1024);
+                        ByteBuffer buffer = ByteBuffer.allocate(4096);
 
                         System.out.println("Reading from client at " + client.socket().getInetAddress()
                                 + ":" + client.socket().getLocalPort());
@@ -145,13 +146,7 @@ public class ServerNetworking extends Networking implements Runnable{
                         }
                         else {
                             buffer.flip();
-                            byte[] array = new byte[buffer.limit()];
-                            buffer.get(array);
-                            try {
-                                receivedAppointment(Networking.byteArrayToAppointment(array));
-                            } catch (ClassNotFoundException e) {
-                                e.printStackTrace();
-                            }
+                            ((ChannelAttachment)key.attachment()).byteBufferHandler.handleByteBuffer(buffer);
                         }
 
                     }
@@ -162,7 +157,8 @@ public class ServerNetworking extends Networking implements Runnable{
                                 + ":" + client.socket().getLocalPort());
 
                         if (key.attachment() != null && key.attachment().equals(awaitingAllAppointments)){
-                            key.attach(getAllAppointmentsAsQueue());
+                            key.attach(new ChannelAttachment(this));
+                            ((ChannelAttachment) key.attachment()).queue = getAllAppointmentsAsQueue();
                         }
 
                         sendPendingAppointments(client, key);
@@ -195,7 +191,7 @@ public class ServerNetworking extends Networking implements Runnable{
     }
 
     private ConcurrentLinkedDeque<Appointment> getAllAppointmentsAsQueue(){
-        return new ConcurrentLinkedDeque<Appointment>(model.getAppointments());
+        return new ConcurrentLinkedDeque<Appointment>(Arrays.asList(model.getAppointments()));
     }
 
     private boolean requestLogin(ByteBuffer buffer){

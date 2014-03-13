@@ -26,7 +26,7 @@ public class Appointment implements Serializable{
 
 	private ArrayList<Participant> participants = new ArrayList<Participant>();
 	private Participant leader;
-	private ArrayList<Notification> notifications = new ArrayList<>();
+	private ArrayList<Notification> notifications = new ArrayList<Notification>();
 	private MeetingRoom meetingRoom;
 	private PropertyChangeSupport pcs= new PropertyChangeSupport(this);
 
