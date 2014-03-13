@@ -19,6 +19,12 @@ public class NetworkingClientTest {
         Model model1 = new Model();
         Client client = new Client(model1);
         client.networking.logIn("username", "password");
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        client.networking.close();
         //server.networking.sendAppointment(testAppointment);
     }
 
