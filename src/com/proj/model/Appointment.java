@@ -24,9 +24,9 @@ public class Appointment implements Serializable{
 			startTime,
 			endTime;
 
-	private ArrayList<Participant> participants = new ArrayList();
+	private ArrayList<Participant> participants = new ArrayList<Participant>();
 	private Participant leader;
-	private ArrayList<Notification> notifications = new ArrayList();
+	private ArrayList<Notification> notifications = new ArrayList<>();
 	private MeetingRoom meetingRoom;
 	private PropertyChangeSupport pcs= new PropertyChangeSupport(this);
 
@@ -119,7 +119,7 @@ public class Appointment implements Serializable{
 	}
 	
 	public Participant[] getParticipants() {
-		return (Participant[]) participants.toArray();
+		return (Participant[]) participants.toArray(new Participant[participants.size()]);
 	}
 	
 	public void addParticipant(Participant participant) {
