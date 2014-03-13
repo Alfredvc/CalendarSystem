@@ -19,6 +19,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.Set;
@@ -195,7 +196,9 @@ public class ServerNetworking extends Networking implements Runnable{
     }
 
     private ConcurrentLinkedDeque<Appointment> getAllAppointmentsAsQueue(){
-        return new ConcurrentLinkedDeque<Appointment>(model.getAppointments());
+        return new ConcurrentLinkedDeque<Appointment>(
+        		Arrays.asList(model.getAppointments())
+        	);
     }
 
     private boolean requestLogin(ByteBuffer buffer){

@@ -4,10 +4,11 @@ import com.proj.client.Client;
 import com.proj.model.Appointment;
 import com.proj.model.Model;
 import com.proj.server.Server;
-import junit.framework.Test;
+
 import junit.framework.TestCase;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * Created with IntelliJ IDEA.
@@ -22,7 +23,7 @@ public class NetworkingTest extends TestCase {
     public void testSending(){
 
         Model serverModel = new Model();
-        serverModel.setAppointments(RandomGenerator.newAppointments(5));
+        serverModel.setAppointments(RandomGenerator.generateAppointments(5));
         Model clientModel = new Model();
 
         Server server = new Server(serverModel);
@@ -37,11 +38,13 @@ public class NetworkingTest extends TestCase {
         }
 
         assertTrue("Check all appointments have been sent", sameAppointments(
-                client.networking.getModel().getAppointments(), server.networking.getModel().getAppointments()));
+                Arrays.asList(client.networking.getModel().getAppointments()),
+                Arrays.asList(server.networking.getModel().getAppointments()))
+               );
 
     }
 
-    private boolean sameAppointments(ArrayList<Appointment> list1, ArrayList<Appointment> list2){
+    private boolean sameAppointments(Collection<Appointment> list1, Collection<Appointment> list2){
         boolean result = true;
         if (list1.size() != list2.size()) result = false;
 
