@@ -1,29 +1,33 @@
 package com.proj.model;
 
 import java.util.ArrayList;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.sql.Date;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.UUID;
 
-public class Model {
+public class Model  {
 	private HashMap<UUID,Appointment> appointments;
 	private HashMap <String, Employee> employees;
 	private HashMap <String, MeetingRoom> meetingRooms;
 	private ArrayList <Group> groups;
-	
+	private PropertyChangeSupport pcs= new PropertyChangeSupport(this);
 	
 	
 	
 	public void deleteAppointment(UUID id){                
-		this.appointments.remove(id);
+		Appointment oldValue=this.appointments.remove(id);
+		pcs.firePropertyChange("appointments",oldValue ,null);
 	}
 	
 
 
 	public void addAppointment(Appointment app){
 		this.appointments.put(app.getId(), app);
+		pcs.firePropertyChange("appointments", null, app);
 	} 
 
 
@@ -33,11 +37,7 @@ public class Model {
 		return (Appointment[]) appointments.values().toArray();
 	}
 
-	public void setAppointments(Appointment [] apps) {
-		for(int i=0; i<apps.length; i++){
-			this.addAppointment(apps[i]);
-			}
-	}
+
 	
 	public Appointment getAppointment(UUID id) {
 		return appointments.get(id);
@@ -87,5 +87,9 @@ public class Model {
 			};
 		}
 		return freeRooms;
+	}
+	
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		pcs.addPropertyChangeListener(listener);
 	}
 }

@@ -1,11 +1,13 @@
 package com.proj.model;
+import java.beans.PropertyChangeSupport;
+import java.beans.PropertyChangeListener;
 
 public class Participant {
 	private Employee employee;
 	private Status status;
 	private boolean alarm;
 	private boolean hidden;
-	
+	private PropertyChangeSupport pcs= new PropertyChangeSupport(this);
 	public Participant(Employee employee) {
 		this.employee = employee;
 	}
@@ -26,7 +28,10 @@ public class Participant {
 	}
 	
 	public void setStatus(Status status) {
+		Status oldValue=this.status;
 		this.status = status;
+		pcs.firePropertyChange("status", oldValue, this.status);
+		
 	}
 	
 	public boolean isAlarm() {
@@ -42,7 +47,10 @@ public class Participant {
 	}
 	
 	public void setHidden(boolean hidden) {
+		boolean oldValue=this.hidden;
 		this.hidden = hidden;
+		pcs.firePropertyChange("hidden", oldValue, this.hidden);
+		
 	}
 	
 
