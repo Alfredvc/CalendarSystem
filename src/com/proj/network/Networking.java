@@ -173,11 +173,8 @@ public abstract class Networking {
     }
 
     public void close(){
-        try {
-            selector.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        run = false;
+        selector.wakeup();
     }
 
 
