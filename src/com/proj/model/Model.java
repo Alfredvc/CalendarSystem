@@ -1,6 +1,11 @@
 package com.proj.model;
 
 import java.util.ArrayList;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.sql.Date;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -9,36 +14,55 @@ public class Model {
 	private HashMap<String, Employee> employees = new HashMap<>();
 	private HashMap<String, MeetingRoom> meetingRooms = new HashMap<>();
 	private ArrayList <Group> groups = new ArrayList<>();
+	private PropertyChangeSupport pcs= new PropertyChangeSupport(this);
 	
 	
 	
-	public void deleteAppointment(UUID id){                //her staar det int i klassediagrammet, men det er vel UUID vi gikk for??
-		this.appointments.remove(id);
+	public void deleteAppointment(UUID id){                
+		Appointment oldValue=this.appointments.remove(id);
+		pcs.firePropertyChange("appointments",oldValue ,null);
 	}
 	
 
 
-	public void addAppointment(Appointment app){this.appointments.put(app.getId(), app);}  // Naar en appointment addes, skal den først addes i modellaget for den gaar til databasen??
-
+	public void addAppointment(Appointment app){
+		this.appointments.put(app.getId(), app);
+		pcs.firePropertyChange("appointments", null, app);
+	} 
 	
-	public HashMap<UUID,Appointment> getAppointments() {
-		return appointments;
+
+	/**
+	 * Needed by tests. Adds all appointments in the provided collection.
+	 * @param appointments
+	 */
+	public void setAppointments(Collection<Appointment> appointments) {
+		for (Appointment appointment : appointments) {
+			this.addAppointment(appointment);
+		}
+	}
+	
+	
+	public Appointment[]  getAppointments() {
+		return (Appointment[]) appointments.values().toArray();
 	}
 
-	public void setAppointments(HashMap<UUID,Appointment> appointments) {
-		this.appointments = appointments;
-	}
+
 	
 	public Appointment getAppointment(UUID id) {
 		return appointments.get(id);
 	}
-	
+
 	public void addMeetingRoom(MeetingRoom meetingRoom) {
 		meetingRooms.put(meetingRoom.getRoomNr(), meetingRoom);
 	}
 	
 	public MeetingRoom getMeetingRoom(String roomNr) {
 		return meetingRooms.get(roomNr);
+
+	}
+	public MeetingRoom[] getMeetingRooms(){
+		return this.meetingRooms.values().toArray((new MeetingRoom[meetingRooms.values().size()]));
+		
 	}
 
 	public Employee[] getEmployees() {
@@ -61,4 +85,23 @@ public class Model {
 		groups.add(group);
 	}
 	
+	public ArrayList<MeetingRoom> getFreeMeetingRooms(Date startTime, Date endTime){
+		ArrayList<MeetingRoom> freeRooms= new ArrayList<>(Arrays.asList(this.getMeetingRooms()));
+		for(UUID key: appointments.keySet()){
+			Appointment app=appointments.get(key);
+			if((app.getStartTime().before(endTime) && app.getEndTime().after(endTime)) ||
+					(app.getStartTime().before(startTime) && app.getEndTime().after(startTime))){
+				
+				freeRooms.remove(app.getMeetingRoom());
+			};
+		}
+		return freeRooms;
+	}
+	
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		pcs.addPropertyChangeListener(listener);
+	}
+
+
+
 }

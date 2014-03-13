@@ -61,7 +61,8 @@ public class Database implements PresistanceBackend {
 			loadMeetingRooms(model);			
 			loadAppointments(model);
 			loadNotifications(model);
-			loadParticipants(model);
+			loadInternalParticipants(model);
+			loadExternalParticipants(model);
 			
 		} catch (SQLException e) {
 			System.err.println("Could not load model: " + e.getMessage());
@@ -86,7 +87,7 @@ public class Database implements PresistanceBackend {
 		while (resultSet.next()) {
 			// Get meeting leader!
 			//TODO: Database cannot reflect the "participant" part, only the employee!
-			Participant leader = new Participant(
+			InternalParticipant leader = new InternalParticipant(
 					model.getEmployee(resultSet.getString(AppointmentColumns.Leader.colNr()))
 				);
 			
@@ -228,7 +229,7 @@ public class Database implements PresistanceBackend {
 	/**
 	 * Load participants and add them to the appointments in the model.
 	 */
-	private void loadParticipants(Model model) throws SQLException {
+	private void loadInternalParticipants(Model model) throws SQLException {
 		ResultSet resultSet = connection.prepareStatement(
 				"SELECT * FROM `Invited_to`;"
 			).executeQuery();
@@ -241,7 +242,7 @@ public class Database implements PresistanceBackend {
 			String uuid = resultSet.getString(InvitedToColumns.AppointmentId.colNr());
 
 			
-			Participant participant = new Participant(
+			Participant participant = new InternalParticipant(
 					employee,
 					Status.valueOf(resultSet.getString(InvitedToColumns.Attending.colNr())),
 					resultSet.getBoolean(InvitedToColumns.Alarm.colNr()),
@@ -253,7 +254,10 @@ public class Database implements PresistanceBackend {
 				).addParticipant(participant);
 		}
 	}
-
+	
+	private void loadExternalParticipants(Model model) {
+		//TODO!		
+	}
 	
 	/**
 	 * Loads database configuration from file
@@ -289,17 +293,22 @@ public class Database implements PresistanceBackend {
 		PreparedStatement insertParticipantStatement = connection.prepareStatement(
 				"INSERT INTO `Invited_to` VALUES (?, ?, ?, ?, ?);"
 			);
-		
-		for (Participant p : appointment.getParticipants()) {
-			// Copy parameters for query
-			insertParticipantStatement.setString(1, p.getEmployee().getEmail());
-			insertParticipantStatement.setString(2, appointment.getId().toString());
-			insertParticipantStatement.setBoolean(3, p.isAlarm());
-			insertParticipantStatement.setBoolean(4, p.isHidden());
-			insertParticipantStatement.setString(5, p.getStatus().name());
-			
-			// Run query
-			successful &= insertParticipantStatement.execute();
+
+		for (Participant participant : appointment.getParticipants()) {
+			if (participant instanceof InternalParticipant) {
+				InternalParticipant p = (InternalParticipant) participant;
+				// Copy parameters for query
+				insertParticipantStatement.setString(1, p.getEmployee().getEmail());
+				insertParticipantStatement.setString(2, appointment.getId().toString());
+				insertParticipantStatement.setBoolean(3, p.isAlarm());
+				insertParticipantStatement.setBoolean(4, p.isHidden());
+				insertParticipantStatement.setString(5, p.getStatus().name());
+				
+				// Run query
+				successful &= insertParticipantStatement.execute();
+			} else if (participant instanceof ExternalParticipant) {
+				//TODO!				
+			}
 		}
 		
 		return successful;
@@ -398,7 +407,7 @@ public class Database implements PresistanceBackend {
 		database.load(model);
 		
 		// Print debug data for model
-		for (Appointment a : model.getAppointments().values()){
+		for (Appointment a : model.getAppointments()){
 			System.out.println("\n" + a.getId());
 			System.out.println(a.getDescription());
 			System.out.println(a.getLeader());

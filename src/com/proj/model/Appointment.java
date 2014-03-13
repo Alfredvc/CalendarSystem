@@ -3,11 +3,14 @@ package com.proj.model;
 import java.util.Date;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
+
+import java.io.Serializable;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.UUID;
 
-public class Appointment {
+public class Appointment implements Serializable{
 
 	private final UUID id;
 	
@@ -19,37 +22,41 @@ public class Appointment {
 	private Date
 			startTime,
 			endTime;
-	
-	private ArrayList<Participant> participants = new ArrayList<>();
-	private Participant leader;
+
+	private ArrayList<Participant> participants = new ArrayList<Participant>();
+	private InternalParticipant leader;
 	private ArrayList<Notification> notifications = new ArrayList<>();
 	private MeetingRoom meetingRoom;
 	private PropertyChangeSupport pcs= new PropertyChangeSupport(this);
 
 	
-	public Appointment(UUID id, Participant leader,Date startTime){
+	public Appointment(UUID id, InternalParticipant leader,Date startTime){
 		this.id = id;
 		this.setLeader(leader);
 		this.setStartTime(startTime);
 		this.setLocation(location);
+        this.description = null;
+        this.meetingRoom = null;
+        participants = new ArrayList<Participant>();
+        notifications = new ArrayList<Notification>();
 	}
 	
-	public Appointment(Participant leader, Date startTime, Date endTime) {
+	public Appointment(InternalParticipant leader, Date startTime, Date endTime) {
 		this(UUID.randomUUID(), leader, startTime);
 		this.setEndTime(endTime);
 	}
 	
-	public Appointment(Participant leader,Date startTime, Date endTime, String location ) {
+	public Appointment(InternalParticipant leader,Date startTime, Date endTime, String location ) {
 		this(leader, startTime, endTime);
 		this.setLocation(location);
 	}
 	
-	public Appointment(Participant leader,Date startTime, Date endTime, MeetingRoom meetingRoom ) {
+	public Appointment(InternalParticipant leader,Date startTime, Date endTime, MeetingRoom meetingRoom ) {
 		this(leader, startTime, endTime);
 		this.setMeetingRoom(meetingRoom);
 	}
 	
-	public Appointment(UUID id, Participant leader, Date startTime, int duration, String description) {
+	public Appointment(UUID id, InternalParticipant leader, Date startTime, int duration, String description) {
 		this(id, leader, startTime);
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(startTime);
@@ -98,9 +105,9 @@ public class Appointment {
 		return endTime;
 	}
 	
-	public void setEndTime(Date endTime) {
+	public void setEndTime(java.util.Date date) {
 		Date oldValue=this.endTime;
-		this.endTime = endTime;
+		this.endTime = date;
 		pcs.firePropertyChange("endTime",oldValue, this.endTime);
 	}
 	
@@ -125,11 +132,11 @@ public class Appointment {
 
 	}
 	
-	public Participant getLeader() {
+	public InternalParticipant getLeader() {
 		return leader;
 	}
 	
-	public void setLeader(Participant leader) {
+	public void setLeader(InternalParticipant leader) {
 		this.leader = leader;
 	}
 	
@@ -138,7 +145,9 @@ public class Appointment {
 	}
 	
 	public void addNotification(Notification notification) {
+		int index=notifications.size();
 		notifications.add(notification);
+		pcs.fireIndexedPropertyChange("notifications", index-1, null, notification);
 	}
 	
 	public MeetingRoom getMeetingRoom() {
@@ -146,7 +155,9 @@ public class Appointment {
 	}
 	
 	public void setMeetingRoom(MeetingRoom meetingRoom) {
+		MeetingRoom oldValue=this.meetingRoom;
 		this.meetingRoom = meetingRoom;
+		pcs.firePropertyChange("meetingroom", oldValue, this.meetingRoom);
 	}
 	
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
@@ -154,7 +165,18 @@ public class Appointment {
 	}
 	
 	public int getDuration() {
-		//TODO: Implement this one!
+		//TODO: Implement this one! (needed by db)
 		return 10;
 	}
+
+    @Override
+    public String toString(){
+        return "Appointment " + id + ", " + description;
+    }
+
+    @Override
+    public boolean equals(Object other){
+        if (!(other instanceof Appointment)) return false;
+        return this.id.equals(((Appointment)other).getId());
+    }
 }
