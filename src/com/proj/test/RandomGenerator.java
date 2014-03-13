@@ -18,14 +18,14 @@ public class RandomGenerator {
 
     
 	 public static Appointment generateAppointment(){
-    	Participant leader = generateParticipant();
+    	InternalParticipant leader = generateInternalParticipant();
     	Date startTime = generateDate();
     	Date endTime = generateDate();
     	MeetingRoom meetingRoom = generateMeetingRoom();
         Appointment app= new Appointment( leader, startTime, endTime, meetingRoom );
         app.setDescription(generateString());
         for(int i = 0; i < rand.nextInt(10); i++ ){
-        	app.addParticipant(generateParticipant());
+        	app.addParticipant(generateInternalParticipant());
         }
         return app;
     
@@ -47,8 +47,8 @@ public class RandomGenerator {
     	
     }
     
-    public static  Participant generateParticipant(){
-    	return new Participant (generateEmployee(), Status.values()[rand.nextInt(3)] ,  rand.nextBoolean(),  rand.nextBoolean());
+    public static  InternalParticipant generateInternalParticipant(){
+    	return new InternalParticipant (generateEmployee(), Status.values()[rand.nextInt(3)] ,  rand.nextBoolean(),  rand.nextBoolean());
 
     }
     

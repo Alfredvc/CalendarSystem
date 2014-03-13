@@ -9,11 +9,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.UUID;
 
-public class Model  {
-	private HashMap<UUID,Appointment> appointments;
-	private HashMap <String, Employee> employees;
-	private HashMap <String, MeetingRoom> meetingRooms;
-	private ArrayList <Group> groups;
+public class Model {
+	private HashMap<UUID,Appointment> appointments = new HashMap<>();
+	private HashMap<String, Employee> employees = new HashMap<>();
+	private HashMap<String, MeetingRoom> meetingRooms = new HashMap<>();
+	private ArrayList <Group> groups = new ArrayList<>();
 	private PropertyChangeSupport pcs= new PropertyChangeSupport(this);
 	
 	
@@ -29,8 +29,17 @@ public class Model  {
 		this.appointments.put(app.getId(), app);
 		pcs.firePropertyChange("appointments", null, app);
 	} 
+	
 
-
+	/**
+	 * Needed by tests. Adds all appointments in the provided collection.
+	 * @param appointments
+	 */
+	public void setAppointments(Collection<Appointment> appointments) {
+		for (Appointment appointment : appointments) {
+			this.addAppointment(appointment);
+		}
+	}
 	
 	
 	public Appointment[]  getAppointments() {
@@ -42,7 +51,7 @@ public class Model  {
 	public Appointment getAppointment(UUID id) {
 		return appointments.get(id);
 	}
-	
+
 	public void addMeetingRoom(MeetingRoom meetingRoom) {
 		meetingRooms.put(meetingRoom.getRoomNr(), meetingRoom);
 	}
@@ -92,4 +101,7 @@ public class Model  {
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
 		pcs.addPropertyChangeListener(listener);
 	}
+
+
+
 }

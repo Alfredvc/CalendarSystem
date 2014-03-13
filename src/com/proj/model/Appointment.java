@@ -1,6 +1,5 @@
 package com.proj.model;
 
-
 import java.util.Date;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
@@ -25,13 +24,13 @@ public class Appointment implements Serializable{
 			endTime;
 
 	private ArrayList<Participant> participants = new ArrayList<Participant>();
-	private Participant leader;
+	private InternalParticipant leader;
 	private ArrayList<Notification> notifications = new ArrayList<>();
 	private MeetingRoom meetingRoom;
 	private PropertyChangeSupport pcs= new PropertyChangeSupport(this);
 
 	
-	public Appointment(UUID id, Participant leader,Date startTime){
+	public Appointment(UUID id, InternalParticipant leader,Date startTime){
 		this.id = id;
 		this.setLeader(leader);
 		this.setStartTime(startTime);
@@ -42,34 +41,28 @@ public class Appointment implements Serializable{
         notifications = new ArrayList<Notification>();
 	}
 	
-	public Appointment(Participant leader, Date startTime, Date endTime) {
+	public Appointment(InternalParticipant leader, Date startTime, Date endTime) {
 		this(UUID.randomUUID(), leader, startTime);
 		this.setEndTime(endTime);
 	}
 	
-	public Appointment(Participant leader,Date startTime, Date endTime, String location ) {
+	public Appointment(InternalParticipant leader,Date startTime, Date endTime, String location ) {
 		this(leader, startTime, endTime);
 		this.setLocation(location);
 	}
 	
-	public Appointment(Participant leader,Date startTime, Date endTime, MeetingRoom meetingRoom ) {
+	public Appointment(InternalParticipant leader,Date startTime, Date endTime, MeetingRoom meetingRoom ) {
 		this(leader, startTime, endTime);
 		this.setMeetingRoom(meetingRoom);
 	}
 	
-	public Appointment(Participant leader, Date startTime, int duration) {
-		this(UUID.randomUUID(), leader, startTime);
+	public Appointment(UUID id, InternalParticipant leader, Date startTime, int duration, String description) {
+		this(id, leader, startTime);
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(startTime);
 		calendar.add(Calendar.MINUTE, duration);
 		this.setEndTime(calendar.getTime());
-
-        this.location = null;
-        this.description = null;
-        
-        participants = new ArrayList<Participant>();
-        notifications = new ArrayList<Notification>();
-
+		this.setDescription(description);
 	}
 	
 	
@@ -139,16 +132,16 @@ public class Appointment implements Serializable{
 
 	}
 	
-	public Participant getLeader() {
+	public InternalParticipant getLeader() {
 		return leader;
 	}
 	
-	public void setLeader(Participant leader) {
+	public void setLeader(InternalParticipant leader) {
 		this.leader = leader;
 	}
 	
 	public Notification[] getNotifications() {
-		return (Notification[]) notifications.toArray();
+		return (Notification[]) notifications.toArray(new Notification[notifications.size()]);
 	}
 	
 	public void addNotification(Notification notification) {
@@ -170,6 +163,11 @@ public class Appointment implements Serializable{
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
 		pcs.addPropertyChangeListener(listener);
 	}
+	
+	public int getDuration() {
+		//TODO: Implement this one! (needed by db)
+		return 10;
+	}
 
     @Override
     public String toString(){
@@ -181,5 +179,4 @@ public class Appointment implements Serializable{
         if (!(other instanceof Appointment)) return false;
         return this.id.equals(((Appointment)other).getId());
     }
-
 }
