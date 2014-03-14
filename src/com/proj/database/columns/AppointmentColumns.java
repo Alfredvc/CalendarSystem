@@ -1,4 +1,4 @@
-package com.proj.database;
+package com.proj.database.columns;
 
 public enum AppointmentColumns implements Columns {
 	Id,

@@ -43,7 +43,7 @@ public class Model {
 	
 	
 	public Appointment[]  getAppointments() {
-		return (Appointment[]) appointments.values().toArray();
+		return (Appointment[]) appointments.values().toArray(new Appointment[appointments.size()]);
 	}
 
 
