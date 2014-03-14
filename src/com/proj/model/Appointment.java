@@ -3,11 +3,12 @@ package com.proj.model;
 import java.util.Date;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
-
 import java.io.Serializable;
-
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashSet;
+import java.util.List;
 import java.util.UUID;
 
 public class Appointment implements Serializable{
@@ -23,7 +24,7 @@ public class Appointment implements Serializable{
 			startTime,
 			endTime;
 
-	private ArrayList<Participant> participants = new ArrayList<Participant>();
+	private HashSet<Participant> participants = new HashSet<Participant>();
 	private InternalParticipant leader;
 	private ArrayList<Notification> notifications = new ArrayList<>();
 	private MeetingRoom meetingRoom;
@@ -31,14 +32,13 @@ public class Appointment implements Serializable{
 
 	
 	public Appointment(UUID id, InternalParticipant leader,Date startTime){
+		if (leader == null) {
+			throw new NullPointerException("Leader cannot be null");
+		}
 		this.id = id;
-		this.setLeader(leader);
+		this.leader = leader;
 		this.setStartTime(startTime);
 		this.setLocation(location);
-        this.description = null;
-        this.meetingRoom = null;
-        participants = new ArrayList<Participant>();
-        notifications = new ArrayList<Notification>();
 	}
 	
 	public Appointment(InternalParticipant leader, Date startTime, Date endTime) {
@@ -74,17 +74,35 @@ public class Appointment implements Serializable{
 		return description;
 	}
 	
+	
+	/**
+	 * Set the description of this appointment
+	 * @param description
+	 */
 	public void setDescription(String description) {
-		String oldValue=this.description;
+		if (description != null && description.equals(this.description)) {
+			return;
+		}
+		String oldValue = this.description;
 		this.description = description;
 		pcs.firePropertyChange("description",oldValue, this.description);
 	}
+	
 	
 	public String getLocation() {
 		return location;
 	}
 	
+	
+	/**
+	 * Set the location of this appointment
+	 * @param location
+	 */
 	public void setLocation(String location) {
+		if (location != null && meetingRoom != null) {
+			throw new IllegalArgumentException("Cannot add location as this appointment already has a meeting room.");
+		}
+	
 		String oldValue=this.location;
 		this.location = location;
 		pcs.firePropertyChange("location",oldValue, this.location);
@@ -96,6 +114,13 @@ public class Appointment implements Serializable{
 	}
 	
 	public void setStartTime(Date startTime) {
+		if (startTime == null) {
+			throw new NullPointerException("Cannot sett appointment start time to null");
+		}
+		if (endTime != null && startTime.after(endTime)) {
+			throw new IllegalArgumentException("The start time cannot be after the end time!");
+		}
+
 		Date oldValue=this.startTime;
 		this.startTime = startTime;
 		pcs.firePropertyChange("startTime",oldValue, this.startTime);
@@ -105,10 +130,26 @@ public class Appointment implements Serializable{
 		return endTime;
 	}
 	
-	public void setEndTime(java.util.Date date) {
+	public void setEndTime(Date endTime) {
+		if (endTime == null) {
+			throw new NullPointerException("Cannot sett appointment end time to null!");
+		}
+		if (startTime != null && endTime.before(startTime)) {
+			throw new IllegalArgumentException("The end time cannot be before the start time!");
+		}
+		
 		Date oldValue=this.endTime;
-		this.endTime = date;
-		pcs.firePropertyChange("endTime",oldValue, this.endTime);
+		this.endTime = endTime;
+		pcs.firePropertyChange("endTime", oldValue, this.endTime);
+	}
+	
+	public void setStartEndTime(Date startTime, Date endTime) {
+		if (startTime == null && endTime == null) {
+			throw new NullPointerException("End or start time cannot be null!");
+		}
+		if (startTime != null && endTime != null && startTime.after(endTime)) {
+			throw new IllegalArgumentException("Start time cannot be after end time!");
+		}
 	}
 	
 	public Participant[] getParticipants() {
@@ -116,28 +157,22 @@ public class Appointment implements Serializable{
 	}
 	
 	public void addParticipant(Participant participant) {
-		participants.add(participant);
-		int index=participants.size();
-		
-		pcs.fireIndexedPropertyChange("participants", index-1, null, participant);
+		if (participants.add(participant)) {
+			pcs.firePropertyChange("participants", null, participant);
+		}
 	}
 	
 	public void removeParticipant(Participant participant){
-		if(participant.equals(this.leader)==false){ 		//passer på at møtelederen ikke kan slettes
-			int index=participants.indexOf(participant);
-			Participant oldValue=participants.remove(index);
-			pcs.fireIndexedPropertyChange("participants", index, oldValue, null);
+		if(participant.equals(this.leader)){ 		//passer på at møtelederen ikke kan slettes
+			throw new IllegalArgumentException("Cannot delete the meeting leader from an appointment!");
 		}
 		
-
+		participants.remove(participant);
+		pcs.firePropertyChange("participants", participant, null);
 	}
 	
 	public InternalParticipant getLeader() {
 		return leader;
-	}
-	
-	public void setLeader(InternalParticipant leader) {
-		this.leader = leader;
 	}
 	
 	public Notification[] getNotifications() {
@@ -155,6 +190,10 @@ public class Appointment implements Serializable{
 	}
 	
 	public void setMeetingRoom(MeetingRoom meetingRoom) {
+		if (meetingRoom != null && location != null) {
+			throw new IllegalArgumentException("Cannot set meeting room as location is already set!");
+		}
+		
 		MeetingRoom oldValue=this.meetingRoom;
 		this.meetingRoom = meetingRoom;
 		pcs.firePropertyChange("meetingroom", oldValue, this.meetingRoom);
@@ -168,6 +207,66 @@ public class Appointment implements Serializable{
 		//TODO: Implement this one! (needed by db)
 		return 10;
 	}
+	
+	
+	/**
+	 * Copies all fields from the given appointment and uses the set methods so the correct events are triggered
+	 * NOTE: Copies only the editable fields!!!
+	 * @param appointment Appointment to copy data from!
+	 */
+	public void copyFrom(Appointment appointment) {
+		// Notifications is a collection! Special treatment needed
+		Notification[] newNotifications = appointment.getNotifications();
+		int oldSize = notifications.size();
+		int newSize = newNotifications.length;
+		int minSize = oldSize > newSize ? newSize : oldSize;
+		
+		// Notifications must match if they exist
+		for (int i = 0; i < minSize; i++) {
+			Notification notification = notifications.get(i);
+			if (notification == null || !notification.equals(newNotifications[i])) {
+				throw new IllegalArgumentException("WHAT!? We are missing a notification!");
+			}
+		}
+
+		if (newSize > oldSize) {
+			// Copy new notifications
+			for (int i = oldSize; i < newSize; i++) {
+				notifications.add(newNotifications[i]);
+			}
+		}
+		
+		
+		// Participants
+		List<Participant> newParticipants = Arrays.asList(appointment.getParticipants());
+		for (Participant p : newParticipants) {
+			addParticipant(p);
+		}
+
+		if (participants.size() > newParticipants.size()) {
+			// We have to remove some participants!
+			for (Participant p : participants) {
+				if (!newParticipants.contains(p)) {
+					removeParticipant(p);
+				}
+			}
+		}
+		
+		// Simple values
+		setDescription(appointment.getDescription());
+		setStartEndTime(appointment.getStartTime(), appointment.getEndTime());
+		
+		// Be carefull not to set both meeting room and location at the same time
+		String location = appointment.getLocation();
+		if (location == null) {
+			setLocation(null);
+			setMeetingRoom(appointment.getMeetingRoom());
+		} else {
+			setMeetingRoom(null);
+			setLocation(location);
+		}
+	}
+	
 
     @Override
     public String toString(){
