@@ -41,7 +41,8 @@ import javax.swing.BoxLayout;
 public class MainCalendar extends JFrame {
 
 	private JPanel contentPane;
-	private JTextField textField;
+	private JTextField weekTextField;
+	private int week = 11; // Week that is displayed in the GUI
 
 	/**
 	 * Launch the application.
@@ -70,13 +71,24 @@ public class MainCalendar extends JFrame {
 	public void displayAppointment(){
 		
 		int timeStart = 6;
-		int timeEnd = 7;
+		int timeEnd = 9;
+		boolean overlapping = false;
 		
-		JTextArea txtrTest = new JTextArea();
-		contentPane.add(txtrTest);
-		txtrTest.setBackground(Color.ORANGE);
-		txtrTest.setText("Meeting with Jane");
-		txtrTest.setBounds(70, 140+timeStart*40, 115, (timeEnd-timeStart)*40);
+		if(overlapping){
+			JTextArea appArea2 = new JTextArea();
+			contentPane.add(appArea2);
+			appArea2.setBackground(Color.GREEN);
+			appArea2.setText("Meeting with Lars");
+			appArea2.setBounds(70, 140+timeStart*40, 115/2, (timeEnd-timeStart)*40);
+		}
+		else{
+			JTextArea appArea = new JTextArea();
+			contentPane.add(appArea);
+			appArea.setBackground(Color.ORANGE);
+			appArea.setText("Meeting with Jane");
+			appArea.setBounds(70, 140+timeStart*40, 115, (timeEnd-timeStart)*40);
+			overlapping = true;
+		}
 		
 		
 		
@@ -91,6 +103,22 @@ public class MainCalendar extends JFrame {
         }
 	}
 	
+	/**
+	 * Button events for week picker
+	 */
+	class nextWeekButtonAction implements ActionListener {
+		public void actionPerformed(ActionEvent e){
+			week++;
+			weekTextField.setText(""+week);
+		}
+	}
+	
+	class prevWeekButtonAction implements ActionListener {
+		public void actionPerformed(ActionEvent e){
+			week--;
+			weekTextField.setText(""+week);
+		}
+	}
 	
 
 	/**
@@ -298,24 +326,26 @@ public class MainCalendar extends JFrame {
 		btnThisWeek.setBounds(17, 30, 117, 29);
 		contentPane.add(btnThisWeek);
 		
-		JButton button = new JButton("<");
-		button.setBounds(157, 30, 45, 29);
-		contentPane.add(button);
+		JButton prevWeekBT = new JButton("<");
+		prevWeekBT.setBounds(157, 30, 45, 29);
+		contentPane.add(prevWeekBT);
+		prevWeekBT.addActionListener(new prevWeekButtonAction());
 		
-		JButton button_1 = new JButton(">");
-		button_1.setBounds(238, 30, 45, 29);
-		contentPane.add(button_1);
+		JButton nextWeekBT = new JButton(">");
+		nextWeekBT.setBounds(238, 30, 45, 29);
+		contentPane.add(nextWeekBT);
+		nextWeekBT.addActionListener(new nextWeekButtonAction());
 		
 		JLabel lblWeek = new JLabel("Week");
 		lblWeek.setBounds(191, 6, 61, 16);
 		lblWeek.setHorizontalAlignment(SwingConstants.CENTER);
 		contentPane.add(lblWeek);
 		
-		textField = new JTextField();
-		textField.setBounds(202, 29, 36, 28);
-		textField.setText("11");
-		contentPane.add(textField);
-		textField.setColumns(10);
+		weekTextField = new JTextField();
+		weekTextField.setBounds(202, 29, 36, 28);
+		weekTextField.setText(""+week);
+		contentPane.add(weekTextField);
+		weekTextField.setColumns(10);
 		
 		JLabel lblMarch = new JLabel("September 10 - December 16");
 		lblMarch.setBounds(284, 22, 333, 37);
