@@ -179,4 +179,9 @@ public class Appointment implements Serializable{
         if (!(other instanceof Appointment)) return false;
         return this.id.equals(((Appointment)other).getId());
     }
+    
+    @Override
+    public int hashCode(){
+    	return this.endTime.getMinutes();
+    }
 }
