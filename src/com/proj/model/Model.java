@@ -85,6 +85,26 @@ public class Model {
 		groups.add(group);
 	}
 	
+	public ArrayList<Notification> myNotifications(Employee emp){
+		ArrayList<Notification> notif=new ArrayList<>();
+	
+		for(Appointment app: getMyAppointments(emp)){
+			for(Notification n: app.getNotifications()){
+				if(notif.size()<10){
+					notif.add(n);
+				}
+				else{
+					for(int i=0; i<notif.size(); i++){
+						if(n.getTimestamp().after(notif.get(i).getTimestamp())){
+							notif.set(i, n);
+						}
+					}
+				}
+			}
+		}
+		return notif;
+	}
+	
 	public ArrayList<MeetingRoom> getFreeMeetingRooms(Date startTime, Date endTime){
 		ArrayList<MeetingRoom> freeRooms= new ArrayList<>(Arrays.asList(this.getMeetingRooms()));
 		for(UUID key: appointments.keySet()){
