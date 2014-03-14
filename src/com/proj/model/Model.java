@@ -43,7 +43,7 @@ public class Model {
 	
 	
 	public Appointment[]  getAppointments() {
-		return (Appointment[]) appointments.values().toArray();
+		return (Appointment[]) appointments.values().toArray(new Appointment[appointments.size()]);
 	}
 
 
@@ -96,6 +96,18 @@ public class Model {
 			};
 		}
 		return freeRooms;
+	}
+	
+	public ArrayList<Appointment> getMyAppointments(Employee emp){
+		ArrayList<Appointment> myApps=new ArrayList<>();
+		for(UUID key: appointments.keySet()){
+			for (Participant parti: appointments.get(key).getParticipants()){
+				if(((InternalParticipant)parti).getEmployee().equals(emp)){
+					myApps.add(appointments.get(key));
+				}
+			}
+		}
+		return myApps;
 	}
 	
 	public void addPropertyChangeListener(PropertyChangeListener listener) {

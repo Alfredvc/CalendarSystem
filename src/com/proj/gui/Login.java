@@ -13,7 +13,6 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 
-
 public class Login extends JFrame{
 
     static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize(); // Dimensions of client screen
@@ -48,15 +47,17 @@ public class Login extends JFrame{
 		
 		// Adding Username/Email and Password fields
 		emailInput = new JTextField();
-		emailInput.setColumns(20);
-		emailInput.setBounds(100, 20, 160, 25);;
+		emailInput.setName("emailInput");
+		emailInput.setBounds(100, 20, 160, 25);
 		add(emailInput);
 		passwordInput = new JPasswordField(); // NB JPasswordField, use getPassword()
+		passwordInput.setName("passwordInput");
 		passwordInput.setBounds(100, 50, 260, 25);
 		add(passwordInput);
 
 		// Creating both the login and cancel buttons
 		JButton loginButton = new JButton("Login");
+		loginButton.setName("loginButton");
 		loginButton.setBounds(100, 80, 100, 30);
 		loginButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -67,6 +68,7 @@ public class Login extends JFrame{
 		add(loginButton);
 		
 		JButton cancelButton = new JButton("Cancel");
+		cancelButton.setName("cancelButton");
 		cancelButton.setBounds(260, 80, 100, 30);
 		cancelButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {

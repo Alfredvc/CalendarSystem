@@ -1,5 +1,6 @@
 package com.proj.model;
 
+import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
 public class InternalParticipant  implements Participant{
@@ -57,6 +58,15 @@ public class InternalParticipant  implements Participant{
 	@Override
 	public String getDisplayName() {
 		return employee.getName();
+	}
+	public String toString() {
+		return employee.getName();
+	}
+	
+	
+	
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		pcs.addPropertyChangeListener(listener);
 	}
 	
 
