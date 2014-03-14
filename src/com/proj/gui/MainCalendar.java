@@ -31,6 +31,13 @@ import javax.swing.UIManager;
 import javax.swing.JTextField;
 import javax.swing.JRadioButton;
 
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.SystemColor;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import javax.swing.BoxLayout;
+
 public class MainCalendar extends JFrame {
 
 	private JPanel contentPane;
@@ -45,6 +52,7 @@ public class MainCalendar extends JFrame {
 				try {
 					MainCalendar frame = new MainCalendar();
 					frame.setVisible(true);
+					frame.setResizable(false);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -53,44 +61,63 @@ public class MainCalendar extends JFrame {
 	}
 	
 	/**
-	 * Display new appointment.
+	 * Display new appointment in the calendar.
+	 * 
+	 * Instructions: Each hour is 20 pixels long. In setbounds(), the second value corresponds 
+	 * to the start time, and the fourth value to the end time.
+	 * The 00:00 time slot lays on pixel 140
 	 */
 	public void displayAppointment(){
 		
-		int timeStart = 10;
-		int timeEnd = 20;
+		int timeStart = 6;
+		int timeEnd = 7;
 		
-		JTextArea txtrCalendarEvent = new JTextArea();
-		txtrCalendarEvent.setBounds(204, 260, 123, 208);
-		txtrCalendarEvent.setEditable(false);
-		txtrCalendarEvent.setLineWrap(true);
-		txtrCalendarEvent.setText("Calendar Event - meeting with Jane");
-		txtrCalendarEvent.setForeground(Color.WHITE);
-		txtrCalendarEvent.setBackground(Color.RED);
-		contentPane.add(txtrCalendarEvent);
+		JTextArea txtrTest = new JTextArea();
+		contentPane.add(txtrTest);
+		txtrTest.setBackground(Color.ORANGE);
+		txtrTest.setText("Meeting with Jane");
+		txtrTest.setBounds(70, 140+timeStart*40, 115, (timeEnd-timeStart)*40);
+		
+		
 		
 	}
-	
+	/**
+	 * ButtonEvent for new appointment button
+	 */
 	class AppointmentButtonAction implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
             System.out.println("You pressed new appointment!");
+            displayAppointment();
         }
 	}
+	
+	
 
 	/**
 	 * Create the frame.
 	 */
 	public MainCalendar() {
-		setBackground(Color.WHITE);
+		//setBackground(Color.WHITE);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1020, 1000);
+		
+		
+		/*JScrollPane scrollPane = new JScrollPane();
+        scrollPane.setBounds(10, 101, 742, 276);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        getContentPane().add(scrollPane);*/
+		
 		contentPane = new JPanel();
 		contentPane.setBackground(UIManager.getColor("FormattedTextField.selectionBackground"));
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
+		contentPane.isOptimizedDrawingEnabled();
 		contentPane.setLayout(null);
 		
-
+		
+		/**
+		 * Notification bubble
+		 */
 		JTextArea textArea = new JTextArea();
 		textArea.setBounds(605, 22, 27, 22);
 		textArea.setFont(new Font("Lucida Grande", Font.BOLD, 16));
@@ -100,20 +127,23 @@ public class MainCalendar extends JFrame {
 		contentPane.add(textArea);
 		textArea.setVisible(false);
 		
-		JSeparator dayLine2 = new JSeparator();
-		dayLine2.setBounds(191, 95, 12, 877);
-		dayLine2.setForeground(Color.BLACK);
-		dayLine2.setOrientation(SwingConstants.VERTICAL);
-		contentPane.add(dayLine2);
-		
+		/**
+		 * Separators for calendar view
+		 */
 		JSeparator dayLine1 = new JSeparator();
 		dayLine1.setBounds(57, 95, 12, 877);
 		dayLine1.setOrientation(SwingConstants.VERTICAL);
 		dayLine1.setForeground(Color.BLACK);
 		contentPane.add(dayLine1);
 		
+		JSeparator dayLine2 = new JSeparator();
+		dayLine2.setBounds(187, 95, 12, 877);
+		dayLine2.setForeground(Color.BLACK);
+		dayLine2.setOrientation(SwingConstants.VERTICAL);
+		contentPane.add(dayLine2);
+		
 		JSeparator dayLine3 = new JSeparator();
-		dayLine3.setBounds(329, 95, 12, 877);
+		dayLine3.setBounds(317, 95, 12, 877);
 		dayLine3.setOrientation(SwingConstants.VERTICAL);
 		dayLine3.setForeground(Color.BLACK);
 		contentPane.add(dayLine3);
@@ -141,60 +171,83 @@ public class MainCalendar extends JFrame {
 		dayLine7.setOrientation(SwingConstants.VERTICAL);
 		dayLine7.setForeground(Color.BLACK);
 		contentPane.add(dayLine7);
-		
-		JSeparator timeLine = new JSeparator();
-		timeLine.setBounds(6, 124, 1008, 22);
+
+	/*	JSeparator timeLine = new JSeparator();
+		timeLine.setBounds(57, 134, 950, 22);
 		timeLine.setForeground(Color.BLACK);
 		contentPane.add(timeLine);
 		
+		JSeparator timeline1 = new JSeparator();
+		timeline1.setForeground(Color.BLACK);
+		timeline1.setBounds(57, 154, 950, 22);
+		contentPane.add(timeline1);
+		
+		JSeparator timeline2 = new JSeparator();
+		timeline2.setForeground(Color.BLACK);
+		timeline2.setBounds(57, 174, 950, 22);
+		contentPane.add(timeline2);
+		
+		JSeparator timeline3 = new JSeparator();
+		timeline3.setForeground(Color.BLACK);
+		timeline3.setBounds(57, 194, 950, 22);
+		contentPane.add(timeline3);
+		
+		JSeparator timeline4 = new JSeparator();
+		timeline4.setForeground(Color.BLACK);
+		timeline4.setBounds(57, 214, 950, 22);
+		contentPane.add(timeline4);
+		
+		JSeparator timeline5 = new JSeparator();
+		timeline5.setForeground(Color.BLACK);
+		timeline5.setBounds(57, 214, 950, 22);
+		contentPane.add(timeline5);
+		
+		JSeparator timeline6 = new JSeparator();
+		timeline6.setForeground(Color.BLACK);
+		timeline6.setBounds(57, 234, 950, 22);
+		contentPane.add(timeline6);
+		
+		JSeparator timeline7 = new JSeparator();
+		timeline7.setForeground(Color.BLACK);
+		timeline7.setBounds(57, 254, 950, 22);
+		contentPane.add(timeline7);
+		
+		JSeparator timeline8 = new JSeparator();
+		timeline8.setForeground(Color.BLACK);
+		timeline8.setBounds(57, 274, 950, 22);
+		contentPane.add(timeline8);
+		
+		JSeparator timeline9 = new JSeparator();
+		timeline9.setForeground(Color.BLACK);
+		timeline9.setBounds(57, 294, 950, 22);
+		contentPane.add(timeline9);
+		
+		JSeparator timeline10 = new JSeparator();
+		timeline10.setForeground(Color.BLACK);
+		timeline10.setBounds(57, 314, 950, 22);
+		contentPane.add(timeline10);
+		
+		JSeparator timeline11 = new JSeparator();
+		timeline11.setForeground(Color.BLACK);
+		timeline11.setBounds(57, 334, 950, 22);
+		contentPane.add(timeline11);
+		
+		JSeparator timeline12 = new JSeparator();
+		timeline12.setForeground(Color.BLACK);
+		timeline12.setBounds(57, 354, 950, 22);
+		contentPane.add(timeline12);
+		
+		JSeparator timeline13 = new JSeparator();
+		timeline13.setForeground(Color.BLACK);
+		timeline13.setBounds(57, 374, 950, 22);
+		contentPane.add(timeline13);*/
+		
+		/**
+		 * Week day labels
+		 */
 		JLabel lblTime = new JLabel("Time");
 		lblTime.setBounds(17, 106, 61, 16);
 		contentPane.add(lblTime);
-		
-		JButton btnThisWeek = new JButton("This week");
-		btnThisWeek.setBounds(17, 30, 117, 29);
-		contentPane.add(btnThisWeek);
-		
-		JButton button = new JButton("<");
-		button.setBounds(157, 30, 45, 29);
-		contentPane.add(button);
-		
-		JButton button_1 = new JButton(">");
-		button_1.setBounds(238, 30, 45, 29);
-		contentPane.add(button_1);
-		
-		JLabel lblWeek = new JLabel("Week");
-		lblWeek.setBounds(191, 6, 61, 16);
-		lblWeek.setHorizontalAlignment(SwingConstants.CENTER);
-		contentPane.add(lblWeek);
-		
-		textField = new JTextField();
-		textField.setBounds(202, 29, 36, 28);
-		textField.setText("11");
-		contentPane.add(textField);
-		textField.setColumns(10);
-		
-		JLabel lblMarch = new JLabel("September 10 - December 16");
-		lblMarch.setBounds(284, 22, 333, 37);
-		lblMarch.setHorizontalAlignment(SwingConstants.CENTER);
-		lblMarch.setFont(new Font("Lucida Grande", Font.PLAIN, 20));
-		contentPane.add(lblMarch);
-		
-		JButton btnNewButton = new JButton("Notifications");
-		btnNewButton.setBounds(619, 30, 117, 29);
-		contentPane.add(btnNewButton);
-		
-		JButton btnNewButton_1 = new JButton("Choose calendars");
-		btnNewButton_1.setBounds(733, 30, 142, 29);
-		contentPane.add(btnNewButton_1);
-		
-		/**
-		 * New appointment
-		 */
-		JButton newAppBT = new JButton("New appointment");
-		newAppBT.setBounds(870, 30, 150, 29);
-		contentPane.add(newAppBT);
-		newAppBT.addActionListener(new AppointmentButtonAction());
 		
 		JLabel lblMonday = new JLabel("Monday");
 		lblMonday.setBounds(96, 106, 61, 16);
@@ -238,181 +291,152 @@ public class MainCalendar extends JFrame {
 		lblSunday.setHorizontalAlignment(SwingConstants.CENTER);
 		contentPane.add(lblSunday);
 		
-		JSeparator separator = new JSeparator();
-		separator.setBounds(6, 158, 1008, 22);
-		separator.setForeground(Color.BLACK);
-		contentPane.add(separator);
+		/**
+		 * Elements in the toolbar
+		 */
+		JButton btnThisWeek = new JButton("This week");
+		btnThisWeek.setBounds(17, 30, 117, 29);
+		contentPane.add(btnThisWeek);
 		
-		JSeparator separator_1 = new JSeparator();
-		separator_1.setBounds(6, 192, 1008, 22);
-		separator_1.setForeground(Color.BLACK);
-		contentPane.add(separator_1);
+		JButton button = new JButton("<");
+		button.setBounds(157, 30, 45, 29);
+		contentPane.add(button);
 		
-		JSeparator separator_2 = new JSeparator();
-		separator_2.setBounds(6, 226, 1008, 22);
-		separator_2.setForeground(Color.BLACK);
-		contentPane.add(separator_2);
+		JButton button_1 = new JButton(">");
+		button_1.setBounds(238, 30, 45, 29);
+		contentPane.add(button_1);
 		
-		JSeparator separator_3 = new JSeparator();
-		separator_3.setBounds(6, 260, 1008, 22);
-		separator_3.setForeground(Color.BLACK);
-		contentPane.add(separator_3);
+		JLabel lblWeek = new JLabel("Week");
+		lblWeek.setBounds(191, 6, 61, 16);
+		lblWeek.setHorizontalAlignment(SwingConstants.CENTER);
+		contentPane.add(lblWeek);
 		
-		JSeparator separator_4 = new JSeparator();
-		separator_4.setBounds(6, 294, 1008, 22);
-		separator_4.setForeground(Color.BLACK);
-		contentPane.add(separator_4);
+		textField = new JTextField();
+		textField.setBounds(202, 29, 36, 28);
+		textField.setText("11");
+		contentPane.add(textField);
+		textField.setColumns(10);
 		
-		JSeparator separator_5 = new JSeparator();
-		separator_5.setBounds(6, 328, 1008, 22);
-		separator_5.setForeground(Color.BLACK);
-		contentPane.add(separator_5);
+		JLabel lblMarch = new JLabel("September 10 - December 16");
+		lblMarch.setBounds(284, 22, 333, 37);
+		lblMarch.setHorizontalAlignment(SwingConstants.CENTER);
+		lblMarch.setFont(new Font("Lucida Grande", Font.PLAIN, 20));
+		contentPane.add(lblMarch);
 		
-		JSeparator separator_6 = new JSeparator();
-		separator_6.setBounds(6, 362, 1008, 22);
-		separator_6.setForeground(Color.BLACK);
-		contentPane.add(separator_6);
+		JButton NotificationBT = new JButton("Notifications");
+		NotificationBT.setBounds(619, 30, 117, 29);
+		contentPane.add(NotificationBT);
 		
-		JSeparator separator_7 = new JSeparator();
-		separator_7.setBounds(6, 396, 1008, 22);
-		separator_7.setForeground(Color.BLACK);
-		contentPane.add(separator_7);
+		JButton chooseCalBT = new JButton("Choose calendars");
+		chooseCalBT.setBounds(733, 30, 142, 29);
+		contentPane.add(chooseCalBT);
 		
-		JSeparator separator_8 = new JSeparator();
-		separator_8.setBounds(6, 430, 1008, 22);
-		separator_8.setForeground(Color.BLACK);
-		contentPane.add(separator_8);
+		/**
+		 * New appointment
+		 */
+		JButton newAppBT = new JButton("New appointment");
+		newAppBT.setBounds(870, 30, 150, 29);
+		contentPane.add(newAppBT);
+		newAppBT.addActionListener(new AppointmentButtonAction());
 		
-		JSeparator separator_9 = new JSeparator();
-		separator_9.setBounds(6, 464, 1008, 22);
-		separator_9.setForeground(Color.BLACK);
-		contentPane.add(separator_9);
 		
-		JSeparator separator_10 = new JSeparator();
-		separator_10.setBounds(6, 498, 1008, 22);
-		separator_10.setForeground(Color.BLACK);
-		contentPane.add(separator_10);
 		
-		JSeparator separator_11 = new JSeparator();
-		separator_11.setBounds(6, 532, 1008, 22);
-		separator_11.setForeground(Color.BLACK);
-		contentPane.add(separator_11);
 		
-		JSeparator separator_12 = new JSeparator();
-		separator_12.setBounds(6, 566, 1008, 22);
-		separator_12.setForeground(Color.BLACK);
-		contentPane.add(separator_12);
 		
-		JSeparator separator_13 = new JSeparator();
-		separator_13.setBounds(6, 600, 1008, 22);
-		separator_13.setForeground(Color.BLACK);
-		contentPane.add(separator_13);
-		
-		JSeparator separator_14 = new JSeparator();
-		separator_14.setBounds(6, 634, 1008, 22);
-		separator_14.setForeground(Color.BLACK);
-		contentPane.add(separator_14);
-		
-		JSeparator separator_15 = new JSeparator();
-		separator_15.setBounds(6, 668, 1008, 22);
-		separator_15.setForeground(Color.BLACK);
-		contentPane.add(separator_15);
-		
-		JSeparator separator_16 = new JSeparator();
-		separator_16.setBounds(6, 702, 1008, 22);
-		separator_16.setForeground(Color.BLACK);
-		contentPane.add(separator_16);
-		
-		JSeparator separator_17 = new JSeparator();
-		separator_17.setBounds(6, 736, 1008, 22);
-		separator_17.setForeground(Color.BLACK);
-		contentPane.add(separator_17);
-		
-		JSeparator separator_18 = new JSeparator();
-		separator_18.setBounds(6, 770, 1008, 22);
-		separator_18.setForeground(Color.BLACK);
-		contentPane.add(separator_18);
-		
-		JSeparator separator_19 = new JSeparator();
-		separator_19.setBounds(6, 804, 1008, 22);
-		separator_19.setForeground(Color.BLACK);
-		contentPane.add(separator_19);
-		
-		JSeparator separator_20 = new JSeparator();
-		separator_20.setBounds(6, 838, 1008, 22);
-		separator_20.setForeground(Color.BLACK);
-		contentPane.add(separator_20);
-		
-		JSeparator separator_21 = new JSeparator();
-		separator_21.setBounds(6, 872, 1008, 22);
-		separator_21.setForeground(Color.BLACK);
-		contentPane.add(separator_21);
-		
-		JSeparator separator_22 = new JSeparator();
-		separator_22.setBounds(6, 906, 1008, 22);
-		separator_22.setForeground(Color.BLACK);
-		contentPane.add(separator_22);
-		
-		JSeparator separator_23 = new JSeparator();
-		separator_23.setBounds(6, 940, 1008, 22);
-		separator_23.setForeground(Color.BLACK);
-		contentPane.add(separator_23);
-		
-		JLabel label = new JLabel("00:00");
-		label.setBounds(16, 134, 36, 16);
+		/**
+		 * Time labels
+		 */
+		/*JLabel label = new JLabel("00:00");
+		label.setBounds(17, 130, 36, 16);
 		contentPane.add(label);
 		
-		JLabel label_1 = new JLabel("00:00");
-		label_1.setBounds(16, 174, 36, 16);
+		JLabel label_1 = new JLabel("00:30");
+		label_1.setBounds(17, 150, 36, 16);
 		contentPane.add(label_1);
 		
-		JLabel label_2 = new JLabel("00:00");
-		label_2.setBounds(16, 202, 36, 16);
+		JLabel label_2 = new JLabel("01:00");
+		label_2.setBounds(17, 170, 36, 16);
 		contentPane.add(label_2);
 		
-		JLabel label_3 = new JLabel("00:00");
-		label_3.setBounds(17, 242, 36, 16);
+		JLabel label_3 = new JLabel("01:30");
+		label_3.setBounds(17, 190, 36, 16);
 		contentPane.add(label_3);
 		
-		JLabel label_4 = new JLabel("00:00");
-		label_4.setBounds(17, 276, 36, 16);
+		JLabel label_4 = new JLabel("02:00");
+		label_4.setBounds(17, 210, 36, 16);
 		contentPane.add(label_4);
 		
-		JLabel label_5 = new JLabel("00:00");
-		label_5.setBounds(17, 304, 36, 16);
+		JLabel label_5 = new JLabel("02:30");
+		label_5.setBounds(17, 230, 36, 16);
 		contentPane.add(label_5);
 		
-		JLabel label_6 = new JLabel("00:00");
-		label_6.setBounds(16, 343, 36, 16);
+		JLabel label_6 = new JLabel("03:00");
+		label_6.setBounds(16, 250, 36, 16);
 		contentPane.add(label_6);
 		
-		JLabel label_7 = new JLabel("00:00");
-		label_7.setBounds(16, 380, 36, 16);
+		JLabel label_7 = new JLabel("03:30");
+		label_7.setBounds(16, 270, 36, 16);
 		contentPane.add(label_7);
 		
-		JLabel label_8 = new JLabel("00:00");
-		label_8.setBounds(16, 408, 36, 16);
+		JLabel label_8 = new JLabel("04:00");
+		label_8.setBounds(16, 290, 36, 16);
 		contentPane.add(label_8);
 		
-		JLabel label_9 = new JLabel("00:00");
-		label_9.setBounds(17, 447, 36, 16);
+		JLabel label_9 = new JLabel("04:30");
+		label_9.setBounds(17, 310, 36, 16);
 		contentPane.add(label_9);
 		
-		JLabel label_10 = new JLabel("00:00");
-		label_10.setBounds(17, 482, 36, 16);
+		JLabel label_10 = new JLabel("05:00");
+		label_10.setBounds(17, 330, 36, 16);
 		contentPane.add(label_10);
 		
-		JLabel label_11 = new JLabel("00:00");
-		label_11.setBounds(16, 510, 36, 16);
+		JLabel label_11 = new JLabel("05:30");
+		label_11.setBounds(16, 350, 36, 16);
 		contentPane.add(label_11);
 		
-		JLabel label_12 = new JLabel("00:00");
-		label_12.setBounds(16, 548, 36, 16);
+		JLabel label_12 = new JLabel("06:00");
+		label_12.setBounds(16, 370, 36, 16);
 		contentPane.add(label_12);
 		
-		JLabel label_13 = new JLabel("00:00");
-		label_13.setBounds(17, 585, 36, 16);
-		contentPane.add(label_13);
+		JLabel label_13 = new JLabel("06:30");
+		label_13.setBounds(17, 390, 36, 16);
+		contentPane.add(label_13);*/
+		
+		
+		int lineCoord=134;
+		for(int i=0; i<48; i++){
+			
+			JSeparator timeLine= new JSeparator();
+			timeLine.setBounds(57, lineCoord, 950, 22);
+			timeLine.setForeground(Color.BLACK);
+			contentPane.add(timeLine);
+			lineCoord+=20;
+			
+		}
+		
+		int timeCoord=130;
+		for(int i=0; i<24; i++){
+			if(i<10){
+				JLabel time = new JLabel("0"+i+":00");
+				time.setBounds(17, timeCoord, 36, 16);
+				contentPane.add(time);
+				JLabel time2 = new JLabel("0"+i+":30");
+				time2.setBounds(17, timeCoord+20, 36, 16);
+				contentPane.add(time2);
+			}
+			else{
+				JLabel time = new JLabel(i+":00");
+				time.setBounds(17, timeCoord, 36, 16);
+				contentPane.add(time);
+				JLabel time2 = new JLabel(i+":30");
+				time2.setBounds(17, timeCoord+20, 36, 16);
+				contentPane.add(time2);
+			}
+			timeCoord+=40;
+		}
+		
+		
+		
+		
 	}
-
 }

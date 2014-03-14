@@ -17,5 +17,9 @@ public class ExternalParticipant implements Participant {
 	public String getDisplayName() {
 		return getEmail();
 	}
+	public String toString() {
+		return getEmail();
+	}
+	
 
 }
