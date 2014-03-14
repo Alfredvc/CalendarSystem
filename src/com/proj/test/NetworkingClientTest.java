@@ -19,7 +19,7 @@ public class NetworkingClientTest {
         Model model1 = new Model();
         Client client = new Client(model1);
         client.networking.logIn("username", "password");
-        //server.networking.sendAppointment(testAppointment);
+        client.networking.sendAppointment(testAppointment);
     }
 
 }

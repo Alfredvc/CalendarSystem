@@ -35,7 +35,7 @@ public abstract class Networking {
         this.outgoingAppointments = new ConcurrentLinkedDeque<Appointment>();
     }
 
-    public static byte[] appointmentToByteArray(Appointment appointment)
+    public static byte[] appointmentToByteArray(Appointment appointment, SocketChannel channel)
             throws IOException{
 
         System.out.println("Transforming appointment " + appointment + " to byte array");
@@ -104,33 +104,18 @@ public abstract class Networking {
             ConcurrentLinkedDeque<Appointment> queue = ((ChannelAttachment) key.attachment()).queue;
             Appointment currentAppointment = queue.poll();
             while (currentAppointment != null){
-                sendAppointment(channel, currentAppointment);
+                if (!(key.attachment() instanceof ChannelAttachment)) throw new RuntimeException();
+                try {
+                    ((ChannelAttachment) key.attachment()).appointmentOutputHandler.sendAppointment(channel, currentAppointment);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 currentAppointment = queue.poll();
             }
             key.interestOps(SelectionKey.OP_READ);
             System.out.println("Finished sending pending appointments to " + channel.socket().getInetAddress()
                     + ":" + channel.socket().getLocalPort());
         }
-    }
-
-    protected boolean sendAppointment(SocketChannel channel, Appointment appointment){
-        System.out.println("Sending appointment " + appointment + "...");
-        boolean sent = false;
-        while (!sent){
-            try {
-                byte[] outArray = Networking.appointmentToByteArray(appointment);
-                System.out.println("Sending " + outArray.length + ":"+ outArray);
-                ByteBuffer sendingBuffer = ByteBuffer.allocate(outArray.length + 4);
-                sendingBuffer.putInt(outArray.length);
-                sendingBuffer.put(outArray);
-                channel.write(sendingBuffer);
-                sent = true;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return true;
     }
 
     public static Appointment byteArrayToAppointment(byte[] array)

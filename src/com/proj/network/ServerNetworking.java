@@ -145,7 +145,6 @@ public class ServerNetworking extends Networking implements Runnable{
                             client.write( ByteBuffer.wrap(response.getBytes()));
                         }
                         else {
-                            buffer.flip();
                             ((ChannelAttachment)key.attachment()).byteBufferHandler.handleByteBuffer(buffer);
                         }
 

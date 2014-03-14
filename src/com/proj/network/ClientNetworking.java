@@ -60,9 +60,7 @@ public class ClientNetworking extends Networking implements Runnable{
     public void run(){
         try{
             while (run){
-                System.out.println("Starting new Selection");
                 selector.select();
-                System.out.println("Finished new Selection");
                 Set selectedKeys = selector.selectedKeys();
                 Iterator iterator = selectedKeys.iterator();
 
@@ -128,11 +126,6 @@ public class ClientNetworking extends Networking implements Runnable{
                             System.out.println("Reading appointment...");
                             ByteBuffer inBuffer = ByteBuffer.allocate(4098);
                             int readBytes = clientChannel.read(inBuffer);
-                            if (readBytes == 0){
-                                System.out.println("Nothing read........");
-                                continue;
-                            }
-                            inBuffer.flip();
                             ((ChannelAttachment) key.attachment()).byteBufferHandler.handleByteBuffer(inBuffer);
                         }
 

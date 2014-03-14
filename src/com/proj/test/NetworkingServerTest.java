@@ -18,7 +18,6 @@ public class NetworkingServerTest {
         Model model1 = new Model();
         model1.setAppointments(RandomGenerator.generateAppointments(5));
         Server server = new Server(model1);
-        //server.networking.sendAppointment(testAppointment);
     }
 
 }

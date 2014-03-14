@@ -29,11 +29,11 @@ public class NetworkingTest extends TestCase {
 
         Client client = new Client(new Model());
         loginClient(client, "client", "clientPassword");
-        /*Client client2 = new Client(new Model());
+        Client client2 = new Client(new Model());
         loginClient(client2, "client2", "client2Password");
         Client client3 = new Client(new Model());
         loginClient(client3, "client2", "client2Password");
-        */
+
 
         try {
             Thread.sleep(5000);
@@ -44,14 +44,14 @@ public class NetworkingTest extends TestCase {
         for (Appointment appointment : server.networking.getModel().getAppointments()) System.out.println(appointment);
         System.out.println("Client");
         for (Appointment appointment : client.networking.getModel().getAppointments()) System.out.println(appointment);
-        /*System.out.println("Client2");
+        System.out.println("Client2");
         for (Appointment appointment : client2.networking.getModel().getAppointments()) System.out.println(appointment);
         System.out.println("Client3");
         for (Appointment appointment : client3.networking.getModel().getAppointments()) System.out.println(appointment);
-        */
 
-        //assertTrue("Check all appointments have been sent", sameAppointments(
-        //        client.networking.getModel().getAppointments(), server.networking.getModel().getAppointments()));
+
+        assertTrue("Check all appointments have been sent", sameAppointments(
+                client.networking.getModel().getAppointments(), server.networking.getModel().getAppointments()));
 
     }
 
