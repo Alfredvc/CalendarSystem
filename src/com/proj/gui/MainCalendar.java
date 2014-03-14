@@ -69,13 +69,13 @@ public class MainCalendar extends JFrame {
 	 */
 	public void displayAppointment(){
 		
-		int timeStart = 4;
+		int timeStart = 6;
 		int timeEnd = 7;
 		
 		JTextArea txtrTest = new JTextArea();
 		contentPane.add(txtrTest);
 		txtrTest.setBackground(Color.ORANGE);
-		txtrTest.setText("test");
+		txtrTest.setText("Meeting with Jane");
 		txtrTest.setBounds(70, 140+timeStart*40, 115, (timeEnd-timeStart)*40);
 		
 		
