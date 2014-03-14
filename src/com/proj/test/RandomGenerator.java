@@ -92,6 +92,14 @@ public class RandomGenerator {
     	return s;
     }
 
+    
+    public static Employee[] groupGenerator(){
+    	Employee [] emps =new Employee[5];
+    	for(int i=0; i<5; i++){
+    		emps[i]=generateEmployee();
+    	}
+    	return emps;
+    }
 }
 
 
