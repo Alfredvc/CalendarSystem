@@ -1,6 +1,6 @@
 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
-SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL';
 
 
 -- -----------------------------------------------------
@@ -118,7 +118,7 @@ CREATE  TABLE IF NOT EXISTS `Invited_to` (
   `Appointment_ID` CHAR(36) NOT NULL ,
   `alarm` TINYINT(1) NOT NULL DEFAULT 0 ,
   `hidden` TINYINT(1) NOT NULL DEFAULT 0 ,
-  `attending` ENUM('attending','pending','declined') NOT NULL ,
+  `attending` ENUM('Attending','Pending','Declined') NOT NULL ,
   PRIMARY KEY (`Employee_email`, `Appointment_ID`) ,
   INDEX `fk_Employee_has_Appointment_Employee1_idx` (`Employee_email` ASC) ,
   INDEX `fk_Employee_has_Appointment_Appointment1_idx` (`Appointment_ID` ASC) ,
@@ -128,6 +128,22 @@ CREATE  TABLE IF NOT EXISTS `Invited_to` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Employee_has_Appointment_Appointment1`
+    FOREIGN KEY (`Appointment_ID` )
+    REFERENCES `Appointment` (`ID` )
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `ExternalParticipant`
+-- -----------------------------------------------------
+CREATE  TABLE IF NOT EXISTS `ExternalParticipant` (
+  `email` VARCHAR(45) NOT NULL ,
+  `Appointment_ID` CHAR(36) NOT NULL ,
+  PRIMARY KEY (`email`, `Appointment_ID`) ,
+  INDEX `fk_ExternalParticipants` (`Appointment_ID` ASC) ,
+  CONSTRAINT `fk_ExternalParticipants`
     FOREIGN KEY (`Appointment_ID` )
     REFERENCES `Appointment` (`ID` )
     ON DELETE CASCADE

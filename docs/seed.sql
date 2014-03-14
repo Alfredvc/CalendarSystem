@@ -128,42 +128,64 @@ INSERT INTO `Invited_to` VALUES
         '6940952c-a83e-11e3-86f2-673ce3fc9a1e',
         FALSE,
         FALSE,
-        'attending'
+        'Attending'
     ),
     (
         'eivind@company.com',
         '6940952c-a83e-11e3-86f2-673ce3fc9a1e',
         TRUE,
         FALSE,
-        'pending'
+        'Pending'
     ),
     (
         'ola@company.com',
         'b650513e-a83b-11e3-8171-7b27abe447b3',
         TRUE,
         FALSE,
-        'attending'
+        'Attending'
     ),
     (
         'mons@company.com',
         'b650513e-a83b-11e3-8171-7b27abe447b3',
         FALSE,
         FALSE,
-        'declined'
+        'Declined'
     ),
     (
         'alex@company.com',
         'b650513e-a83b-11e3-8171-7b27abe447b3',
         FALSE,
         FALSE,
-        'declined'
+        'Declined'
     ),
     (
         'martin@company.com',
         'b650513e-a83b-11e3-8171-7b27abe447b3',
         FALSE,
         FALSE,
-        'pending'
+        'Pending'
     );
 
+INSERT INTO `Notification` VALUES
+    (
+        1,
+        '2014-02-20 10:23',
+        'A little test notification',
+        'b650513e-a83b-11e3-8171-7b27abe447b3'
+    ),
+    (
+        2,
+        '2014-02-21 10:23',
+        'Another test notification',
+        '6940952c-a83e-11e3-86f2-673ce3fc9a1e'
+    );
 
+INSERT INTO `ExternalParticipant` VALUES
+    (
+        'trulfos@gmail.com',
+        'b650513e-a83b-11e3-8171-7b27abe447b3'
+    ),
+    (
+        'eivindbf@gmail.com',
+        '6940952c-a83e-11e3-86f2-673ce3fc9a1e'
+    );
