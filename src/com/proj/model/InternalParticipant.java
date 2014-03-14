@@ -59,6 +59,9 @@ public class InternalParticipant  implements Participant{
 	public String getDisplayName() {
 		return employee.getName();
 	}
+	public String toString() {
+		return employee.getName();
+	}
 	
 	
 	
