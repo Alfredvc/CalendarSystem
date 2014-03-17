@@ -5,6 +5,8 @@ import com.proj.model.Appointment;
 import com.proj.model.Model;
 import com.proj.server.Server;
 
+import java.util.ArrayList;
+
 /**
  * Created with IntelliJ IDEA.
  * User: Alfredo
@@ -15,11 +17,14 @@ import com.proj.server.Server;
 public class NetworkingServerTest {
 
     public static void main(String args[]){
-        Appointment testAppointment = RandomGenerator.generateAppointment();
         Model model1 = new Model();
-        model1.setAppointments(RandomGenerator.generateAppointments(1));
+        ArrayList<Appointment> apps = new ArrayList<Appointment>();
+        Appointment[] aps = RandomGenerator.generateAppointments(5);
+        for (int i = 0; i < 5; i++) {
+            apps.add(aps[i]);
+        }
+        model1.setAppointments(apps);
         Server server = new Server(model1);
-        //server.networking.sendAppointment(testAppointment);
     }
 
 }

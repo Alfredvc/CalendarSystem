@@ -1,9 +1,10 @@
 package com.proj.model;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 
-public class Notification {
+public class Notification implements Serializable {
 	private String text;
 	private Date timestamp;
 	
