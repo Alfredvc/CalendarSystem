@@ -1,14 +1,10 @@
 package com.proj.model;
 
-<<<<<<< HEAD
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
-=======
-import java.io.Serializable;
-import java.sql.Date;
->>>>>>> networking
 
-public class Notification implements Serializable{
+public class Notification implements Serializable {
 	private String text;
 	private Date timestamp;
 	
