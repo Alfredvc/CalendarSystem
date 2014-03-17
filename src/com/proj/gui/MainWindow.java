@@ -6,23 +6,34 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
 import java.awt.GridBagLayout;
 import java.awt.FlowLayout;
+
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JLabel;
+
 import java.awt.Font;
+
 import javax.swing.SwingConstants;
 import javax.swing.JList;
 import javax.swing.JToggleButton;
 import javax.swing.JTable;
 import javax.swing.JProgressBar;
+
 import org.eclipse.wb.swing.FocusTraversalOnArray;
+
+import com.proj.model.Model;
+
 import java.awt.Component;
+
 import javax.swing.SpringLayout;
 import javax.swing.JLayeredPane;
 import javax.swing.JSeparator;
+
 import java.awt.Color;
+
 import javax.swing.JTextArea;
 import javax.swing.JButton;
 import javax.swing.UIManager;
@@ -34,6 +45,7 @@ public class MainWindow extends JFrame {
 	private JPanel contentPane;
 	private JTextField textField;
 	private JTable table;
+	private Model model;
 
 	/**
 	 * Launch the application.
@@ -49,6 +61,10 @@ public class MainWindow extends JFrame {
 				}
 			}
 		});
+	}
+	
+	public MainWindow(Model model) {
+		this.model = model;
 	}
 
 	/**
