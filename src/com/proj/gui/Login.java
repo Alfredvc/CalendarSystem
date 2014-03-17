@@ -94,7 +94,7 @@ public class Login extends JFrame{
 	 * Tries to log the user in.
 	 */
 	private void logIn() {
-		loadingDialog = new LoadingDialog(this);
+		loadingDialog = new LoadingDialog(this, "We are trying to log you in!");
 		
 		// Let's avoid freezing the ui
 		new Thread(new SwingWorker<Boolean, Void>() {
@@ -170,31 +170,6 @@ public class Login extends JFrame{
 		}	
 	}
 	
-	/**
-	 * Dialog displayed while loggin user in
-	 */
-	private class LoadingDialog extends JDialog {
-		
-		public LoadingDialog(Frame owner) {
-			super(owner, "Please Wait");
-			JPanel panel = new JPanel();
-			panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-			panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-			
-			JLabel label = new JLabel("We are trying to log you in!");
-			label.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
-			panel.add(label);
-			JProgressBar progressBar = new JProgressBar();
-			progressBar.setIndeterminate(true);
-			panel.add(progressBar);
-			setContentPane(panel);
-			pack();
-			
-			int xLocation = (int) (screenSize.getWidth() - getWidth()) / 2;
-			int yLocation = (int) (screenSize.getHeight() - getHeight()) / 2;		
-			setLocation(xLocation, yLocation);
-			setVisible(true);
-		}
-	}
+
 }
 
