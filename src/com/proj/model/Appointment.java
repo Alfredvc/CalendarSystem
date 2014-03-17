@@ -182,6 +182,7 @@ public class Appointment implements Serializable{
 	public void addNotification(Notification notification) {
 		int index=notifications.size();
 		notifications.add(notification);
+		notification.setAppointment(this);
 		pcs.fireIndexedPropertyChange("notifications", index-1, null, notification);
 	}
 	
