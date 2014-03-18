@@ -1,7 +1,7 @@
 package com.proj.client;
 
 import com.proj.gui.Login;
-import com.proj.gui.MainWindow;
+import com.proj.gui.MainCalendar;
 import com.proj.model.Model;
 import com.proj.network.ClientNetworking;
 import com.proj.test.RandomGenerator;
@@ -18,7 +18,7 @@ public class Client {
     Model model;
     public ClientNetworking networking;
     private Login login;
-    private MainWindow mainWindow;
+    private MainCalendar mainCalendar;
 
     public Client(Model model){
         this.model = model;
@@ -33,7 +33,7 @@ public class Client {
     }
     
     public void continueStartup() {
-    	mainWindow = new MainWindow(model);
+    	mainCalendar = new MainCalendar(model);
     }
     
     public static void main(String[] args) {

@@ -1,5 +1,6 @@
 package com.proj.model;
 
+import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -16,20 +17,30 @@ public class Model {
 	private HashMap<String, MeetingRoom> meetingRooms = new HashMap<>();
 	private ArrayList <Group> groups = new ArrayList<>();
 	private PropertyChangeSupport pcs= new PropertyChangeSupport(this);
-	
-	
+    private ModelChangeNotifier notifier = new ModelChangeNotifier();
+
+    public Model(){
+        pcs.addPropertyChangeListener(notifier);
+    }
 	
 	public void deleteAppointment(UUID id){                
 		Appointment oldValue=this.appointments.remove(id);
 		pcs.firePropertyChange("appointments",oldValue ,null);
 	}
 	
-
-
-	public void addAppointment(Appointment app){
+    public void addAppointment(Appointment app){
 		this.appointments.put(app.getId(), app);
 		pcs.firePropertyChange("appointments", null, app);
-	} 
+	}
+
+    //Does not fire a property change, copyFrom/addAppointment take care of that
+    public void updateAppointment(Appointment app){
+        if (appointments.containsKey(app.getId())){
+            this.appointments.get(app.getId()).copyFrom(app);
+        } else {
+            addAppointment(app);
+        }
+    }
 	
 
 	/**
@@ -131,11 +142,40 @@ public class Model {
 		}
 		return myApps;
 	}
+
 	
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
 		pcs.addPropertyChangeListener(listener);
 	}
 
+    public void addModelChangeListener(ModelChangeSupport.ModelChangedListener listener){
+        notifier.mcs.addModelChangedListener(listener);
+    }
 
+    private class ModelChangeNotifier implements PropertyChangeListener, AppointmentChangeSupport.AppointmentChangedListener{
+
+        public ModelChangeSupport mcs;
+
+
+        public ModelChangeNotifier(){
+            mcs = new ModelChangeSupport();
+        }
+
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            if (evt.getPropertyName().equals("appointments")){
+                if (evt.getOldValue() != null && evt.getOldValue() instanceof Appointment && evt.getNewValue() == null ){
+                    mcs.fireModelChanged((Appointment) evt.getOldValue(), Appointment.Flag.DELETE);
+                } else if(evt.getNewValue() != null && evt.getNewValue() instanceof Appointment && evt.getOldValue() == null){
+                    mcs.fireModelChanged((Appointment) evt.getNewValue(), Appointment.Flag.UPDATE);
+                }
+            }
+        }
+
+        @Override
+        public void appointmentChanged(Appointment appointment) {
+            mcs.fireModelChanged(appointment, Appointment.Flag.UPDATE);
+        }
+    }
 
 }
