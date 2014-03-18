@@ -1,10 +1,11 @@
 package com.proj.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Group {
+public class Group implements Invitable, Serializable{
 	private final String name;
-	private ArrayList<Employee> employees = new ArrayList<>();
+	private ArrayList<Employee> employees = new ArrayList<Employee>();
 	
 	public Group(String name) {
 		this.name = name;

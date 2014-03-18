@@ -24,10 +24,10 @@ public class Appointment implements Serializable{
 			startTime,
 			endTime;
 
-	private HashSet<Participant> participants = new HashSet<Participant>();
+    private HashSet<Participant> participants = new HashSet<Participant>();
 	private InternalParticipant leader;
-	private ArrayList<Notification> notifications = new ArrayList<>();
-	private MeetingRoom meetingRoom;
+	private ArrayList<Notification> notifications = new ArrayList<Notification>();
+    private MeetingRoom meetingRoom;
 	private PropertyChangeSupport pcs= new PropertyChangeSupport(this);
 
 	
@@ -182,6 +182,7 @@ public class Appointment implements Serializable{
 	public void addNotification(Notification notification) {
 		int index=notifications.size();
 		notifications.add(notification);
+		notification.setAppointment(this);
 		pcs.fireIndexedPropertyChange("notifications", index-1, null, notification);
 	}
 	

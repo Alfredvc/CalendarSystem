@@ -32,10 +32,10 @@ public class RandomGenerator {
     }
 	
 	
-    public static ArrayList<Appointment> generateAppointments(int amount){
-        ArrayList<Appointment> result = new ArrayList<Appointment>();
+    public static Appointment[] generateAppointments(int amount){
+        Appointment[] result = new Appointment[amount];
         for (int i = 0; i < amount; i++){
-            result.add(generateAppointment());
+            result[i] = generateAppointment();
         }
         return result;
     }
