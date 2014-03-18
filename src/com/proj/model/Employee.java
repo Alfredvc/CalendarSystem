@@ -3,7 +3,7 @@ package com.proj.model;
 
 import java.io.Serializable;
 
-public class Employee implements Serializable{
+public class Employee implements Invitable, Serializable{
 	private String
 		name,
 		email;

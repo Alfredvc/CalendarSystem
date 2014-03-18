@@ -3,7 +3,7 @@ package com.proj.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Group implements Serializable{
+public class Group implements Invitable, Serializable{
 	private final String name;
 	private ArrayList<Employee> employees = new ArrayList<Employee>();
 	

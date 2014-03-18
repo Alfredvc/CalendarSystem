@@ -31,19 +31,20 @@ public class NotificationHandler {
 
 		
 		while (resultSet.next()) {
-			// Instantiate notification
-			Notification notification = new Notification(
-					resultSet.getString(NotificationColumns.Text.colNr())
-					//TODO: Creation time!
-				);
-			
 			// Get appointment
 			String appointmentId = resultSet.getString(NotificationColumns.Appointment.colNr());
 			
 			Appointment appointment = model.getAppointment(UUID.fromString(appointmentId));
 			if (appointment == null) {
 				System.out.println("Database: Could not find appointment " + appointmentId);
+				continue;
 			}
+			
+			// Instantiate notification
+			Notification notification = new Notification(
+					resultSet.getString(NotificationColumns.Text.colNr()),
+					resultSet.getTimestamp(NotificationColumns.CreationTime.colNr())
+				);
 			
 			// Add notification to appointmnet
 			appointment.addNotification(notification);
