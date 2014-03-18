@@ -252,4 +252,8 @@ public class Database implements PresistanceBackend {
 		
 		return true;
 	}
+
+    public boolean checkLogin(String username, String password){
+        return true;
+    }
 }

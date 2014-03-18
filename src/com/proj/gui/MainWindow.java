@@ -17,7 +17,6 @@ import javax.swing.JList;
 import javax.swing.JToggleButton;
 import javax.swing.JTable;
 import javax.swing.JProgressBar;
-import org.eclipse.wb.swing.FocusTraversalOnArray;
 import java.awt.Component;
 import javax.swing.SpringLayout;
 import javax.swing.JLayeredPane;

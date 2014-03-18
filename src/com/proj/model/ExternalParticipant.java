@@ -1,6 +1,8 @@
 package com.proj.model;
 
-public class ExternalParticipant implements Participant {
+import java.io.Serializable;
+
+public class ExternalParticipant implements Participant, Serializable {
 	 
 	private String email;
 	

@@ -4,6 +4,7 @@ import com.proj.model.Appointment;
 import com.proj.model.Employee;
 import com.proj.model.Model;
 import com.proj.model.Participant;
+import com.proj.server.Server;
 import com.proj.test.RandomGenerator;
 
 import java.io.ByteArrayOutputStream;
@@ -37,13 +38,15 @@ public class ServerNetworking extends Networking implements Runnable{
     String ipAddr = "127.0.0.1";
     int portNr = 8989;
     ServerSocketChannel serverSocketChannel;
+    Server server;
 
     final Object awaitingLogin = new Object();
     final Object awaitingAllAppointments = new Object();
 
 
-    public ServerNetworking(Model model){
-        super(model);
+    public ServerNetworking(Server server){
+        super(server.getModel());
+        this.server = server;
 
         try {
             System.out.println("Creating server socket");
@@ -198,8 +201,10 @@ public class ServerNetworking extends Networking implements Runnable{
         buffer.flip();
         byte[] array = new byte[buffer.limit()];
         buffer.get(array);
-        System.out.println("Received: " + new String(array));
-
+        String recv = new String(array);
+        System.out.println("Received: " + recv);
+        String[] login = recv.split(":");
+        server.requestLogin(login[0], login[1]);
         return true;
     }
 
