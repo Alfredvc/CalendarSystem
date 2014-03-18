@@ -7,6 +7,7 @@ import com.proj.model.Participant;
 import com.proj.server.Server;
 import com.proj.test.RandomGenerator;
 
+import java.beans.PropertyChangeEvent;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutput;
@@ -192,8 +193,13 @@ public class ServerNetworking extends Networking implements Runnable{
 
     }
 
-    private ConcurrentLinkedDeque<Appointment> getAllAppointmentsAsQueue(){
-        return new ConcurrentLinkedDeque<Appointment>(Arrays.asList(model.getAppointments()));
+    private ConcurrentLinkedDeque<AppointmentEnvelope> getAllAppointmentsAsQueue(){
+        ConcurrentLinkedDeque<AppointmentEnvelope> result = new ConcurrentLinkedDeque<>();
+        for (Appointment appointment : model.getAppointments()){
+            result.add(new AppointmentEnvelope(appointment, Appointment.Flag.UPDATE));
+        }
+
+        return result;
     }
 
     private boolean requestLogin(ByteBuffer buffer){

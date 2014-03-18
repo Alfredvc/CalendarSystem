@@ -312,7 +312,7 @@ public class Appointment implements Serializable{
 
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-            acs.fireAppointmentChanged();
+            acs.fireAppointmentChanged(evt);
         }
     }
 

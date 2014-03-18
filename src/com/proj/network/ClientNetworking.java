@@ -126,6 +126,7 @@ public class ClientNetworking extends Networking implements Runnable{
                             System.out.println("Reading appointment...");
                             ByteBuffer inBuffer = ByteBuffer.allocate(4098);
                             int readBytes = clientChannel.read(inBuffer);
+                            //TODO: FIX WHEN SERVER DISCONNECTS
                             ((ChannelAttachment) key.attachment()).byteBufferHandler.handleByteBuffer(inBuffer);
                         }
 

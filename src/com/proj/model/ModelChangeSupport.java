@@ -1,5 +1,6 @@
 package com.proj.model;
 
+import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 
 /**
@@ -25,14 +26,14 @@ public class ModelChangeSupport {
         listeners.remove(modelChangedListener);
     }
 
-    public void fireModelChanged(Appointment appointment, Appointment.Flag flag){
+    public void fireModelChanged(Appointment appointment, Appointment.Flag flag, PropertyChangeEvent event){
         for (ModelChangedListener listener : listeners){
-            listener.modelChanged(appointment, flag);
+            listener.modelChanged(appointment, flag, event);
         }
     }
 
     public interface ModelChangedListener{
-        public void modelChanged(Appointment appointment, Appointment.Flag flag);
+        public void modelChanged(Appointment appointment, Appointment.Flag flag, PropertyChangeEvent event);
     }
 
 }
