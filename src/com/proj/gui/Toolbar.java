@@ -86,7 +86,6 @@ class Toolbar extends JPanel {
 		public void actionPerformed(ActionEvent arg0) {
 			String command = arg0.getActionCommand();
 			switch (command) {
-		
 			}
 		}
 	}
