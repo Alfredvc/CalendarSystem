@@ -1,40 +1,48 @@
 package com.proj.gui;
 
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
+import javax.swing.ListModel;
 import javax.swing.SwingConstants;
 
 import org.jdesktop.swingx.JXDatePicker;
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 
-//import com.proj.deletableTests.GUItests;
-import com.proj.model.Participant;
+import com.proj.deletableTests.GUItests;
+import com.proj.gui.ChooseCalendar.FuzzyActionHandler;
+import com.proj.model.*;
 
 public class NewAppointment extends JFrame{
 	
 	private JPanel panel= new JPanel();
 	
 	static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize(); // Dimensions of client screen
+	GridBagConstraints x = new GridBagConstraints();
 	
 	private JTextField nameInput;
 	private JTextField startTimeInput;
@@ -53,22 +61,19 @@ public class NewAppointment extends JFrame{
 			new PartAmount(30,"30 Persons"), new PartAmount(40,"40 Persons"), new PartAmount(50,"50 Persons"), 
 			new PartAmount(75,"75 Persons"), new PartAmount(100,"100 Persons")};
 	
-	private JComboBox<Participant> participantNamesInput;
-	private DefaultComboBoxModel<Participant> participantNamesModel;
+	private JComboBox<Employee> participantNamesInput;
+	private DefaultComboBoxModel<Employee> participantNamesModel;
+	private FuzzyDropdown<Employee> fuzzyDropdown;
+
 	private JScrollPane addedParticipantScrollPane;
-	private JList<Participant> addedParticipantView;
-	private DefaultListModel<Participant> addedParticipantModel;
+	private JPanel addedParticipantView;
+	private ArrayList<Participant> addedParticipantList;
 	
-	private ArrayList<Participant> employeeList = new ArrayList<Participant>(); // list of Employee/Groups to add
-	private ArrayList<Participant> addedParticipantList = new ArrayList<Participant>(); // list of Employee/Externals added	
-	
+	private ArrayList<Employee> employeeList = new ArrayList<Employee>(); // list of Employee/Groups to add
 	
 	
-
-
 	public NewAppointment() {
-		
-		
+			
 		// Setting up the Frame, setting the size, position and making it fixed size
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(800, 400);
@@ -165,57 +170,121 @@ public class NewAppointment extends JFrame{
 		
 		
 		
-		//removed GUItests reference to be able to compile
-		participantNamesModel = new DefaultComboBoxModel<Participant>();
-		employeeList = new ArrayList<Participant>(); //GUItests.testEmployeeList; // henter listen over hvilke employees som kan legges til
+		
+		participantNamesModel = new DefaultComboBoxModel<Employee>();
+		new DefaultListModel<Participant>();
+		addedParticipantList = new ArrayList<Participant>();
+		
+		employeeList = GUItests.testEmployeeList; // henter listen over hvilke employees som kan legges til
 		
 		// Legger employees over fra ArrayListen til DefaultComboBoxModel
 		for (int i = 0; i < employeeList.size(); i++) {
 			participantNamesModel.addElement(employeeList.get(i));
+
 		}
-		
-		participantNamesInput = new JComboBox<Participant>();
-		participantNamesInput.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
-		participantNamesInput.setName("participantNamesInput");
-		participantNamesInput.setModel(participantNamesModel);
-		participantNamesInput.setBounds(400, 20, 300, 25);
-		participantNamesInput.addActionListener( new participantNamesInputAction());
-		participantNamesInput.isEditable();
-		AutoCompleteDecorator.decorate(participantNamesInput);
-		add(participantNamesInput);
 		
 		addedParticipantScrollPane = new JScrollPane();
-		addedParticipantModel = new DefaultListModel<Participant>();
-		addedParticipantView = new JList<Participant>();
-		addedParticipantView.setName("participantView");
-		addedParticipantScrollPane.setViewportView(addedParticipantView);
+		addedParticipantScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		addedParticipantScrollPane.setBounds(400, 50, 300, 100);
-		addedParticipantView.setModel(addedParticipantModel);
-		addedParticipantView.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-		addedParticipantView.setLayoutOrientation(JList.VERTICAL);
+		addedParticipantView = new JPanel();
+		addedParticipantScrollPane.setViewportView(addedParticipantView);
 		add(addedParticipantScrollPane);
+		addedParticipantView.setLayout(new GridBagLayout());
+		
+		createAddedParticipantView();
 		
 		
-//		instance of internalparticipant get status
-//		System.out.println("asdasd" + ((InternalParticipant) addedParticipantList.get(i)).isAlarm());
 		
-		setVisible(true);
+		
+//		participantNamesInput = new JComboBox<Employee>();
+//		participantNamesInput.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
+//		participantNamesInput.setName("participantNamesInput");
+//		participantNamesInput.setModel(participantNamesModel);
+//		participantNamesInput.setBounds(400, 20, 300, 25);
+//		participantNamesInput.addItemListener(new participantNamesInputAction());
+//		AutoCompleteDecorator.decorate(participantNamesInput);
+//		add(participantNamesInput);
+//		
+		fuzzyDropdown = getFuzzyDropdown(model);
+
+		setVisible(true); // setter hele tingen visible.
 
 	}
-
-
-	class participantNamesInputAction implements ActionListener {
-	
-		@Override
-		public void actionPerformed(ActionEvent event) {
-			
-			addedParticipantList.add((Participant) participantNamesInput.getModel().getSelectedItem());
-			addedParticipantModel.addElement((Participant) participantNamesInput.getModel().getSelectedItem());
+	private FuzzyDropdown<Employee> getFuzzyDropdown(Model model) {
+		ArrayListModel<Invitable> listModel =  new ArrayListModel<Invitable>(
+				Arrays.asList(model.getEmployees())
+			);
+		listModel.addAll(Arrays.asList(model.getGroups()));
 		
+		FuzzyDropdown<Employee> fuzzyDropdown = new FuzzyDropdown<>(listModel);
+		fuzzyDropdown.addActionListener(new FuzzyActionHandler());
+		return fuzzyDropdown;
+	}
+	
+	public void createAddedParticipantView(){
+		addedParticipantView.removeAll();
+		addedParticipantView.repaint();
+		for (int i = 0; i < addedParticipantList.size(); i++) {
+			ButtonPane buttonPane = new ButtonPane(addedParticipantList.get(i));
+			x.gridx = 0;
+			x.gridy = i;
+			x.anchor = GridBagConstraints.FIRST_LINE_START;
+			addedParticipantView.add(buttonPane, x);
+			setVisible(true);
 		}
+		
+	}
+	class participantNamesInputAction implements ItemListener {
+		@Override
+		public void itemStateChanged(ItemEvent event) {
+			if(event.getStateChange() == ItemEvent.SELECTED){
+				Employee selectedEmp = (Employee) participantNamesInput.getSelectedItem();
+				addedParticipantList.add((Participant) new InternalParticipant(selectedEmp, Status.Pending, false, false));					
+				System.out.println(addedParticipantList);
+				createAddedParticipantView();
+			}
+		}
+		
 	}
 	
+	class ButtonPane extends JPanel {
+		// Dimensions of ButtonPane are 20 less than JPanel
+		private static final long serialVersionUID = 1L;
+		JLabel nameLabel;
+		JLabel statusLabel;
+		JButton removeParticipantButton;
 		
+		public ButtonPane(final Participant participant) {
+			
+			setLayout(new GridBagLayout());
+
+			removeParticipantButton = new JButton("X");
+			removeParticipantButton.setPreferredSize(new Dimension(25,25));
+			removeParticipantButton.setMargin(new Insets(1,1,1,1)); 
+			add(removeParticipantButton);
+			removeParticipantButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					Participant current = participant;
+					for (int i = 0; i < addedParticipantList.size(); i++) {
+							addedParticipantList.remove(current);
+							System.out.println(addedParticipantList);
+							createAddedParticipantView();
+						}
+					}
+
+				
+			});
+			nameLabel = new JLabel("  "+ ((InternalParticipant) participant).getDisplayName(), JLabel.LEFT);	
+			nameLabel.setPreferredSize(new Dimension(185,25));
+			add(nameLabel);
+			statusLabel = new JLabel(((InternalParticipant) participant).getStatus().toString(), JLabel.LEFT);	
+			statusLabel.setPreferredSize(new Dimension(70,25));
+			add(statusLabel);
+			}
+		}
+	
+	
 	class locationButtonAction implements ActionListener {
 			
 		public void actionPerformed(ActionEvent e) {
@@ -232,6 +301,8 @@ public class NewAppointment extends JFrame{
 			}
 		}
 	}
+
+
 
 }
 
