@@ -28,7 +28,7 @@ class FuzzyListModel<E> extends AbstractListModel<E> {
 		currentChoices.clear();
 		for (int i = 0; i < backingListModel.getSize(); i++) {
 			E element = backingListModel.getElementAt(i);
-			if (element.toString().contains(searchString)) {
+			if (element.toString().toLowerCase().contains(searchString.toLowerCase())) {
 				currentChoices.add(element);
 			}
 		}
