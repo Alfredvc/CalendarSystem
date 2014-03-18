@@ -107,11 +107,13 @@ public class Model {
 					notif.add(n);
 				}
 				else{
+					int oldest=0;
 					for(int i=0; i<notif.size(); i++){
-						if(n.getTimestamp().after(notif.get(i).getTimestamp())){
-							notif.set(i, n);
+						if(notif.get(oldest).getTimestamp().after(notif.get(i).getTimestamp())){
+							oldest=i;
 						}
 					}
+					notif.set(oldest,n);
 				}
 			}
 		}
