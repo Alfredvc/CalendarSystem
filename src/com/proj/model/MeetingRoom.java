@@ -1,6 +1,8 @@
 package com.proj.model;
 
-public class MeetingRoom {
+import java.io.Serializable;
+
+public class MeetingRoom implements Serializable{
 	private String roomNr,
 			name,
 			notes;

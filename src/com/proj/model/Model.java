@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.UUID;
 
 public class Model {
+
 	private HashMap<UUID,Appointment> appointments = new HashMap<>();
 	private HashMap<String, Employee> employees = new HashMap<>();
 	private HashMap<String, MeetingRoom> meetingRooms = new HashMap<>();
@@ -44,6 +45,7 @@ public class Model {
 	
 	public Appointment[]  getAppointments() {
 		return (Appointment[]) appointments.values().toArray(new Appointment[appointments.size()]);
+
 	}
 
 
@@ -106,7 +108,7 @@ public class Model {
 	}
 	
 	public ArrayList<MeetingRoom> getFreeMeetingRooms(Date startTime, Date endTime){
-		ArrayList<MeetingRoom> freeRooms= new ArrayList<>(Arrays.asList(this.getMeetingRooms()));
+		ArrayList<MeetingRoom> freeRooms= new ArrayList<MeetingRoom>(Arrays.asList(this.getMeetingRooms()));
 		for(UUID key: appointments.keySet()){
 			Appointment app=appointments.get(key);
 			if((app.getStartTime().before(endTime) && app.getEndTime().after(endTime)) ||

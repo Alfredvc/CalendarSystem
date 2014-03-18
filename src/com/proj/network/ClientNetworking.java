@@ -104,7 +104,7 @@ public class ClientNetworking extends Networking implements Runnable{
 
                         if (key.attachment()!= null && key.attachment().equals(awaitingLoginResponse)){
                             System.out.println("Reading response");
-                            ByteBuffer inBuffer = ByteBuffer.allocate(32);
+                            ByteBuffer inBuffer = ByteBuffer.allocate(128);
                             clientChannel.read(inBuffer);
                             inBuffer.flip();
                             byte[] array = new byte[inBuffer.limit()];
@@ -114,7 +114,7 @@ public class ClientNetworking extends Networking implements Runnable{
                             if (received.equals(loginSuccessful)){
                                 loggedIn = true;
                                 System.out.println("Login successful");
-                                key.attach(new ConcurrentLinkedDeque<Appointment>());
+                                key.attach(new ChannelAttachment(this));
                             } else{
                                 System.out.println("Login failed, trying again");
                             }
@@ -122,24 +122,11 @@ public class ClientNetworking extends Networking implements Runnable{
                             loginThread.interrupt();
                         }
 
-                        if (key.attachment() != null && key.attachment() instanceof ConcurrentLinkedDeque){
+                        if (key.attachment() != null && key.attachment() instanceof ChannelAttachment){
                             System.out.println("Reading appointment...");
-                            ByteBuffer inBuffer = ByteBuffer.allocate(1024);
+                            ByteBuffer inBuffer = ByteBuffer.allocate(4098);
                             int readBytes = clientChannel.read(inBuffer);
-                            if (readBytes == 0){
-                                System.out.println("Nothing read........");
-                                continue;
-                            }
-                            inBuffer.flip();
-                            byte[] array = new byte[inBuffer.limit()];
-                            inBuffer.get(array);
-                            try {
-                                Appointment recvAppointment = Networking.byteArrayToAppointment(array);
-                                receivedAppointment(recvAppointment);
-                                System.out.println("Received: " + recvAppointment);
-                            } catch (ClassNotFoundException e) {
-                                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                            }
+                            ((ChannelAttachment) key.attachment()).byteBufferHandler.handleByteBuffer(inBuffer);
                         }
 
                     }

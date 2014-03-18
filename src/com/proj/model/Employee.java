@@ -1,7 +1,9 @@
 package com.proj.model;
 
 
-public class Employee {
+import java.io.Serializable;
+
+public class Employee implements Invitable, Serializable{
 	private String
 		name,
 		email;

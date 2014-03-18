@@ -35,7 +35,7 @@ public abstract class Networking {
         this.outgoingAppointments = new ConcurrentLinkedDeque<Appointment>();
     }
 
-    public static byte[] appointmentToByteArray(Appointment appointment)
+    public static byte[] appointmentToByteArray(Appointment appointment, SocketChannel channel)
             throws IOException{
 
         System.out.println("Transforming appointment " + appointment + " to byte array");
@@ -88,8 +88,8 @@ public abstract class Networking {
         }
         while (currentAppointment != null){
             for (SelectionKey key : selector.keys()){
-                if (key.attachment() != null && key.attachment() instanceof ConcurrentLinkedDeque){
-                    ((ConcurrentLinkedDeque) key.attachment()).push(currentAppointment);
+                if (key.attachment() != null && key.attachment() instanceof ChannelAttachment){
+                    ((ChannelAttachment) key.attachment()).queue.push(currentAppointment);
                 }
             }
             currentAppointment = outgoingAppointments.poll();
@@ -98,36 +98,24 @@ public abstract class Networking {
 
     protected void sendPendingAppointments(SocketChannel channel, SelectionKey key){
 
-        if (key.attachment() != null && key.attachment() instanceof ConcurrentLinkedDeque){
+        if (key.attachment() != null && key.attachment() instanceof ChannelAttachment){
             System.out.println("Sending pending appointments to " + channel.socket().getInetAddress()
                     + ":" + channel.socket().getLocalPort());
-            ConcurrentLinkedDeque<Appointment> queue = (ConcurrentLinkedDeque)key.attachment();
+            ConcurrentLinkedDeque<Appointment> queue = ((ChannelAttachment) key.attachment()).queue;
             Appointment currentAppointment = queue.poll();
             while (currentAppointment != null){
-                sendAppointment(channel, currentAppointment);
+                if (!(key.attachment() instanceof ChannelAttachment)) throw new RuntimeException();
+                try {
+                    ((ChannelAttachment) key.attachment()).appointmentOutputHandler.sendAppointment(channel, currentAppointment);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 currentAppointment = queue.poll();
             }
             key.interestOps(SelectionKey.OP_READ);
             System.out.println("Finished sending pending appointments to " + channel.socket().getInetAddress()
                     + ":" + channel.socket().getLocalPort());
         }
-    }
-
-    protected boolean sendAppointment(SocketChannel channel, Appointment appointment){
-        System.out.println("Sending appointment " + appointment + "...");
-        boolean sent = false;
-        while (!sent){
-            try {
-                byte[] outArray = Networking.appointmentToByteArray(appointment);
-                System.out.println("Sending " + outArray.length + ":"+ outArray);
-                channel.write(ByteBuffer.wrap(outArray));
-                sent = true;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return true;
     }
 
     public static Appointment byteArrayToAppointment(byte[] array)
@@ -169,6 +157,19 @@ public abstract class Networking {
 
     protected void receivedAppointment(Appointment appointment){
         System.out.println("Received appointment " + appointment);
+        model.addAppointment(appointment);
+        //Do sutff with it
+    }
+
+    public void receivedAppointment(byte[] bytes){
+        System.out.println("Received appointment " + bytes);
+        try {
+            model.addAppointment(byteArrayToAppointment(bytes));
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
         //Do sutff with it
     }
 
