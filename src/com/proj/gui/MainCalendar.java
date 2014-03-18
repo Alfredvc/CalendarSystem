@@ -1,18 +1,17 @@
 package com.proj.gui;
 
-import java.awt.Color;
-import java.awt.EventQueue;
-
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 
-import com.proj.model.*;
+import com.proj.model.Appointment;
+import com.proj.model.Employee;
+import com.proj.model.Model;
 
 public class MainCalendar extends JFrame {
 	private Model model;
+	private Employee currentEmployee;
 
 	/**
 	 * Test code...
@@ -43,16 +42,21 @@ public class MainCalendar extends JFrame {
 	}
 	
 	public void viewAppointment(Appointment appointment) {
-		
+		//TODO: La oss bare vise en tom foreløpig
+		new NewAppointment();
 	}
 	
 	public void chooseCalendars() {
 		new ChooseCalendar(model, new DefaultListModel<Employee>());
 	}
 	
+	public Employee getCurrentEmployee() {
+		return currentEmployee;
+	}
 
-	public MainCalendar(Model model) {
+	public MainCalendar(Model model, Employee currentEmployee) {
 		this.model = model;
+		this.currentEmployee = currentEmployee;
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));

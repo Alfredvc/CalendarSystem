@@ -86,6 +86,12 @@ class Toolbar extends JPanel {
 		public void actionPerformed(ActionEvent arg0) {
 			String command = arg0.getActionCommand();
 			switch (command) {
+			case "thisWeek": parent.showThisWeek(); break;
+			case "nextWeek": parent.showNextWeek(); break;
+			case "previousWeek": parent.showPreviousWeek(); break;
+			case "notifications": break;
+			case "chooseCalendars": break;
+			case "newAppointment": break;
 			}
 		}
 	}
