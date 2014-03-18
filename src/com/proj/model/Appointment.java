@@ -301,7 +301,7 @@ public class Appointment implements Serializable{
     	return this.endTime.getMinutes();
     }
 
-    private class AppointmentChangeNotifier implements PropertyChangeListener{
+    private class AppointmentChangeNotifier implements PropertyChangeListener, Serializable{
 
         public AppointmentChangeSupport acs;
 

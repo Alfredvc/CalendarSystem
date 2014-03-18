@@ -40,4 +40,7 @@ public class Notification implements Serializable {
 	public Date getTimestamp() {
 		return (Date) timestamp.clone();
 	}
+
+    //TODO:MAA IMPLEMENTERE EQUALS OG HASH!!!!
+
 }
