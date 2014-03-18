@@ -4,6 +4,14 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -28,7 +36,10 @@ import org.jdesktop.swingx.JXDatePicker;
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 
 import com.proj.deletableTests.GUItests;
+import com.proj.model.Employee;
+import com.proj.model.InternalParticipant;
 import com.proj.model.Participant;
+import com.proj.model.Status;
 
 public class NewAppointment extends JFrame{
 	
@@ -53,13 +64,13 @@ public class NewAppointment extends JFrame{
 			new PartAmount(30,"30 Persons"), new PartAmount(40,"40 Persons"), new PartAmount(50,"50 Persons"), 
 			new PartAmount(75,"75 Persons"), new PartAmount(100,"100 Persons")};
 	
-	private JComboBox<Participant> participantNamesInput;
-	private DefaultComboBoxModel<Participant> participantNamesModel;
+	private JComboBox<Employee> participantNamesInput;
+	private DefaultComboBoxModel<Employee> participantNamesModel;
 	private JScrollPane addedParticipantScrollPane;
 	private JList<Participant> addedParticipantView;
 	private DefaultListModel<Participant> addedParticipantModel;
 	
-	private ArrayList<Participant> employeeList = new ArrayList<Participant>(); // list of Employee/Groups to add
+	private ArrayList<Employee> employeeList = new ArrayList<Employee>(); // list of Employee/Groups to add
 	private ArrayList<Participant> addedParticipantList = new ArrayList<Participant>(); // list of Employee/Externals added	
 	
 	
@@ -166,7 +177,7 @@ public class NewAppointment extends JFrame{
 		
 		
 		
-		participantNamesModel = new DefaultComboBoxModel<Participant>();
+		participantNamesModel = new DefaultComboBoxModel<Employee>();
 		employeeList = GUItests.testEmployeeList; // henter listen over hvilke employees som kan legges til
 		
 		// Legger employees over fra ArrayListen til DefaultComboBoxModel
@@ -174,13 +185,13 @@ public class NewAppointment extends JFrame{
 			participantNamesModel.addElement(employeeList.get(i));
 		}
 		
-		participantNamesInput = new JComboBox<Participant>();
+			
+		participantNamesInput = new JComboBox<Employee>();
 		participantNamesInput.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
 		participantNamesInput.setName("participantNamesInput");
 		participantNamesInput.setModel(participantNamesModel);
 		participantNamesInput.setBounds(400, 20, 300, 25);
-		participantNamesInput.addActionListener( new participantNamesInputAction());
-		participantNamesInput.isEditable();
+		participantNamesInput.addItemListener(new participantNamesInputAction());
 		AutoCompleteDecorator.decorate(participantNamesInput);
 		add(participantNamesInput);
 		
@@ -202,20 +213,18 @@ public class NewAppointment extends JFrame{
 		setVisible(true);
 
 	}
+	class participantNamesInputAction implements ItemListener {
 
-
-	class participantNamesInputAction implements ActionListener {
-	
 		@Override
-		public void actionPerformed(ActionEvent event) {
-			
-			addedParticipantList.add((Participant) participantNamesInput.getModel().getSelectedItem());
-			addedParticipantModel.addElement((Participant) participantNamesInput.getModel().getSelectedItem());
-		
+		public void itemStateChanged(ItemEvent event) {
+			if(event.getStateChange() == ItemEvent.SELECTED){
+				Employee selectedEmp = (Employee) participantNamesInput.getSelectedItem();
+				addedParticipantModel.addElement((Participant) new InternalParticipant(selectedEmp, Status.Pending, false, false));					
+			}
 		}
+		
 	}
 	
-		
 	class locationButtonAction implements ActionListener {
 			
 		public void actionPerformed(ActionEvent e) {

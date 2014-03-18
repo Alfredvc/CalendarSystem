@@ -45,4 +45,7 @@ public class Employee implements Invitable, Serializable{
 		return this.telephone%40;
 	}
 	
+	public String toString(){
+		return name;
+	}
 }
