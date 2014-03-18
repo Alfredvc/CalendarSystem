@@ -26,9 +26,9 @@ public class AppointmentOutputHandler {
         objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
     }
 
-    public void sendAppointment(SocketChannel channel, Appointment appointment) throws IOException {
-        System.out.println("Sending appointment " + appointment + "...");
-        objectOutputStream.writeObject(appointment);
+    public void sendAppointment(SocketChannel channel, AppointmentEnvelope appointmentEnvelope) throws IOException {
+        System.out.println("Sending appointment " + appointmentEnvelope + "...");
+        objectOutputStream.writeObject(appointmentEnvelope);
         ByteBuffer buff = ByteBuffer.wrap(byteArrayOutputStream.toByteArray());
         System.out.println("Sending " + buff.limit() + ":"+ buff);
         while (buff.hasRemaining()){
