@@ -32,7 +32,7 @@ public class Server implements PropertyChangeListener {
     	
     	// Start server
     	System.out.println("Starting server...");
-        networking = new ServerNetworking(model);
+        networking = new ServerNetworking(this);
         new Thread(networking).start();
     	System.out.println("\tDONE!");
 
@@ -50,6 +50,14 @@ public class Server implements PropertyChangeListener {
     	System.out.println("\tDONE!");
     	
     	new Server(model);
+    }
+
+    public Model getModel() {
+        return model;
+    }
+
+    public boolean requestLogin(String username, String password){
+        return database.checkLogin(username, password);
     }
 
     /**

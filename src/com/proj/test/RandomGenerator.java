@@ -59,11 +59,10 @@ public class RandomGenerator {
     
     private static String generateName(){
     	String names[]={"Jacque Magee","Bev Seabury","Johanna Tisdale" ,"Iva Ellingson" ,"Vonda Chiou" ,"Gaylord Hutzler", "Laureen Brown",
-    			"Lashandra Mollica", "Efrain Higgins", "Debora Bazemore",
-    			"Chelsie Storm" ,
-    			"Kiana Baucom", 
-    			"Christopher Logsdon",
-    			"Mei Parshall", "Kimberlee Ahumada", "Hoa Heimer" };
+    			"Lashandra Mollica", "Efrain Higgins", "Debora Bazemore", "Chelsie Storm", "Kiana Baucom", 
+    			"Christopher Logsdon", "Mei Parshall", "Kimberlee Ahumada", "Hoa Heimer", "Wiley Champ", 
+    			"Karren Covell", "Gloria Jaimes", "Merrill Vasko", "Luvenia Classen", "Lela Fielder", 
+    			"Clora Lesh", "Harriett Huyser", "Yvonne Wiers", "Wanetta Nardone", "Lucius Stolle" };
     	int randInt= rand.nextInt(names.length);
     	return names[randInt];
     	
@@ -93,12 +92,13 @@ public class RandomGenerator {
     }
 
     
-    public static Employee[] groupGenerator(){
-    	Employee [] emps =new Employee[5];
-    	for(int i=0; i<5; i++){
-    		emps[i]=generateEmployee();
+    public static Group generateGroup(){
+    	String gName = generateString();
+    	Group grp = new Group(gName);
+    	for (int i=0; i<5; i++) {
+    		grp.addEmployee(generateEmployee());
     	}
-    	return emps;
+    	return grp;
     }
 }
 

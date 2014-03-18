@@ -6,6 +6,8 @@ import com.proj.model.Model;
 import com.proj.server.Server;
 
 import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -18,19 +20,23 @@ import java.util.ArrayList;
  * To change this template use File | Settings | File Templates.
  */
 public class NetworkingTest extends TestCase {
+    static Server server;
+
+
+    public void init(){
+        if (server != null) return;
+        server = new Server(new Model());
+
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+    }
 
     @org.junit.Test
     public void testSendingToAllFromServer(){
-
-        Model serverModel = new Model();
-        ArrayList<Appointment> apps = new ArrayList<Appointment>();
-        Appointment[] aps = RandomGenerator.generateAppointments(5);
-        for (int i = 0; i < 5; i++) {
-            apps.add(aps[i]);
-        }
-        serverModel.setAppointments(apps);
-        Server server = new Server(serverModel);
-
+        init();
         Client client = new Client(new Model());
         loginClient(client, "client", "clientPassword");
         Client client2 = new Client(new Model());
@@ -38,12 +44,13 @@ public class NetworkingTest extends TestCase {
         Client client3 = new Client(new Model());
         loginClient(client3, "client2", "client2Password");
 
-
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
+
+
         System.out.println("Server");
         for (Appointment appointment : server.networking.getModel().getAppointments()) System.out.println(appointment);
         System.out.println("Client");
@@ -62,12 +69,8 @@ public class NetworkingTest extends TestCase {
 
     @Test
     public void testChangedAppointmentBroadcast(){
-        Model serverModel = new Model();
-        ArrayList<Appointment> apps = new ArrayList<Appointment>();
-        apps.add(RandomGenerator.generateAppointment());
-        serverModel.setAppointments(apps);
-        Server server = new Server(new Model());
-        Appointment[] sendingAppointment = {RandomGenerator.generateAppointment()};
+        init();
+        Appointment sendingAppointment = RandomGenerator.generateAppointment();
 
         Client client = new Client(new Model());
         loginClient(client, "client", "clientPassword");
@@ -77,16 +80,22 @@ public class NetworkingTest extends TestCase {
         loginClient(client3, "client2", "client2Password");
 
         try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
+        client.networking.sendAppointment(sendingAppointment);
+
+        try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
 
-        client.networking.sendAppointment(sendingAppointment[0]);
-
-        assertTrue("Server received appointment", sameAppointments(sendingAppointment, server.networking.getModel().getAppointments()));
-        assertTrue("Other clients received appointment", sameAppointments(sendingAppointment, client2.networking.getModel().getAppointments())
-        && sameAppointments(sendingAppointment, client3.networking.getModel().getAppointments()));
+        assertTrue("Server received appointment", sameAppointments(client.networking.getModel().getAppointments(), server.networking.getModel().getAppointments()));
+        assertTrue("Other clients received appointment", sameAppointments(client.networking.getModel().getAppointments(), client2.networking.getModel().getAppointments())
+        && sameAppointments(client.networking.getModel().getAppointments(), client3.networking.getModel().getAppointments()));
     }
 
 private boolean sameAppointments(Appointment[] list1, Appointment[] list2){
