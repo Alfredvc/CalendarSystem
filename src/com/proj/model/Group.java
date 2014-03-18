@@ -22,4 +22,7 @@ public class Group implements Invitable, Serializable{
 	public String getName() {
 		return name;
 	}
+	public String toString() {
+		return name;
+	}
 }

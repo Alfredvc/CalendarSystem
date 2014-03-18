@@ -44,5 +44,7 @@ public class Employee implements Invitable, Serializable{
 	public int hashCode(){
 		return this.telephone%40;
 	}
-	
+	public String toString() {
+		return name;
+	}
 }
