@@ -13,22 +13,23 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
-public class FuzzySearchDropdown<E> extends JTextField {
-	private FuzzySearchPopup<E> popup;
-	private FuzzySearchListModel<E> fuzzySearchListModel;
+public class FuzzyDropdown<E> extends JTextField {
+	private FuzzyPopup<E> popup;
+	private FuzzyListModel<E> fuzzyListModel;
 	private ArrayList<ActionListener> actionListeners = new ArrayList<>();
+	private E selected;
 	
-	public FuzzySearchDropdown(ListModel<E> model) {
+	public FuzzyDropdown(ListModel<E> model) {
 		super();
-		fuzzySearchListModel = new FuzzySearchListModel<>(model);
+		fuzzyListModel = new FuzzyListModel<>(model);
 		setColumns(10);
-		popup = new FuzzySearchPopup<E>(this, fuzzySearchListModel);
+		popup = new FuzzyPopup<E>(this, fuzzyListModel);
 		getDocument().addDocumentListener(new DocumentChangeListener());
 		addKeyListener(new NavigationKeyListener());
 	}
 	
 	private void updateFuzzyListModel(String searchString) {
-		fuzzySearchListModel.update(searchString);
+		fuzzyListModel.update(searchString);
 	}
 
 	private void showPopup() {
@@ -36,7 +37,7 @@ public class FuzzySearchDropdown<E> extends JTextField {
 	}
 	
 	public void selectValue(E value) {
-		System.out.println("Selected " + value.toString());
+		selected = value;
 		
 		// Close popup
 		popup.setVisible(false);
@@ -46,6 +47,10 @@ public class FuzzySearchDropdown<E> extends JTextField {
 			ActionEvent event = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "selected");
 			listener.actionPerformed(event);
 		}
+	}
+	
+	public E getSelectedValue() {
+		return selected;
 	}
 	
 	private void closePopup() {
@@ -127,6 +132,12 @@ public class FuzzySearchDropdown<E> extends JTextField {
 				closePopup();
 			}
 		}
+	}
+
+
+	public void reset() {
+		setText("");
+		selected = null;
 	}
 	
 }

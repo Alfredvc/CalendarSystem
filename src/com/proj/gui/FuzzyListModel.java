@@ -11,13 +11,13 @@ import javax.swing.event.ListDataListener;
  * List model selecting serving the best matches from an underlying listmodel to
  * the list!
  */
-class FuzzySearchListModel<E> extends AbstractListModel<E> {
+class FuzzyListModel<E> extends AbstractListModel<E> {
 	
 	private ArrayList<E> currentChoices = new ArrayList<>();
 	private ListModel<E> backingListModel;
 	private String searchString;
 	
-	public FuzzySearchListModel(ListModel<E> backingListModel) {
+	public FuzzyListModel(ListModel<E> backingListModel) {
 		backingListModel.addListDataListener(new BackingListDataListener());
 		this.backingListModel = backingListModel;
 	}

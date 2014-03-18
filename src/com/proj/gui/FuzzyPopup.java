@@ -15,14 +15,14 @@ import javax.swing.event.ListDataListener;
 /**
  * Dropdown popup for fuzzy search list
  */
-public class FuzzySearchPopup<E> extends JPopupMenu {
+public class FuzzyPopup<E> extends JPopupMenu {
 	
 	private JScrollPane scrollPane;
 	private JList<E> list;
-	private FuzzySearchDropdown<E> fuzzySearchDropdown;
+	private FuzzyDropdown<E> fuzzyDropdown;
 	
-	public FuzzySearchPopup(FuzzySearchDropdown<E> fuzzySearchList, ListModel<E> model) {
-		this.fuzzySearchDropdown = fuzzySearchList;
+	public FuzzyPopup(FuzzyDropdown<E> fuzzySearchList, ListModel<E> model) {
+		this.fuzzyDropdown = fuzzySearchList;
 
 		model.addListDataListener(new ModelListener());
 
@@ -88,7 +88,7 @@ public class FuzzySearchPopup<E> extends JPopupMenu {
 	protected class ListMouseListener extends MouseAdapter {
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			fuzzySearchDropdown.selectValue(list.getSelectedValue());
+			fuzzyDropdown.selectValue(list.getSelectedValue());
 		}
 	}
 

@@ -4,6 +4,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -13,12 +14,16 @@ import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ListModel;
 
 import com.proj.model.*;
 
 public class ChooseCalendar extends JFrame {
+	private FuzzyDropdown<Employee> fuzzyDropdown;
+	private DefaultListModel<Employee> selectedCalendars;
 	
-	public ChooseCalendar() {
+	
+	public ChooseCalendar(Model model, DefaultListModel<Employee> selectedCalendars) {
 		super("Choose Calendars");
 		
 		setLayout(new GridBagLayout());
@@ -27,17 +32,12 @@ public class ChooseCalendar extends JFrame {
 		// NOTICE: Only one constraints object
 		GridBagConstraints constraints = createGridBagConstraints();
 
-		//TODO: This is only an example list!
-		DefaultListModel<Employee> listModel = new DefaultListModel<Employee>();
-		listModel.addElement(new Employee("Truls", "Truls", 787));
-
-		FuzzySearchDropdown<Employee> calendarSelector = new FuzzySearchDropdown<>(listModel);
+		fuzzyDropdown = getFuzzyDropdown(model);
 		constraints.gridx = 0;
 		constraints.gridy = 0;
-		add(calendarSelector, constraints);
+		add(fuzzyDropdown, constraints);
 		
-		//TODO: This is only an example list! (Even wrong datatype)
-		JList<Employee> list = new JList<>(listModel);
+		JList<Employee> list = new JList<>(selectedCalendars);
 		constraints.gridy = 1;
 		constraints.weighty = 1;
 		add(new JScrollPane(list), constraints);
@@ -59,14 +59,36 @@ public class ChooseCalendar extends JFrame {
 		return constraints;
 	}
 	
+	private FuzzyDropdown<Employee> getFuzzyDropdown(Model model) {
+		ListModel<Employee> listModel =  new ArrayListModel<Employee>(
+				Arrays.asList(model.getEmployees())
+			);
+		
+		FuzzyDropdown<Employee> fuzzyDropdown = new FuzzyDropdown<>(listModel);
+		fuzzyDropdown.addActionListener(new FuzzyActionHandler());
+		return fuzzyDropdown;
+	}
+	
 	public void cancel() {
 		dispose();
 	}
 	
+	public void addCalendar() {
+		Employee selected = fuzzyDropdown.getSelectedValue();
+		if (selected != null && !selectedCalendars.contains(selected)) {
+			selectedCalendars.addElement(selected);
+			fuzzyDropdown.reset();
+		}
+	}
 	
-	public static void main(String[] args) {
-		JFrame f = new ChooseCalendar();
-		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	/**
+	 * Listens to actions from the fuzzydropdown
+	 */
+	private class FuzzyActionHandler implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			addCalendar();
+		}
 	}
 	
 	/**
