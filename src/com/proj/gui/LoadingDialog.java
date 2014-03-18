@@ -16,6 +16,7 @@ class LoadingDialog extends JDialog {
 	
 	public LoadingDialog(Frame owner, String text) {
 		super(owner, "Please Wait");
+		
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -23,12 +24,13 @@ class LoadingDialog extends JDialog {
 		JLabel label = new JLabel(text);
 		label.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
 		panel.add(label);
+		
 		JProgressBar progressBar = new JProgressBar();
 		progressBar.setIndeterminate(true);
 		panel.add(progressBar);
+		
 		setContentPane(panel);
 		pack();
-	
 		setLocationRelativeTo(null); // Centers window
 		setVisible(true);
 	}
