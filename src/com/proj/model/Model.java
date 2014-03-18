@@ -90,8 +90,8 @@ public class Model {
 		employees.put(employee.getEmail(), employee);
 	}
 
-	public ArrayList<Group> getGroups() {
-		return groups;
+	public Group[] getGroups() {
+		return (Group[]) groups.toArray(new Group[groups.size()]);
 	}
 	
 	public void addGroup(Group group) {
