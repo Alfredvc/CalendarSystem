@@ -1,5 +1,6 @@
 package com.proj.model;
 
+import java.beans.PropertyChangeEvent;
 import java.util.Date;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
@@ -24,11 +25,17 @@ public class Appointment implements Serializable{
 			startTime,
 			endTime;
 
+
+    public static enum Flag{
+        UPDATE, DELETE;
+    }
+
     private HashSet<Participant> participants = new HashSet<Participant>();
 	private InternalParticipant leader;
 	private ArrayList<Notification> notifications = new ArrayList<Notification>();
     private MeetingRoom meetingRoom;
 	private PropertyChangeSupport pcs= new PropertyChangeSupport(this);
+    private AppointmentChangeNotifier notifier = new AppointmentChangeNotifier(this);
 
 	
 	public Appointment(UUID id, InternalParticipant leader,Date startTime){
@@ -39,6 +46,7 @@ public class Appointment implements Serializable{
 		this.leader = leader;
 		this.setStartTime(startTime);
 		this.setLocation(location);
+        addPropertyChangeListener(notifier);
 	}
 	
 	public Appointment(InternalParticipant leader, Date startTime, Date endTime) {
@@ -183,7 +191,7 @@ public class Appointment implements Serializable{
 		int index=notifications.size();
 		notifications.add(notification);
 		notification.setAppointment(this);
-		pcs.fireIndexedPropertyChange("notifications", index-1, null, notification);
+		pcs.fireIndexedPropertyChange("notifications", index - 1, null, notification);
 	}
 	
 	public MeetingRoom getMeetingRoom() {
@@ -203,6 +211,14 @@ public class Appointment implements Serializable{
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
 		pcs.addPropertyChangeListener(listener);
 	}
+
+    public void addAppointmentChangeListener(AppointmentChangeSupport.AppointmentChangedListener listener){
+        notifier.acs.addAppointmentChangedListener(listener);
+    }
+
+    public void removeAppointmentChangeListener(AppointmentChangeSupport.AppointmentChangedListener listener){
+        notifier.acs.removeAppointmentChangedListener(listener);
+    }
 	
 	public int getDuration() {
 		//TODO: Implement this one! (needed by db)
@@ -284,4 +300,20 @@ public class Appointment implements Serializable{
     public int hashCode(){
     	return this.endTime.getMinutes();
     }
+
+    private class AppointmentChangeNotifier implements PropertyChangeListener{
+
+        public AppointmentChangeSupport acs;
+
+
+        public AppointmentChangeNotifier(Appointment appointment){
+            acs = new AppointmentChangeSupport(appointment);
+        }
+
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            acs.fireAppointmentChanged();
+        }
+    }
+
 }

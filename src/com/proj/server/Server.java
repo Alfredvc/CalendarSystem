@@ -6,6 +6,7 @@ import java.beans.PropertyChangeListener;
 import com.proj.model.Model;
 import com.proj.model.Appointment;
 import com.proj.database.Database;
+import com.proj.network.AppointmentEnvelope;
 import com.proj.network.ServerNetworking;
 
 /**
@@ -82,13 +83,12 @@ public class Server implements PropertyChangeListener {
 					
 					// New appointment
 					database.save(newAppointment);
-					networking.sendAppointment(newAppointment);
+					networking.send(newAppointment);
 				} else if (newValue == null && oldValue instanceof Appointment) {
 					// Delete appointment :'(
 					Appointment oldAppointment = (Appointment) oldValue;
 					database.delete(oldAppointment);
-					//TODO
-					//networking.sendDeleteAppointment(oldAppointment);
+					networking.delete(oldAppointment);
 				}
 				break;
 			
@@ -99,6 +99,7 @@ public class Server implements PropertyChangeListener {
 					// Send mails?
 				}
 				break;
+
 		}
 	}
 }
