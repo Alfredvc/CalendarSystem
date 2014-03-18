@@ -2,8 +2,9 @@ package com.proj.model;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.Serializable;
 
-public class InternalParticipant  implements Participant{
+public class InternalParticipant  implements Participant, Serializable{
 	private Employee employee;
 	private Status status;
 	private boolean alarm;
