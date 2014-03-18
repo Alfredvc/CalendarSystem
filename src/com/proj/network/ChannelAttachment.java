@@ -17,12 +17,12 @@ import java.util.concurrent.ConcurrentLinkedDeque;
  */
 public class ChannelAttachment {
 
-    public ConcurrentLinkedDeque<Appointment> queue;
+    public ConcurrentLinkedDeque<AppointmentEnvelope> queue;
     public ByteBufferHandler byteBufferHandler;
     public AppointmentOutputHandler appointmentOutputHandler;
 
     public ChannelAttachment(Networking networking) throws IOException {
-        queue = new ConcurrentLinkedDeque<Appointment>();
+        queue = new ConcurrentLinkedDeque<AppointmentEnvelope>();
         byteBufferHandler = new ByteBufferHandler(networking);
         appointmentOutputHandler = new AppointmentOutputHandler();
     }

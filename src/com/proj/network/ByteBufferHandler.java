@@ -33,7 +33,7 @@ public class ByteBufferHandler {
     public void handleByteBuffer(ByteBuffer byteBuffer) {
         byteBuffer.flip();
         if (byteBuffer.limit() == 0) return;
-        System.out.println("Pos: " + byteBuffer.position() + " Limit: " + byteBuffer.limit() + " Capacity: " + byteBuffer.capacity());
+        //System.out.println("Pos: " + byteBuffer.position() + " Limit: " + byteBuffer.limit() + " Capacity: " + byteBuffer.capacity());
         inStream.addBuffer(byteBuffer);
         if (in == null){
             try {
@@ -48,10 +48,10 @@ public class ByteBufferHandler {
 
     private void extractAppointments(){
         System.out.println("Extracting appointments");
-        Appointment newAppointment = null;
+        AppointmentEnvelope newAppointment = null;
         try {
             for(;;){
-                newAppointment = (Appointment) in.readObject();
+                newAppointment = (AppointmentEnvelope) in.readObject();
                 if (newAppointment == null) throw new NullPointerException();
                 networking.receivedAppointment(newAppointment);
             }

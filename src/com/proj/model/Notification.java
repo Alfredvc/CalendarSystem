@@ -1,14 +1,16 @@
 package com.proj.model;
 
 import java.io.Serializable;
+
 import java.util.Calendar;
 import java.util.Date;
-
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 public class Notification implements Serializable {
 	private String text;
 	private Date timestamp;
 	private Appointment appointment;
-	
+	private PropertyChangeSupport pcs= new PropertyChangeSupport(this);
 	public Notification(String text, Date timestamp) {
 		if (text == null) {
 			throw new NullPointerException("Text cannot be null");
