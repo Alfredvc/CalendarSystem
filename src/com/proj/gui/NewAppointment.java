@@ -27,7 +27,7 @@ import javax.swing.SwingConstants;
 import org.jdesktop.swingx.JXDatePicker;
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 
-import com.proj.deletableTests.GUItests;
+//import com.proj.deletableTests.GUItests;
 import com.proj.model.Participant;
 
 public class NewAppointment extends JFrame{
@@ -165,9 +165,9 @@ public class NewAppointment extends JFrame{
 		
 		
 		
-		
+		//removed GUItests reference to be able to compile
 		participantNamesModel = new DefaultComboBoxModel<Participant>();
-		employeeList = GUItests.testEmployeeList; // henter listen over hvilke employees som kan legges til
+		employeeList = new ArrayList<Participant>(); //GUItests.testEmployeeList; // henter listen over hvilke employees som kan legges til
 		
 		// Legger employees over fra ArrayListen til DefaultComboBoxModel
 		for (int i = 0; i < employeeList.size(); i++) {

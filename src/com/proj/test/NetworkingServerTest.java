@@ -18,12 +18,6 @@ public class NetworkingServerTest {
 
     public static void main(String args[]){
         Model model1 = new Model();
-        ArrayList<Appointment> apps = new ArrayList<Appointment>();
-        Appointment[] aps = RandomGenerator.generateAppointments(5);
-        for (int i = 0; i < 5; i++) {
-            apps.add(aps[i]);
-        }
-        model1.setAppointments(apps);
         Server server = new Server(model1);
     }
 
