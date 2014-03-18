@@ -113,7 +113,7 @@ public class Model {
 							oldest=i;
 						}
 					}
-					notif.set(oldest,n);
+				if(n.getTimestamp().after(notif.get(oldest).getTimestamp())){notif.set(oldest,n);}
 				}
 			}
 		}
