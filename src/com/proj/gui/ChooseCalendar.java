@@ -66,7 +66,7 @@ public class ChooseCalendar extends JFrame {
 				Arrays.asList(model.getEmployees())
 			);
 		
-		FuzzyDropdown<Employee> fuzzyDropdown = new FuzzyDropdown<>(listModel);
+		FuzzyDropdown<Employee> fuzzyDropdown = new FuzzyDropdown<>(listModel, false);
 		fuzzyDropdown.addActionListener(new FuzzyActionHandler());
 		return fuzzyDropdown;
 	}
