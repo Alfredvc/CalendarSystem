@@ -198,7 +198,7 @@ public class NewAppointment extends JFrame {
 				Arrays.asList(model.getEmployees()));
 		listModel.addAll(Arrays.asList(model.getGroups()));
 
-		FuzzyDropdown<Invitable> fuzzyDropdown = new FuzzyDropdown<>(listModel);
+		FuzzyDropdown<Invitable> fuzzyDropdown = new FuzzyDropdown<>(listModel, true);
 		System.out.println(listModel.getSize());
 		return fuzzyDropdown;
 	}

@@ -13,6 +13,7 @@
     <orderEntry type="library" name="mysql-connector-java-5.1.29-bin" level="project" />
     <orderEntry type="library" name="javax.mail-api-1.5.1" level="project" />
     <orderEntry type="library" name="mail" level="project" />
+    <orderEntry type="library" name="commons-validator-1.4.0" level="project" />
   </component>
 </module>
 

@@ -1,5 +1,8 @@
 package com.proj.gui;
 
+import com.proj.model.ExternalParticipant;
+import org.apache.commons.validator.routines.EmailValidator;
+
 import java.util.ArrayList;
 
 import javax.swing.AbstractListModel;
@@ -16,8 +19,10 @@ class FuzzyListModel<E> extends AbstractListModel<E> {
 	private ArrayList<E> currentChoices = new ArrayList<>();
 	private ListModel<E> backingListModel;
 	private String searchString;
+    private boolean withExternalParticipants;
 	
-	public FuzzyListModel(ListModel<E> backingListModel) {
+	public FuzzyListModel(ListModel<E> backingListModel, boolean withExternalParticipans) {
+        this.withExternalParticipants = withExternalParticipans;
 		backingListModel.addListDataListener(new BackingListDataListener());
 		this.backingListModel = backingListModel;
 	}
@@ -32,6 +37,7 @@ class FuzzyListModel<E> extends AbstractListModel<E> {
 				currentChoices.add(element);
 			}
 		}
+        if (withExternalParticipants && isValidEmail(searchString)) currentChoices.add(0, ((E) new ExternalParticipant(searchString)));
 		int newSize = currentChoices.size();
 		fireContentsChanged(this, 0, oldSize > newSize ? oldSize - 1 : newSize - 1);
 	}
@@ -50,6 +56,10 @@ class FuzzyListModel<E> extends AbstractListModel<E> {
 	public int getSize() {
 		return currentChoices.size();
 	}
+
+    private boolean isValidEmail(String in){
+        return EmailValidator.getInstance().isValid(in);
+    }
 	
 	/**
 	 * Listens for changes in the underlying data to update the choices in the list on changes		 *
