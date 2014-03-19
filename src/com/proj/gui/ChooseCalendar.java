@@ -23,7 +23,7 @@ public class ChooseCalendar extends JFrame {
 	private DefaultListModel<Employee> selectedCalendars;
 	
 	
-	public ChooseCalendar(Model model, DefaultListModel<Employee> selectedCalendars) {
+	public ChooseCalendar(Model model, CalendarModel calendarModel) {
 		super("Choose Calendars");
 		
 		setLayout(new GridBagLayout());
@@ -47,6 +47,8 @@ public class ChooseCalendar extends JFrame {
 		constraints.weighty = 0;
 		add(buttonPane, constraints);
 		
+		
+		
 		setVisible(true);
 	}
 
@@ -64,7 +66,7 @@ public class ChooseCalendar extends JFrame {
 				Arrays.asList(model.getEmployees())
 			);
 		
-		FuzzyDropdown<Employee> fuzzyDropdown = new FuzzyDropdown<>(listModel);
+		FuzzyDropdown<Employee> fuzzyDropdown = new FuzzyDropdown<>(listModel, false);
 		fuzzyDropdown.addActionListener(new FuzzyActionHandler());
 		return fuzzyDropdown;
 	}
@@ -119,7 +121,7 @@ public class ChooseCalendar extends JFrame {
 			switch (action) {
 			case "ok": /* TODO */ cancel(); break;
 			case "cancel": cancel(); break;
-			case "reset": /*TODO */ cancel(); break;
+			case "reset": cancel(); break;
 			}
 		}
 	}
