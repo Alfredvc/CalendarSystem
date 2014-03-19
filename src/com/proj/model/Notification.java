@@ -41,6 +41,16 @@ public class Notification implements Serializable {
 		return (Date) timestamp.clone();
 	}
 
-    //TODO:MAA IMPLEMENTERE EQUALS OG HASH!!!!
+    @Override
+    public boolean equals(Object other){
+        return (other instanceof Notification && ((Notification)other).getText().equals(this.text)
+        && ((Notification)other).getTimestamp().equals(timestamp) &&
+                ((Notification)other).getAppointment().equals(appointment));
+    }
+
+    @Override
+    public int hashCode(){
+        return text.hashCode();
+    }
 
 }

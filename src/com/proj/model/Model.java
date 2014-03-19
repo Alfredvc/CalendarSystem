@@ -23,13 +23,15 @@ public class Model {
         pcs.addPropertyChangeListener(notifier);
     }
 	
-	public void deleteAppointment(UUID id){                
+	public void deleteAppointment(UUID id){
+        appointments.get(id).removeAppointmentChangeListener(notifier);
 		Appointment oldValue=this.appointments.remove(id);
 		pcs.firePropertyChange("appointments",oldValue ,null);
 	}
 	
     public void addAppointment(Appointment app){
-		this.appointments.put(app.getId(), app);
+        app.addAppointmentChangeListener(notifier);
+        this.appointments.put(app.getId(), app);
 		pcs.firePropertyChange("appointments", null, app);
 	}
 
