@@ -2,14 +2,13 @@ package com.proj.network;
 
 import com.proj.model.Appointment;
 import com.proj.model.Model;
+import com.proj.model.ModelChangeSupport;
 
 import java.io.*;
-import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
@@ -19,20 +18,21 @@ import java.util.concurrent.ConcurrentLinkedDeque;
  * Time: 13:25
  * To change this template use File | Settings | File Templates.
  */
-public abstract class Networking {
+public abstract class Networking extends Storage{
 
     Selector selector;
     Model model;
     boolean run;
     final int selectionTimeout = 1000;
-    protected ConcurrentLinkedDeque<Appointment> outgoingAppointments;
+    protected ConcurrentLinkedDeque<AppointmentEnvelope> outgoingAppointments;
     public static final String loginFailed = "fail";
     public static final String loginSuccessful = "success";
 
     public Networking(Model model){
         this.model = model;
+        model.addModelChangeListener(this);
         this.run = true;
-        this.outgoingAppointments = new ConcurrentLinkedDeque<Appointment>();
+        this.outgoingAppointments = new ConcurrentLinkedDeque<AppointmentEnvelope>();
     }
 
     public static byte[] appointmentToByteArray(Appointment appointment, SocketChannel channel)
@@ -68,17 +68,31 @@ public abstract class Networking {
         return result;
     }
 
+    //Must add a flag, either DELETE, CREATE or CHANGE to the appointment being sent.
+    private boolean sendAppointment(Appointment appointment, Appointment.Flag flag){
 
-    public void sendAppointment(Appointment appointment){
+        AppointmentEnvelope toSend = new AppointmentEnvelope(appointment, flag);
 
-        System.out.println("Pushing appointment " + appointment + " to outgoing queue");
+        System.out.println("Pushing appointment envelope " + toSend + " to outgoing queue");
 
-        outgoingAppointments.push(appointment);
+        outgoingAppointments.push(toSend);
+
+        return true;
+    }
+
+    @Override
+    public boolean save(Appointment appointment){
+        return sendAppointment(appointment, Appointment.Flag.UPDATE);
+    }
+
+    @Override
+    public boolean delete(Appointment appointment){
+        return sendAppointment(appointment, Appointment.Flag.DELETE);
     }
 
     protected void refreshQueues(){
 
-        Appointment currentAppointment = outgoingAppointments.poll();
+        AppointmentEnvelope currentAppointment = outgoingAppointments.poll();
         if (currentAppointment == null) return;
         System.out.println("Refreshing queues for thread " + Thread.currentThread());
         for (SelectionKey key : selector.keys()){
@@ -101,8 +115,8 @@ public abstract class Networking {
         if (key.attachment() != null && key.attachment() instanceof ChannelAttachment){
             System.out.println("Sending pending appointments to " + channel.socket().getInetAddress()
                     + ":" + channel.socket().getLocalPort());
-            ConcurrentLinkedDeque<Appointment> queue = ((ChannelAttachment) key.attachment()).queue;
-            Appointment currentAppointment = queue.poll();
+            ConcurrentLinkedDeque<AppointmentEnvelope> queue = ((ChannelAttachment) key.attachment()).queue;
+            AppointmentEnvelope currentAppointment = queue.poll();
             while (currentAppointment != null){
                 if (!(key.attachment() instanceof ChannelAttachment)) throw new RuntimeException();
                 try {
@@ -155,22 +169,16 @@ public abstract class Networking {
         return result;
     }
 
-    protected void receivedAppointment(Appointment appointment){
-        System.out.println("Received appointment " + appointment);
-        model.addAppointment(appointment);
-        //Do sutff with it
-    }
-
-    public void receivedAppointment(byte[] bytes){
-        System.out.println("Received appointment " + bytes);
-        try {
-            model.addAppointment(byteArrayToAppointment(bytes));
-        } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+    protected void receivedAppointment(AppointmentEnvelope appointmentEnvelope){
+        System.out.println("Received appointment envelope " + appointmentEnvelope );
+        switch (appointmentEnvelope.getFlag()){
+            case UPDATE:
+                model.updateAppointment(appointmentEnvelope.getAppointment());
+                break;
+            case DELETE:
+                model.deleteAppointment(appointmentEnvelope.getAppointment().getId());
+                break;
         }
-        //Do sutff with it
     }
 
     public void close(){
@@ -181,6 +189,5 @@ public abstract class Networking {
     public Model getModel(){
         return this.model;
     }
-
 
 }

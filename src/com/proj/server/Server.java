@@ -1,11 +1,12 @@
 package com.proj.server;
 
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
+import com.proj.model.ExternalParticipant;
 import com.proj.model.Model;
 import com.proj.model.Appointment;
 import com.proj.database.Database;
+import com.proj.model.ModelChangeSupport;
 import com.proj.network.ServerNetworking;
 
 /**
@@ -15,7 +16,7 @@ import com.proj.network.ServerNetworking;
  * Time: 12:48
  * To change this template use File | Settings | File Templates.
  */
-public class Server implements PropertyChangeListener {
+public class Server implements ModelChangeSupport.ModelChangedListener{
 
     private Model model;
     private Database database;
@@ -34,10 +35,8 @@ public class Server implements PropertyChangeListener {
     	System.out.println("Starting server...");
         networking = new ServerNetworking(this);
         new Thread(networking).start();
+        model.addModelChangeListener(this);
     	System.out.println("\tDONE!");
-
-    	// Bind to events
-    	model.addPropertyChangeListener(this);
     }
     
     public static void main(String[] args) {
@@ -60,45 +59,26 @@ public class Server implements PropertyChangeListener {
         return database.checkLogin(username, password);
     }
 
-    /**
-     * Listen to add/remove events
-     */
-	@Override
-	public void propertyChange(PropertyChangeEvent evt) {
-		Object newValue = evt.getNewValue();
-		Object oldValue = evt.getOldValue();
-		Object source = evt.getSource();
-		
-		
-		switch (evt.getPropertyName()){
-			case "appointments":			
-				if (newValue instanceof Appointment) {
-					Appointment newAppointment = (Appointment) newValue;
-					
-					if (oldValue == null) {
-						// New appointment - add listener
-						newAppointment.addPropertyChangeListener(this);
-					}
-					
-					// New appointment
-					database.save(newAppointment);
-					networking.sendAppointment(newAppointment);
-				} else if (newValue == null && oldValue instanceof Appointment) {
-					// Delete appointment :'(
-					Appointment oldAppointment = (Appointment) oldValue;
-					database.delete(oldAppointment);
-					//TODO
-					//networking.sendDeleteAppointment(oldAppointment);
-				}
-				break;
-			
-			case "participants":
-				//TODO
-				if (source instanceof Appointment) {
-					System.out.println("The participants of appointment" + ((Appointment) source).getId().toString());
-					// Send mails?
-				}
-				break;
-		}
-	}
+    private void sendInviteEmail(Appointment appointment, ExternalParticipant participant){
+        new Email().invitation(appointment, participant).sendMail();
+    }
+
+    private void sendDisinviteEmail(Appointment appointment, ExternalParticipant participant){
+        new Email().disinvitation(appointment, participant).sendMail();
+    }
+
+    @Override
+    public void modelChanged(Appointment appointment, Appointment.Flag flag, PropertyChangeEvent event) {
+        if (event.getPropertyName().equals("participant")){
+            if (event.getNewValue() != null && event.getNewValue() instanceof ExternalParticipant && event.getOldValue() == null){
+                sendInviteEmail(appointment, (ExternalParticipant) event.getNewValue());
+            }
+            else if (event.getOldValue() != null && event.getOldValue() instanceof ExternalParticipant && event.getNewValue() == null){
+                sendDisinviteEmail(appointment, (ExternalParticipant) event.getOldValue());
+            }
+        }
+    }
+
+
+
 }

@@ -1,19 +1,17 @@
 package com.proj.database;
 
 import com.proj.model.*;
+import com.proj.network.Storage;
 
+import java.io.*;
 import java.util.Properties;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
 
 
-public class Database implements PresistanceBackend {
+public class Database extends Storage {
 	
 	private static final String CONFIG_FILE = "conf/database.conf";
 	
@@ -24,10 +22,10 @@ public class Database implements PresistanceBackend {
 	private ParticipantHandler participantHandler;
 	private NotificationHandler notificationHandler;
 	private StaticHandler staticHandler;
-	
-	
+    private Model model;
 	
 	public Database(Model model) {
+        this.model = model;
 		appointmentHandler = new AppointmentHandler(model);
 		participantHandler = new ParticipantHandler(model);		
 		notificationHandler = new NotificationHandler(model);
@@ -105,6 +103,7 @@ public class Database implements PresistanceBackend {
 						"SELECT * FROM `Notification`;"
 					).executeQuery()
 				);
+            model.addModelChangeListener(this);
 			
 		} catch (SQLException e) {
 			System.err.println("Could not load model: " + e.getMessage());

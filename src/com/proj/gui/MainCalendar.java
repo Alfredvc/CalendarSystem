@@ -1,89 +1,96 @@
 package com.proj.gui;
 
-import java.awt.Color;
-import java.awt.EventQueue;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 
+import com.proj.model.Appointment;
+import com.proj.model.Employee;
 import com.proj.model.Model;
 
 public class MainCalendar extends JFrame {
 	private Model model;
+	private Employee currentEmployee;
+	private CalendarView calendarView;
+	private CalendarModel calendarModel;
+	private ActionHandler actionHandler = new ActionHandler();
+	
+	public MainCalendar(Model model, Employee currentEmployee) {
+		this.model = model;
+		this.currentEmployee = currentEmployee;
+		
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
+		setSize(new Dimension(1019, 600));
+		
+		calendarModel = new CalendarModel(getModel(), getCurrentEmployee());
+		
+		// Add toolbar
+		Toolbar toolbar = new Toolbar(calendarModel);
+		toolbar.addActionListener(actionHandler);
+		add(toolbar);
+		
+		// Add calendarview
+		calendarView = new CalendarView(calendarModel);
+		calendarView.addActionListener(actionHandler);
+		add(new JScrollPane(calendarView));
+		
+		setVisible(true);
+		
+	}
 
 	/**
 	 * Test code...
 	 */
 	public static void main(String[] args) {
-		new MainCalendar(new Model());
+		new MainCalendar(new Model(), new Employee("notun@ntohu.com", "NT onu", 58473653));
 	}
 	
-	/**
-	 * Display new appointment in the calendar.
-	 * 
-	 * Instructions: Each hour is 20 pixels long. In setbounds(), the second value corresponds 
-	 * to the start time, and the fourth value to the end time.
-	 * The 00:00 time slot lays on pixel 140
-	 */
-	public void displayAppointment(){
-		
-		int timeStart = 6;
-		int timeEnd = 9;
-		
-		boolean overlapping = false;
-		
-		if(overlapping){
-			JTextArea appArea2 = new JTextArea();
-			add(appArea2);
-			appArea2.setBackground(Color.GREEN);
-			appArea2.setText("Meeting with Lars");
-			appArea2.setBounds(70, 140+timeStart*40, 115/2, (timeEnd-timeStart)*40);
-		}
-		else{
-			JTextArea appArea = new JTextArea();
-			add(appArea);
-			appArea.setBackground(Color.ORANGE);
-			appArea.setText("Meeting with Jane");
-			appArea.setBounds(70, 140+timeStart*40, 115, (timeEnd-timeStart)*40);
-			overlapping = true;
+	public void newAppointment() {
+		new NewAppointment(model);
+	}
+	
+	public void viewAppointment(Appointment appointment) {
+		if (appointment != null) {
+			//TODO: La oss bare vise en tom foreløpig
+			new NewAppointment(model);
 		}
 	}
 	
-	public void showThisWeek() {
-		
+	public void chooseCalendars() {
+		new ChooseCalendar(model, calendarModel);
 	}
 	
-	public void showNextWeek() {
-		
+	public void showNotifications() {
+		//TODO: ...
 	}
 	
-	public void showPreviousWeek() {
-		
+	public Employee getCurrentEmployee() {
+		return currentEmployee;
 	}
 	
-	public void showWeek() {
-		
+	public Model getModel() {
+		return model;
 	}
 
-	/**
-	 * Create the frame.
-	 */
-	public MainCalendar(Model model) {
-		this.model = model;
-		
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
-		
-		// Add toolbar
-		add(new Toolbar(this));
+	
+	private class ActionHandler implements ActionListener {
 
-		// Add calendarview
-		JScrollPane scrollPane = new JScrollPane(new CalendarView());
-		add(scrollPane);
-		
-		setVisible(true);
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			String command = arg0.getActionCommand();
+			switch (command) {
+			case "notifications": showNotifications(); break;
+			case "chooseCalendars": chooseCalendars(); break;
+			case "newAppointment": newAppointment(); break;
+			case "itemSelected": viewAppointment(calendarView.getSelectedItem()); break;
+			}
+		}
 		
 	}
 }

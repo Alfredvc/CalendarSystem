@@ -85,7 +85,7 @@ public class NetworkingTest extends TestCase {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
 
-        client.networking.sendAppointment(sendingAppointment);
+        client.networking.save(sendingAppointment);
 
         try {
             Thread.sleep(2000);

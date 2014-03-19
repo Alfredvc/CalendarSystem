@@ -37,7 +37,6 @@ import javax.swing.SwingConstants;
 
 import org.jdesktop.swingx.JXDatePicker;
 
-import com.proj.deletableTests.GUItests;
 import com.proj.model.*;
 
 public class NewAppointment extends JFrame {
@@ -87,12 +86,14 @@ public class NewAppointment extends JFrame {
 
 	public NewAppointment(Model model) {
 
+
 		thisModel = model;
 		// Setting up the Frame, setting the size, position and making it fixed size
 //		JFrame add = new JFrame();
 		setTitle("New Appointment");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(750, 300);
+
 		int xLocation = (int) (screenSize.getWidth() - getWidth()) / 2;
 		int yLocation = (int) (screenSize.getHeight() - getHeight()) / 2;
 		setLocation(xLocation, yLocation);
@@ -246,7 +247,9 @@ public class NewAppointment extends JFrame {
 		ArrayListModel<Invitable> listModel = new ArrayListModel<Invitable>(Arrays.asList(model.getEmployees()));
 		listModel.addAll(Arrays.asList(model.getGroups()));
 
-		FuzzyDropdown<Invitable> fuzzyDropdown = new FuzzyDropdown<>(listModel);
+
+		FuzzyDropdown<Invitable> fuzzyDropdown = new FuzzyDropdown<>(listModel, true);
+
 		return fuzzyDropdown;
 	}
 
@@ -328,7 +331,11 @@ public class NewAppointment extends JFrame {
 							.add((Participant) new InternalParticipant(
 									selectedEmp, Status.Pending, false, false));
 				}
-			}
+
+			} else if (selectedItem instanceof ExternalParticipant){
+                if (!addedParticipantList.contains((ExternalParticipant)selectedItem)) addedParticipantList.add((ExternalParticipant)selectedItem);
+            }
+
 			createAddedParticipantView();
 		}
 
@@ -361,11 +368,11 @@ public class NewAppointment extends JFrame {
 
 			});
 			nameLabel = new JLabel("  "
-					+ ((InternalParticipant) participant).getDisplayName(),
+					+ ((Participant) participant).getDisplayName(),
 					JLabel.LEFT);
 			nameLabel.setPreferredSize(new Dimension(185, 25));
 			add(nameLabel);
-			statusLabel = new JLabel(((InternalParticipant) participant)
+			statusLabel = new JLabel(participant instanceof ExternalParticipant ? "Invited" : ((InternalParticipant) participant)
 					.getStatus().toString(), JLabel.LEFT);
 			statusLabel.setPreferredSize(new Dimension(70, 25));
 			add(statusLabel);
