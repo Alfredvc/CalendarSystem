@@ -1,5 +1,7 @@
 package com.proj.model;
 
+import java.beans.PropertyChangeEvent;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -9,7 +11,7 @@ import java.util.ArrayList;
  * Time: 16:21
  * To change this template use File | Settings | File Templates.
  */
-public class AppointmentChangeSupport {
+public class AppointmentChangeSupport implements Serializable {
 
     private ArrayList<AppointmentChangedListener> listeners;
     private Appointment appointment;
@@ -27,14 +29,14 @@ public class AppointmentChangeSupport {
         listeners.remove(appointmentChangedListener);
     }
 
-    public void fireAppointmentChanged(){
+    public void fireAppointmentChanged(PropertyChangeEvent event){
         for (AppointmentChangedListener listener : listeners){
-            listener.appointmentChanged(appointment);
+            listener.appointmentChanged(appointment, event);
         }
     }
 
     public interface AppointmentChangedListener{
-        public void appointmentChanged(Appointment appointment);
+        public void appointmentChanged(Appointment appointment, PropertyChangeEvent event);
     }
 
 }

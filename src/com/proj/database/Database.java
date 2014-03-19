@@ -14,7 +14,7 @@ import java.sql.SQLException;
 import java.sql.PreparedStatement;
 
 
-public class Database extends Storage implements PresistanceBackend {
+public class Database extends Storage {
 	
 	private static final String CONFIG_FILE = "conf/database.conf";
 	

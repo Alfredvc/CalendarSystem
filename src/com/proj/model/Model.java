@@ -23,13 +23,15 @@ public class Model {
         pcs.addPropertyChangeListener(notifier);
     }
 	
-	public void deleteAppointment(UUID id){                
+	public void deleteAppointment(UUID id){
+        appointments.get(id).removeAppointmentChangeListener(notifier);
 		Appointment oldValue=this.appointments.remove(id);
 		pcs.firePropertyChange("appointments",oldValue ,null);
 	}
 	
     public void addAppointment(Appointment app){
-		this.appointments.put(app.getId(), app);
+        app.addAppointmentChangeListener(notifier);
+        this.appointments.put(app.getId(), app);
 		pcs.firePropertyChange("appointments", null, app);
 	}
 
@@ -167,16 +169,16 @@ public class Model {
         public void propertyChange(PropertyChangeEvent evt) {
             if (evt.getPropertyName().equals("appointments")){
                 if (evt.getOldValue() != null && evt.getOldValue() instanceof Appointment && evt.getNewValue() == null ){
-                    mcs.fireModelChanged((Appointment) evt.getOldValue(), Appointment.Flag.DELETE);
+                    mcs.fireModelChanged((Appointment) evt.getOldValue(), Appointment.Flag.DELETE, evt);
                 } else if(evt.getNewValue() != null && evt.getNewValue() instanceof Appointment && evt.getOldValue() == null){
-                    mcs.fireModelChanged((Appointment) evt.getNewValue(), Appointment.Flag.UPDATE);
+                    mcs.fireModelChanged((Appointment) evt.getNewValue(), Appointment.Flag.UPDATE, evt);
                 }
             }
         }
 
         @Override
-        public void appointmentChanged(Appointment appointment) {
-            mcs.fireModelChanged(appointment, Appointment.Flag.UPDATE);
+        public void appointmentChanged(Appointment appointment, PropertyChangeEvent evt) {
+            mcs.fireModelChanged(appointment, Appointment.Flag.UPDATE, evt);
         }
     }
 

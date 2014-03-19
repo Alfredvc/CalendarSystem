@@ -80,10 +80,12 @@ public abstract class Networking extends Storage{
         return true;
     }
 
-    public boolean send(Appointment appointment){
+    @Override
+    public boolean save(Appointment appointment){
         return sendAppointment(appointment, Appointment.Flag.UPDATE);
     }
 
+    @Override
     public boolean delete(Appointment appointment){
         return sendAppointment(appointment, Appointment.Flag.DELETE);
     }

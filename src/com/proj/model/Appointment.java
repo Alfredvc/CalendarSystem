@@ -261,12 +261,14 @@ public class Appointment implements Serializable{
 		}
 
 		if (participants.size() > newParticipants.size()) {
+            ArrayList<Participant> toRemove = new ArrayList<>();
 			// We have to remove some participants!
 			for (Participant p : participants) {
 				if (!newParticipants.contains(p)) {
-					removeParticipant(p);
+					toRemove.add(p);
 				}
 			}
+            for (Participant p : toRemove) removeParticipant(p);
 		}
 		
 		// Simple values
@@ -301,7 +303,7 @@ public class Appointment implements Serializable{
     	return this.endTime.getMinutes();
     }
 
-    private class AppointmentChangeNotifier implements PropertyChangeListener{
+    private class AppointmentChangeNotifier implements PropertyChangeListener, Serializable{
 
         public AppointmentChangeSupport acs;
 
@@ -312,7 +314,7 @@ public class Appointment implements Serializable{
 
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-            acs.fireAppointmentChanged();
+            acs.fireAppointmentChanged(evt);
         }
     }
 
