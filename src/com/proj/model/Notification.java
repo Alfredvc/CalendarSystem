@@ -52,7 +52,7 @@ public class Notification implements Serializable {
 
     @Override
     public int hashCode(){
-        return text.hashCode();
+        return text != null ?text.hashCode() : 0;
     }
 
 }

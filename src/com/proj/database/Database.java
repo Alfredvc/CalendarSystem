@@ -3,11 +3,8 @@ package com.proj.database;
 import com.proj.model.*;
 import com.proj.network.Storage;
 
+import java.io.*;
 import java.util.Properties;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -26,8 +23,6 @@ public class Database extends Storage {
 	private NotificationHandler notificationHandler;
 	private StaticHandler staticHandler;
     private Model model;
-	
-	
 	
 	public Database(Model model) {
         this.model = model;

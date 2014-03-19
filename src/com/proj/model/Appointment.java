@@ -33,11 +33,28 @@ public class Appointment implements Serializable{
 
     private HashSet<Participant> participants = new HashSet<Participant>();
 	private InternalParticipant leader;
-	private ArrayList<Notification> notifications = new ArrayList<Notification>();
+	private HashSet<Notification> notifications = new HashSet<>();
     private MeetingRoom meetingRoom;
 	private PropertyChangeSupport pcs= new PropertyChangeSupport(this);
     private AppointmentChangeNotifier notifier = new AppointmentChangeNotifier(this);
 
+    public Appointment(Appointment appointment){
+        this.id = appointment.getId();
+        this.leader = new InternalParticipant(appointment.getLeader());
+        this.participants = new HashSet<>(Arrays.asList(appointment.getParticipants()));
+        this.notifications = new HashSet<>(Arrays.asList(appointment.getNotifications()));
+        for (Notification n : notifications) n.setAppointment(this);
+        this.startTime = new Date(appointment.getStartTime().getTime());
+        this.endTime = new Date(appointment.getEndTime().getTime());
+        this.description = new String(appointment.getDescription());
+        if (appointment.getLocation() == null) {
+            this.location = null;
+            this.meetingRoom = appointment.getMeetingRoom();
+        } else {
+            this.meetingRoom = null;
+            this.location = appointment.getLocation();
+        }
+    }
 	
 	public Appointment(UUID id, InternalParticipant leader,Date startTime){
 		if (leader == null) {
@@ -108,6 +125,8 @@ public class Appointment implements Serializable{
 	 * @param location
 	 */
 	public void setLocation(String location) {
+        if (location == null && this.location == null) return;
+
 		if (location != null && meetingRoom != null) {
 			throw new IllegalArgumentException("Cannot add location as this appointment already has a meeting room.");
 		}
@@ -124,7 +143,7 @@ public class Appointment implements Serializable{
 	
 	public void setStartTime(Date startTime) {
 		if (startTime == null) {
-			throw new NullPointerException("Cannot sett appointment start time to null");
+			throw new NullPointerException("Cannot set appointment start time to null");
 		}
 		if (endTime != null && startTime.after(endTime)) {
 			throw new IllegalArgumentException("The start time cannot be after the end time!");
@@ -200,6 +219,8 @@ public class Appointment implements Serializable{
 	}
 	
 	public void setMeetingRoom(MeetingRoom meetingRoom) {
+        if (this.meetingRoom == null && meetingRoom == null) return;
+
 		if (meetingRoom != null && location != null) {
 			throw new IllegalArgumentException("Cannot set meeting room as location is already set!");
 		}
@@ -232,45 +253,30 @@ public class Appointment implements Serializable{
 	 * NOTE: Copies only the editable fields!!!
 	 * @param appointment Appointment to copy data from!
 	 */
-	public void copyFrom(Appointment appointment) {
+	public void updateFrom(Appointment appointment) {
 		// Notifications is a collection! Special treatment needed
 		Notification[] newNotifications = appointment.getNotifications();
 		int oldSize = notifications.size();
 		int newSize = newNotifications.length;
 		int minSize = oldSize > newSize ? newSize : oldSize;
-		
-		// Notifications must match if they exist
-		for (int i = 0; i < minSize; i++) {
-			Notification notification = notifications.get(i);
-			if (notification == null || !notification.equals(newNotifications[i])) {
-				throw new IllegalArgumentException("WHAT!? We are missing a notification!");
-			}
-		}
 
-		if (newSize > oldSize) {
-			// Copy new notifications
-			for (int i = oldSize; i < newSize; i++) {
-				notifications.add(newNotifications[i]);
-			}
-		}
-		
-		
+        notifications.addAll(Arrays.asList(newNotifications));
+
 		// Participants
 		List<Participant> newParticipants = Arrays.asList(appointment.getParticipants());
-		for (Participant p : newParticipants) {
-			addParticipant(p);
-		}
+        ArrayList<Participant> toAdd = new ArrayList<>();
+        ArrayList<Participant> toRemove = new ArrayList<>();
+        for (Participant p : getParticipants()){
+            if (p instanceof InternalParticipant && newParticipants.contains(p)){
+                ((InternalParticipant)p).updateFrom((InternalParticipant)newParticipants.get(newParticipants.indexOf(p)));
+            } else{
+                toRemove.add(p);
+            }
+        }
 
-		if (participants.size() > newParticipants.size()) {
-            ArrayList<Participant> toRemove = new ArrayList<>();
-			// We have to remove some participants!
-			for (Participant p : participants) {
-				if (!newParticipants.contains(p)) {
-					toRemove.add(p);
-				}
-			}
-            for (Participant p : toRemove) removeParticipant(p);
-		}
+        for (Participant p : newParticipants){
+            if (!(participants.contains(p))) addParticipant(p);
+        }
 		
 		// Simple values
 		setDescription(appointment.getDescription());
@@ -296,7 +302,7 @@ public class Appointment implements Serializable{
     @Override
     public boolean equals(Object other){
         if (!(other instanceof Appointment)) return false;
-        return this.id.equals(((Appointment)other).getId());
+        return (this.id.equals(((Appointment)other).getId()) && this.notifications.equals(((Appointment) other).getNotifications()));
     }
     
     @Override
