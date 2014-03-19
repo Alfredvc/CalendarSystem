@@ -1,6 +1,7 @@
 package com.proj.model;
 
 import java.beans.PropertyChangeEvent;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -10,7 +11,7 @@ import java.util.ArrayList;
  * Time: 16:21
  * To change this template use File | Settings | File Templates.
  */
-public class ModelChangeSupport {
+public class ModelChangeSupport implements Serializable {
 
     private ArrayList<ModelChangedListener> listeners;
 

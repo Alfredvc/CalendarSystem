@@ -1,5 +1,7 @@
 package com.proj.model;
 
+import com.sun.javaws.exceptions.InvalidArgumentException;
+
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
@@ -14,6 +16,13 @@ public class InternalParticipant  implements Participant, Serializable{
 	public InternalParticipant(Employee employee) {
 		this.employee = employee;
 	}
+
+    public InternalParticipant(InternalParticipant internalParticipant){
+        this.employee = new Employee(internalParticipant.getEmployee());
+        this.status = internalParticipant.getStatus();
+        this.alarm = internalParticipant.isAlarm();
+        this.hidden = internalParticipant.isHidden();
+    }
 
 	public InternalParticipant(Employee employee, Status status, boolean alarm, boolean hidden) {
 		this(employee);
@@ -56,6 +65,13 @@ public class InternalParticipant  implements Participant, Serializable{
 
 	}
 
+    public void updateFrom(InternalParticipant other){
+        if (!(other.getEmployee().equals(employee))) throw new RuntimeException("Must be same employee");
+        setStatus(other.status);
+        setAlarm(other.isAlarm());
+        setHidden(other.isHidden());
+    }
+
 	@Override
 	public String getDisplayName() {
 		return employee.getName();
@@ -63,10 +79,23 @@ public class InternalParticipant  implements Participant, Serializable{
 	public String toString() {
 		return employee.getName();
 	}
-	
-	
-	
-	public void addPropertyChangeListener(PropertyChangeListener listener) {
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof InternalParticipant){
+            if (this.employee.equals(((InternalParticipant)o).getEmployee())){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return employee != null ? employee.hashCode() : 0;
+    }
+
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
 		pcs.addPropertyChangeListener(listener);
 	}
 	

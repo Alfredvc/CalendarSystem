@@ -18,7 +18,7 @@ public class AppointmentEnvelope implements Serializable {
 
     public AppointmentEnvelope(Appointment appointment, Appointment.Flag flag) {
         this.flag = flag;
-        this.appointment = appointment;
+        this.appointment = new Appointment(appointment);
     }
 
     public Appointment.Flag getFlag() {

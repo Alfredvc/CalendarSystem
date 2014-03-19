@@ -1,6 +1,7 @@
 package com.proj.model;
 
 import java.beans.PropertyChangeEvent;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -38,7 +39,7 @@ public class Model {
     //Does not fire a property change, copyFrom/addAppointment take care of that
     public void updateAppointment(Appointment app){
         if (appointments.containsKey(app.getId())){
-            this.appointments.get(app.getId()).copyFrom(app);
+            this.appointments.get(app.getId()).updateFrom(app);
         } else {
             addAppointment(app);
         }
@@ -156,7 +157,7 @@ public class Model {
         notifier.mcs.addModelChangedListener(listener);
     }
 
-    private class ModelChangeNotifier implements PropertyChangeListener, AppointmentChangeSupport.AppointmentChangedListener{
+    private class ModelChangeNotifier implements PropertyChangeListener, AppointmentChangeSupport.AppointmentChangedListener, Serializable{
 
         public ModelChangeSupport mcs;
 
