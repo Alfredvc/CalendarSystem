@@ -7,6 +7,8 @@ import java.util.Calendar;
 
 import javax.swing.AbstractListModel;
 import javax.swing.ListModel;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 
 import com.proj.model.Appointment;
 import com.proj.model.Employee;
@@ -19,20 +21,18 @@ public class CalendarModel extends AbstractListModel<Appointment> {
 	
 	private Calendar week;
 	private Model model;
-	private Employee defaultCalendar;
 
-	private ArrayList<Employee> calendars = new ArrayList<>();
+	private ListModel<Employee> employeeListModel;
 	private ArrayList<Appointment> appointments = new ArrayList<>();
 	private ArrayList<Integer> counts = new ArrayList<>();
 	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 	
-	private SelectedCalendarListModel selectedCalendarListModel = new SelectedCalendarListModel();
-	
-	public CalendarModel(Model model, Employee calendar) {
+	public CalendarModel(Model model, ListModel<Employee> employeeListModel) {
 		this.model = model;
+		//TODO: Listen to the model for new or removed appointments!!
+		this.employeeListModel = employeeListModel;
+		employeeListModel.addListDataListener(new EmployeeDataListener());
 		week = Calendar.getInstance();
-		addCalendar(calendar);
-		defaultCalendar = calendar;
 	}
 	
 	public void resetWeek() {
@@ -69,24 +69,8 @@ public class CalendarModel extends AbstractListModel<Appointment> {
 		return week.get(Calendar.YEAR);
 	}
 
-	
-	public void resetCalendar() {
-		for (Employee c : calendars) {
-			removeCalendar(c);
-		}
-		addCalendar(defaultCalendar);
-	}
-	
-	
-	public void addCalendar(Employee e) {
-		if (calendars.contains(e)) {
-			return; //Nothing changed
-		}
-		calendars.add(e);
-		selectedCalendarListModel.fireAdded(calendars.size() - 1);
-		
-		for (Employee calendar : calendars) {
-			ArrayList<Appointment> appointments = model.getMyAppointments(calendar);
+	private void addCalendar(Employee e) {
+			ArrayList<Appointment> appointments = model.getMyAppointments(e);
 			int startIndex = this.appointments.size() - 1;
 			
 			for (Appointment a : appointments) {
@@ -104,18 +88,10 @@ public class CalendarModel extends AbstractListModel<Appointment> {
 			if (endIndex > startIndex) {
 				fireIntervalAdded(this, startIndex, this.appointments.size() - 1);
 			}
-		}
 	}
 	
 	
-	public void removeCalendar(Employee e) {
-		int index = calendars.indexOf(e);
-		if (index < 0) {
-			return;
-		}
-		
-		calendars.remove(index);
-		selectedCalendarListModel.fireRemoved(index);
+	private void removeCalendar(Employee e) {
 		
 		ArrayList<Appointment> appointments = model.getMyAppointments(e);
 		
@@ -145,31 +121,40 @@ public class CalendarModel extends AbstractListModel<Appointment> {
 	public int getSize() {
 		return appointments.size();
 	}
-	
-	public ListModel<Employee> getCalendarListModel() {
-		return selectedCalendarListModel;
-	}
+
 	
 	/**
-	 * This class exposes the data in the employee array as a list model
+	 * This class listens to the employee list model and updates the appointments in
+	 * this calendar model!
 	 */
-	private class SelectedCalendarListModel extends AbstractListModel<Employee> {
+	private class EmployeeDataListener implements ListDataListener {
+
 		@Override
-		public Employee getElementAt(int index) {
-			return calendars.get(index);
+		public void contentsChanged(ListDataEvent arg0) {
+			int endIndex = arg0.getIndex1();
+			for (int i = arg0.getIndex0(); i < endIndex; i++) {
+				Employee changed = employeeListModel.getElementAt(i);
+				removeCalendar(changed);
+				addCalendar(changed);
+			}
+			
 		}
+
 		@Override
-		public int getSize() {
-			return calendars.size();
+		public void intervalAdded(ListDataEvent arg0) {
+			int endIndex = arg0.getIndex1();
+			for (int i = arg0.getIndex0(); i < endIndex; i++) {
+				addCalendar(employeeListModel.getElementAt(i));
+			}			
+		}
+
+		@Override
+		public void intervalRemoved(ListDataEvent arg0) {
+			int endIndex = arg0.getIndex1();
+			for (int i = arg0.getIndex0(); i < endIndex; i++) {
+				removeCalendar(employeeListModel.getElementAt(i));
+			}
 		}
 		
-		public void fireAdded(int index) {
-			// Note: This method belongs to the SelectedCalendarListModel!
-			fireIntervalAdded(this, index, index);
-		}
-		
-		public void fireRemoved(int index) {
-			fireIntervalRemoved(this, index, index);
-		}
 	}
 }

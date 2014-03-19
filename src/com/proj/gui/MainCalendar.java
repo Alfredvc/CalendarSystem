@@ -18,6 +18,7 @@ public class MainCalendar extends JFrame {
 	private Employee currentEmployee;
 	private CalendarView calendarView;
 	private CalendarModel calendarModel;
+	private SelectedCalendarsListModel selectedCalendarsListModel;
 	private ActionHandler actionHandler = new ActionHandler();
 	
 	public MainCalendar(Model model, Employee currentEmployee) {
@@ -27,15 +28,17 @@ public class MainCalendar extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		setSize(new Dimension(1000, 600));
+
+		// Instantiate models
+		selectedCalendarsListModel = new SelectedCalendarsListModel(getCurrentEmployee());
+		calendarModel = new CalendarModel(getModel(), selectedCalendarsListModel);
 		
-		calendarModel = new CalendarModel(getModel(), getCurrentEmployee());
-		
-		// Add toolbar
+		// Add tool bar
 		Toolbar toolbar = new Toolbar(calendarModel);
 		toolbar.addActionListener(actionHandler);
 		add(toolbar);
 		
-		// Add calendarview
+		// Add calendar view
 		calendarView = new CalendarView(calendarModel);
 		calendarView.addActionListener(actionHandler);
 		add(new JScrollPane(calendarView));
@@ -63,7 +66,7 @@ public class MainCalendar extends JFrame {
 	}
 	
 	public void chooseCalendars() {
-		new ChooseCalendar(model, calendarModel);
+		new ChooseCalendar(model, selectedCalendarsListModel);
 	}
 	
 	public void showNotifications() {

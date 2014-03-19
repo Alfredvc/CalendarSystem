@@ -57,6 +57,9 @@ public class FuzzyDropdown<E> extends JTextField {
 		popup.setVisible(false);
 	}
 	
+	public ListModel<E> getModel() {
+		return fuzzyListModel.getBackingModel();
+	}
 	
 	public void addActionListener(ActionListener listener) {
 			actionListeners.add(listener);
