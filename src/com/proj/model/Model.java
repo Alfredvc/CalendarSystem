@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.sql.Date;
+import java.util.Date;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
