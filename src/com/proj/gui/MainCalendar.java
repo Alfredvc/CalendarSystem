@@ -25,7 +25,7 @@ public class MainCalendar extends JFrame {
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
-		setSize(new Dimension(1000, 600));
+		setSize(new Dimension(1019, 600));
 		
 		CalendarModel calendarModel = new CalendarModel(getModel(), getCurrentEmployee());
 		

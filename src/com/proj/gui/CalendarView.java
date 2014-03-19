@@ -24,73 +24,164 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 import com.proj.model.Appointment;
+import com.proj.test.RandomGenerator;
 
 public class CalendarView extends JPanel{
 
-	private int appSpacing = 10;
 	private MouseListener ml = new ClickHandler();
 	private ListModel<Appointment> model;
-	private ArrayList<TranslucentTextArea> textAreas = new ArrayList<>();
+	private ArrayList<TranslucentTextArea[]> textAreas = new ArrayList<>();
 	private ActionSupport actionSupport = new ActionSupport(this, "itemSelected");
 	private int selected = -1;
 	
 	/**
 	 * Display new appointment in the calendar.
 	 */
-	public TranslucentTextArea getAppointmentTextArea(int index) {
+	public TranslucentTextArea[] getAppointmentTextArea(int index) {
 		Appointment app = model.getElementAt(index);
 
-		int startTimePixel = getPixelFromDate(app.getStartTime());
-		int endTimePixel = getPixelFromDate(app.getEndTime());
+		int[] startTimePixel = getPixelFromDate(app.getStartTime());
+		int[] endTimePixel = getPixelFromDate(app.getEndTime());
 		
 		//TODO: Support for appointments spanning multiple days
-		//TODO: Support for any other day than monday...
-		TranslucentTextArea appArea = new TranslucentTextArea(app.getDescription(), Color.RED);
-		appArea.addMouseListener(ml);
-		appArea.setForeground(Color.WHITE);
-		appArea.setFont(new Font("Lucida Grande", Font.BOLD, 13));
-		appArea.setEditable(false);
-		appArea.setBounds(65, startTimePixel, 115, endTimePixel-startTimePixel);
+		int numDays = ((endTimePixel[0]-startTimePixel[0])/134)+1;
+		if (numDays <0){
+			numDays = 7+numDays;
+		}
+		
+		System.out.println("Number of spanning days: "+numDays);
+		System.out.println("");
+		
+		int appStartPixelX = 65+startTimePixel[0]; // X coordinate for appointment start
+		int appStartPixelY = startTimePixel[1]; // Y coordinate for appointment start
+		int appWidth = 115+(endTimePixel[0]-startTimePixel[0]); // 
+		int appLength = endTimePixel[1]-startTimePixel[1];
+		
+		TranslucentTextArea[] ttaArray = new TranslucentTextArea[numDays];
+		
+		for (int i = 0; i < numDays; i++){
+			
+			// The whole day is occupied
+			if (numDays>1 && i>0 && i<numDays-2){
+				//appStartPixelX = 65+(i*134);
+				//appStartPixelY = 30;
+				appWidth = (endTimePixel[0]-startTimePixel[0]);
+				appLength = 989 - 30;
+				
+				System.out.println("first if loop");
+			// The rest of the day is occupied
+			}else if (numDays>1 && i==0){
+				//appStartPixelX = 65+(i*134);
+				//appStartPixelY = startTimePixel[1];
+				appWidth = (endTimePixel[0]-startTimePixel[0]);
+				appLength = 989 - appStartPixelY;
+				
+				System.out.println("first if else loop");
+			// Normal appointment
+			}else{
+				//appStartPixelX = 65+(i*134);
+				//appStartPixelY = startTimePixel[1];
+				appWidth = (endTimePixel[0]-startTimePixel[0]);
+				appLength = endTimePixel[1]-startTimePixel[1];
+				
+				System.out.println("First else loop");
+			}
+			
+			// The start of the day is occupied
+			if (numDays > 1 && i > 0){
+				appStartPixelX = 65+(i*134);
+				appStartPixelY = 30;
+				
+				System.out.println("Second loop");
+			// Normal appointment
+			}else{
+				appStartPixelX = 65+(i*134);
+				appStartPixelY = startTimePixel[1];
+				
+				System.out.println("Second else loop");
+			}
+			
+			//appWidth = endTimePixel[0] - startTimePixel[0];
+			
+			TranslucentTextArea appArea = new TranslucentTextArea(app.getDescription(), Color.BLUE);
+			appArea.addMouseListener(ml);
+			appArea.setForeground(Color.WHITE);
+			appArea.setFont(new Font("Lucida Grande", Font.BOLD, 13));
+			appArea.setEditable(false);
+			appArea.setBounds(appStartPixelX, appStartPixelY, appWidth, appLength);
+			
+			
+			ttaArray[i] = appArea;
+			
+		}
 
-		return appArea;
+		return ttaArray;
 	}
 	
 	private void addListInterval(int index0, int index1) {
 		for (int i = index0; i <= index1; i++) {
-			TranslucentTextArea area = getAppointmentTextArea(i);
+			TranslucentTextArea[] area = getAppointmentTextArea(i);
 			textAreas.add(i, area);
-			add(area);
+			for (TranslucentTextArea t : area){
+				add(t);
+			}
 		}
 	}
 
 	private void removeListInterval(int index0, int index1) {
 		// Remember that remaining array elements shift left when element is removed.
 		for (int i = index1; i >= index0; i--) {
-			remove(textAreas.remove(i));
+			TranslucentTextArea[] removed = textAreas.remove(i);
+			for (TranslucentTextArea t : removed){
+				remove(t);
+			}
+			
 		}
 	}
 	
 	private void updateListInterval(int index0, int index1) {
 		for (int i = index0; i <= index1; i++) {
-			remove(textAreas.get(i));
-			TranslucentTextArea area = getAppointmentTextArea(i);
+			
+			TranslucentTextArea[] removed = textAreas.get(i);
+			for (TranslucentTextArea t : removed){
+				remove(t);
+			}
+			
+			TranslucentTextArea[] area = getAppointmentTextArea(i);
 			textAreas.set(i, area);
-			add(area);
+			
+			for (TranslucentTextArea t : area){
+				add(t);
+			}
 		}
 	}
-		
+
 	/**
-	 * Instructions: Each hour is 40 pixels long, and each minute is 2/3 pixels 
+	 * Instructions: Each hour is 40 pixels long, and each minute is 2/3 pixels long
 	 * The 00:00 time slot lays on pixel 30
+	 * Each day is 134 pixels wide
+	 * Monday lays on pixel 65
 	 */
-	public int getPixelFromDate(Date d){
+	public int[] getPixelFromDate(Date d){
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(d);
+		int weekday = cal.get(Calendar.DAY_OF_WEEK);
 		int hours = cal.get(Calendar.HOUR_OF_DAY);
 		int minutes = cal.get(Calendar.MINUTE);
 		
-		int pixel = (int) (30 + (hours*40) + (minutes*(2.0/3)));
-		return pixel;	
+		System.out.println("Weekday: "+weekday);
+		System.out.println("Hour: "+hours);
+		System.out.println("Minute: "+minutes);
+		
+		
+		int pixelX = (int) 134 * (weekday-1);
+		int pixelY = (int) (30 + (hours*40) + (minutes*(2.0/3)));
+		
+		System.out.println(pixelX);
+		System.out.println(pixelY);
+		System.out.println("");
+		
+		return new int[]{pixelX, pixelY};
 	}
 	
 	/**
@@ -103,20 +194,13 @@ public class CalendarView extends JPanel{
 			addListInterval(0, model.getSize() - 1);
 		}
 		
-		/*// ***********	For testing purposes	***********
-		Appointment appointment = RandomGenerator.generateAppointment();
-		appointment.setEndTime(new Date(2014, 3, 18, 21, 48));
-		//System.out.println(appointment.getStartTime());
-				
-		displayAppointment(appointment);*/
-		
 		
 		/**
 		 * Modifies the scrollpanel
 		 */
-		setMinimumSize(new Dimension(970, 1410));
-		setPreferredSize(new Dimension(970, 1410));
-		setMaximumSize(new Dimension(970, 1410));
+		setMinimumSize(new Dimension(1000, 1000));
+		setPreferredSize(new Dimension(1000, 1000));
+		setMaximumSize(new Dimension(1000, 1000));
 		setLayout(null);
 		
 		
