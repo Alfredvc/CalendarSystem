@@ -6,66 +6,79 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Random;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextArea;
+import javax.swing.ListModel;
 import javax.swing.SwingConstants;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 
 import com.proj.model.Appointment;
-import com.proj.model.Model;
-import com.proj.test.RandomGenerator;
-import com.sun.xml.internal.bind.v2.model.annotation.AbstractInlineAnnotationReaderImpl;
 
 public class CalendarView extends JPanel{
 
 	private int appSpacing = 10;
 	private MouseListener ml = new ClickHandler();
-	private MainCalendar mainCal;
-	
-	HashMap<Appointment, TransclucentTextArea> appoinmentMap = new HashMap<Appointment, TransclucentTextArea>();
+	private ListModel<Appointment> model;
+	private ArrayList<TranslucentTextArea> textAreas = new ArrayList<>();
+	private ActionSupport actionSupport = new ActionSupport(this, "itemSelected");
+	private int selected = -1;
 	
 	/**
 	 * Display new appointment in the calendar.
 	 */
-	public void displayAppointment(Appointment app){
-		
+	public TranslucentTextArea getAppointmentTextArea(int index) {
+		Appointment app = model.getElementAt(index);
+
 		int startTimePixel = getPixelFromDate(app.getStartTime());
 		int endTimePixel = getPixelFromDate(app.getEndTime());
 		
-		
-		TransclucentTextArea appArea = new TransclucentTextArea(app.getDescription(), Color.RED);
+		//TODO: Support for appointments spanning multiple days
+		//TODO: Support for any other day than monday...
+		TranslucentTextArea appArea = new TranslucentTextArea(app.getDescription(), Color.RED);
 		appArea.addMouseListener(ml);
-		add(appArea);
 		appArea.setForeground(Color.WHITE);
 		appArea.setFont(new Font("Lucida Grande", Font.BOLD, 13));
 		appArea.setEditable(false);
 		appArea.setBounds(65, startTimePixel, 115, endTimePixel-startTimePixel);
-		
-		appoinmentMap.put(app, appArea);
-		System.out.println(appoinmentMap);
-		
+
+		return appArea;
 	}
 	
-	/**
-	 * Remove an appointment from the calendar
-	 */
-	public void removeAppointment(Appointment app){
-		
-		remove(appoinmentMap.get(app));
-		appoinmentMap.remove(app);
-		
+	private void addListInterval(int index0, int index1) {
+		for (int i = index0; i <= index1; i++) {
+			TranslucentTextArea area = getAppointmentTextArea(i);
+			textAreas.add(i, area);
+			add(area);
+		}
+	}
+
+	private void removeListInterval(int index0, int index1) {
+		// Remember that remaining array elements shift left when element is removed.
+		for (int i = index1; i >= index0; i--) {
+			remove(textAreas.remove(i));
+		}
 	}
 	
+	private void updateListInterval(int index0, int index1) {
+		for (int i = index0; i <= index1; i++) {
+			remove(textAreas.get(i));
+			TranslucentTextArea area = getAppointmentTextArea(i);
+			textAreas.set(i, area);
+			add(area);
+		}
+	}
+		
 	/**
 	 * Instructions: Each hour is 40 pixels long, and each minute is 2/3 pixels 
 	 * The 00:00 time slot lays on pixel 30
@@ -83,9 +96,12 @@ public class CalendarView extends JPanel{
 	/**
 	 * Creates the calendar view
 	 */
-	public CalendarView(MainCalendar mainCalendar) {
-		
-		mainCal = mainCalendar;
+	public CalendarView(ListModel<Appointment> model) {
+		this.model = model;
+		model.addListDataListener(new DataChangeHandler());
+		if (model.getSize() > 0) {
+			addListInterval(0, model.getSize() - 1);
+		}
 		
 		/*// ***********	For testing purposes	***********
 		Appointment appointment = RandomGenerator.generateAppointment();
@@ -184,38 +200,74 @@ public class CalendarView extends JPanel{
 			}
 			timeCoord+=40;
 		}
-		
-		
-		
+
 	}
 	
-	class ClickHandler extends MouseAdapter {
+	public void setActionCommand(String actionCommand) {
+		actionSupport.setActionCommand(actionCommand);
+	}
+	
+	public String getActionCommand() {
+		return actionSupport.getActionCommand();
+	}
+
+	public void addActionListener(ActionListener listener) {
+		actionSupport.addActionListener(listener);
+	}
+	
+	public void fireActionPerformed() {
+		actionSupport.fireActionPerformed();
+	}
+	
+	public Appointment getSelectedItem() {
+		return selected >= 0 ? model.getElementAt(selected) : null;
+	}
+	
+	/**
+	 * Listens for changes in the list model so the view can be
+	 * updated.
+	 */
+	private class DataChangeHandler implements ListDataListener {
 
 		@Override
-		public void mouseClicked(MouseEvent e) {
-			System.out.println("Clicked!");
-			
-			Iterator<Appointment> iter = appoinmentMap.keySet().iterator();
-			Appointment key = null;
-			while(iter.hasNext()) {
-			    key = iter.next();
-			    if (appoinmentMap.get(key) == e.getSource()){
-			    	break;
-			    }
-			}
-			if (key != null){
-				mainCal.viewAppointment(key);
-			}
-			
+		public void contentsChanged(ListDataEvent arg0) {
+			updateListInterval(arg0.getIndex0(), arg0.getIndex1());
+		}
+
+		@Override
+		public void intervalAdded(ListDataEvent arg0) {
+			addListInterval(arg0.getIndex0(), arg0.getIndex1());
+		}
+
+		@Override
+		public void intervalRemoved(ListDataEvent arg0) {
+			removeListInterval(arg0.getIndex0(), arg0.getIndex1());
 		}
 		
 	}
 	
-	class TransclucentTextArea extends JTextArea {
+	/**
+	 * Handles clicks on appointments (that is textareas)
+	 */
+	private class ClickHandler extends MouseAdapter {
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			selected = textAreas.indexOf(e.getSource());
+			fireActionPerformed();
+		}
+		
+	}
+	
+	/**
+	 * We need translucent text areas! Let's override the paintComponent
+	 * method.
+	 */
+	private class TranslucentTextArea extends JTextArea {
 		
 		private Color color;
 
-	    public TransclucentTextArea(String text, Color col) {
+	    public TranslucentTextArea(String text, Color col) {
 	        super(text);
 	        setOpaque(false);
 	        setLineWrap(true);

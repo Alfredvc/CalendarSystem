@@ -29,7 +29,6 @@ import javax.swing.SwingConstants;
 
 import org.jdesktop.swingx.JXDatePicker;
 
-import com.proj.deletableTests.GUItests;
 import com.proj.model.*;
 
 public class NewAppointment extends JFrame {
@@ -78,7 +77,6 @@ public class NewAppointment extends JFrame {
 
 		// Setting up the Frame, setting the size, position and making it fixed
 		// size
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(800, 400);
 		int xLocation = (int) (screenSize.getWidth() - getWidth()) / 2;
 		int yLocation = (int) (screenSize.getHeight() - getHeight()) / 2;
