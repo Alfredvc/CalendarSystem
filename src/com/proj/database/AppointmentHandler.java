@@ -69,7 +69,8 @@ public class AppointmentHandler {
 		statement.setTimestamp(AppointmentColumns.Date.colNr(), DateConverter.getSqlTimestamp(appointment.getStartTime()));
 		statement.setInt(AppointmentColumns.Duration.colNr(), appointment.getDuration());
 		statement.setString(AppointmentColumns.Location.colNr(), appointment.getLocation());
-		statement.setString(AppointmentColumns.MeetingRoom.colNr(), appointment.getMeetingRoom().getRoomNr());
+        statement.setString(AppointmentColumns.MeetingRoom.colNr(), appointment.getMeetingRoom() == null
+                ? null : appointment.getMeetingRoom().getRoomNr());
 		statement.setString(AppointmentColumns.Leader.colNr(), appointment.getLeader().getEmployee().getEmail());
 	}
 	
