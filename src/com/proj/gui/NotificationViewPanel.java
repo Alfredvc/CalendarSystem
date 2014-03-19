@@ -7,6 +7,7 @@ import java.awt.GridBagLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 
@@ -18,8 +19,9 @@ import javax.swing.JScrollPane;
 import javax.swing.Scrollable;
 
 import com.proj.model.Notification;
+import java.beans.PropertyChangeListener;
 
-public class NotificationViewPanel extends JPanel {
+public class NotificationViewPanel extends JPanel implements PropertyChangeListener {
 	/**
 	 * 
 	 */
@@ -91,12 +93,12 @@ public class NotificationViewPanel extends JPanel {
 			panel.setLayout(new GridBagLayout());
 			notifications
 					.add(new Notification(
-							"Your are invited to fløtepoteter"));
-			notifications.add(new Notification("Your are invited to fløjebf afdhakjfhjdsfjdkfhdaskjfh"));
+							"Your are invited to flï¿½tepoteter"));
+			notifications.add(new Notification("Your are invited to flï¿½jebf afdhakjfhjdsfjdkfhdaskjfh"));
 			notifications.add(new Notification(
-					"Your are invited to fløteadsadbf"));
+					"Your are invited to flï¿½teadsadbf"));
 			notifications.add(new Notification(
-					"Your are invited to fløtepotefhjebf"));
+					"Your are invited to flï¿½tepotefhjebf"));
 			notifications.add(new Notification("what the fuck??!!!"));
 			notifications.add(new Notification("what fuck??!!!"));
 			notifications.add(new Notification("hmm??!!!"));
@@ -176,6 +178,11 @@ public class NotificationViewPanel extends JPanel {
 
 		}
 
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		
 	}
 
 }

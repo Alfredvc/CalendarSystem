@@ -4,7 +4,7 @@ import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.sql.Date;
+import java.util.Date;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -122,15 +122,18 @@ public class Model {
 		return notif;
 	}
 	
-	public ArrayList<MeetingRoom> getFreeMeetingRooms(Date startTime, Date endTime){
+	public ArrayList<MeetingRoom> getFreeMeetingRooms(Date startTime, Date endTime, int capacity){
 		ArrayList<MeetingRoom> freeRooms= new ArrayList<MeetingRoom>(Arrays.asList(this.getMeetingRooms()));
 		for(UUID key: appointments.keySet()){
 			Appointment app=appointments.get(key);
 			if((app.getStartTime().before(endTime) && app.getEndTime().after(endTime)) ||
 					(app.getStartTime().before(startTime) && app.getEndTime().after(startTime))){
 				
+				if(app.getMeetingRoom()!=null){freeRooms.remove(app.getMeetingRoom());}
+			}
+			else if(app.getMeetingRoom().getCapacity()<capacity){
 				freeRooms.remove(app.getMeetingRoom());
-			};
+			}
 		}
 		return freeRooms;
 	}
