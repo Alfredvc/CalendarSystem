@@ -1,14 +1,12 @@
 package com.proj.server;
 
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 import com.proj.model.ExternalParticipant;
 import com.proj.model.Model;
 import com.proj.model.Appointment;
 import com.proj.database.Database;
 import com.proj.model.ModelChangeSupport;
-import com.proj.network.AppointmentEnvelope;
 import com.proj.network.ServerNetworking;
 
 /**
@@ -62,11 +60,11 @@ public class Server implements ModelChangeSupport.ModelChangedListener{
     }
 
     private void sendInviteEmail(Appointment appointment, ExternalParticipant participant){
-
+        new Email().invitation(appointment, participant).sendMail();
     }
 
     private void sendDisinviteEmail(Appointment appointment, ExternalParticipant participant){
-
+        new Email().disinvitation(appointment, participant).sendMail();
     }
 
     @Override
@@ -80,4 +78,7 @@ public class Server implements ModelChangeSupport.ModelChangedListener{
             }
         }
     }
+
+
+
 }

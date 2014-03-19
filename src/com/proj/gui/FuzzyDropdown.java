@@ -19,9 +19,9 @@ public class FuzzyDropdown<E> extends JTextField {
 	private ArrayList<ActionListener> actionListeners = new ArrayList<>();
 	private E selected;
 	
-	public FuzzyDropdown(ListModel<E> model) {
+	public FuzzyDropdown(ListModel<E> model, boolean withExternalParticipants) {
 		super();
-		fuzzyListModel = new FuzzyListModel<>(model);
+		fuzzyListModel = new FuzzyListModel<>(model, withExternalParticipants);
 		setColumns(10);
 		popup = new FuzzyPopup<E>(this, fuzzyListModel);
 		getDocument().addDocumentListener(new DocumentChangeListener());

@@ -20,7 +20,7 @@ public class RandomGenerator {
 	 public static Appointment generateAppointment(){
     	InternalParticipant leader = generateInternalParticipant();
     	Date startTime = new Date(generateDate().getTime() - 1000*60*60*10);
-    	Date endTime = new Date(startTime.getTime() + 1000*60*60*(rand.nextInt(3) + 1));
+    	Date endTime = new Date(startTime.getTime() + 1000*60*60*(rand.nextInt(48) + 1));
     	MeetingRoom meetingRoom = generateMeetingRoom();
         Appointment app= new Appointment( leader, startTime, endTime, meetingRoom );
         app.setDescription(generateString());
@@ -54,7 +54,8 @@ public class RandomGenerator {
     
     public static Date generateDate(){
     	Calendar calendar = Calendar.getInstance();
-    	calendar.set(Calendar.HOUR_OF_DAY, rand.nextInt(20));
+    	calendar.set(Calendar.DAY_OF_MONTH, rand.nextInt(7));
+    	calendar.set(Calendar.HOUR_OF_DAY, rand.nextInt(23));
     	calendar.set(Calendar.MINUTE, rand.nextInt(60));
     	return calendar.getTime();
     }
