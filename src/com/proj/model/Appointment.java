@@ -1,6 +1,7 @@
 package com.proj.model;
 
 import java.beans.PropertyChangeEvent;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
