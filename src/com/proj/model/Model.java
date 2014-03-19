@@ -100,6 +100,28 @@ public class Model {
 		groups.add(group);
 	}
 	
+	public ArrayList<Notification> myNotifications(Employee emp){
+		ArrayList<Notification> notif=new ArrayList<>();
+	
+		for(Appointment app: getMyAppointments(emp)){
+			for(Notification n: app.getNotifications()){
+				if(notif.size()<10){
+					notif.add(n);
+				}
+				else{
+					int oldest=0;
+					for(int i=0; i<notif.size(); i++){
+						if(notif.get(oldest).getTimestamp().after(notif.get(i).getTimestamp())){
+							oldest=i;
+						}
+					}
+				if(n.getTimestamp().after(notif.get(oldest).getTimestamp())){notif.set(oldest,n);}
+				}
+			}
+		}
+		return notif;
+	}
+	
 	public ArrayList<MeetingRoom> getFreeMeetingRooms(Date startTime, Date endTime){
 		ArrayList<MeetingRoom> freeRooms= new ArrayList<MeetingRoom>(Arrays.asList(this.getMeetingRooms()));
 		for(UUID key: appointments.keySet()){

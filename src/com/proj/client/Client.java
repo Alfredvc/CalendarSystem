@@ -2,6 +2,7 @@ package com.proj.client;
 
 import com.proj.gui.Login;
 import com.proj.gui.MainCalendar;
+import com.proj.model.Employee;
 import com.proj.model.Model;
 import com.proj.network.ClientNetworking;
 import com.proj.test.RandomGenerator;
@@ -33,7 +34,7 @@ public class Client {
     }
     
     public void continueStartup() {
-    	mainCalendar = new MainCalendar(model);
+    	mainCalendar = new MainCalendar(model, new Employee("Mock", "Mock", 0));
     }
     
     public static void main(String[] args) {

@@ -35,4 +35,7 @@ public class MeetingRoom implements Serializable{
 	public String getName() {
 		return name;
 	}
+	public String toString() {
+		return roomNr;
+	}
 }
