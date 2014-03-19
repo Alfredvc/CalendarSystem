@@ -2,7 +2,7 @@ package com.proj.model;
 
 import java.io.Serializable;
 
-public class ExternalParticipant implements Participant, Serializable {
+public class ExternalParticipant implements Participant, Serializable, Invitable {
 	 
 	private String email;
 	

@@ -243,7 +243,9 @@ public class NewAppointment extends JFrame {
 							.add((Participant) new InternalParticipant(
 									selectedEmp, Status.Pending, false, false));
 				}
-			}
+			} else if (selectedItem instanceof ExternalParticipant){
+                if (!addedParticipantList.contains((ExternalParticipant)selectedItem)) addedParticipantList.add((ExternalParticipant)selectedItem);
+            }
 			System.out.println(addedParticipantList);
 			createAddedParticipantView();
 		}
@@ -278,11 +280,11 @@ public class NewAppointment extends JFrame {
 
 			});
 			nameLabel = new JLabel("  "
-					+ ((InternalParticipant) participant).getDisplayName(),
+					+ ((Participant) participant).getDisplayName(),
 					JLabel.LEFT);
 			nameLabel.setPreferredSize(new Dimension(185, 25));
 			add(nameLabel);
-			statusLabel = new JLabel(((InternalParticipant) participant)
+			statusLabel = new JLabel(participant instanceof ExternalParticipant ? "Invited" : ((InternalParticipant) participant)
 					.getStatus().toString(), JLabel.LEFT);
 			statusLabel.setPreferredSize(new Dimension(70, 25));
 			add(statusLabel);
