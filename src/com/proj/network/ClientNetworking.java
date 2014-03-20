@@ -34,8 +34,6 @@ public class ClientNetworking extends Networking implements Runnable, ByteBuffer
 
     final Object readyToLogIn = new Object();
     final Object awaitingLoginResponse = new Object();
-    final Object readyToRequestAppointments = new Object();
-    final Object awaitingAppointments = new Object();
 
     public ClientNetworking(Model model){
         super(model);
@@ -124,6 +122,7 @@ public class ClientNetworking extends Networking implements Runnable, ByteBuffer
                                     ((ChannelAttachment)key.attachment()).byteBufferHandler.handleByteBuffer(ByteBuffer.wrap(recv[2].getBytes()));
                                 }
                             } else{
+                                key.attach(readyToLogIn);
                                 System.out.println("Interrupting thread " + loginThread + " from thread "+ Thread.currentThread());
                                 loginThread.interrupt();
                                 System.out.println("Login failed, trying again");
@@ -168,7 +167,7 @@ public class ClientNetworking extends Networking implements Runnable, ByteBuffer
             loginThread.sleep(8000);
             System.out.println("Login attempt timed out");
         } catch (InterruptedException e){
-            System.out.println("\tAll appointments loaded");
+            System.out.println(loggedIn ? "\tAll appointments loaded" : "Login failed");
         } finally {
             this.username = null;
             this.password = null;
