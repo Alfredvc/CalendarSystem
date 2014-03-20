@@ -125,13 +125,13 @@ public class NewAppointment extends JFrame {
 
 		// Start and End time of the appointment
 		startTimeInput = new JTextField();
-		startTimeInput.setBounds(100, 60, 40, 25);
+		startTimeInput.setBounds(100, 60, 70, 25);
 		startTimeInput.setText("12:00");
 		stringToTimeHMS("12:00", startTime);
 		startTimeInput.addFocusListener(new SuperEventListener());
 		add(startTimeInput);
 		endTimeInput = new JTextField();
-		endTimeInput.setBounds(100, 100, 40, 25);
+		endTimeInput.setBounds(100, 100, 70, 25);
 		endTimeInput.setText("13:00");
 		stringToTimeHMS("13:00", endTime);
 		endTimeInput.addFocusListener(new SuperEventListener());
@@ -154,12 +154,12 @@ public class NewAppointment extends JFrame {
 		// Choosing if meetingRoom or other location
 		meetingRoomButton = new JRadioButton("Meeting Room");
 		meetingRoomButton.setBounds(100, 140, 110, 25);
-		meetingRoomButton.setSelected(true);
 		meetingRoomButton.addActionListener(new locationButtonAction());
 		add(meetingRoomButton);
 		otherButton = new JRadioButton("Other");
 		otherButton.setBounds(230, 140, 70, 25);
 		otherButton.addActionListener(new locationButtonAction());
+		otherButton.setSelected(true);
 		add(otherButton);
 		ButtonGroup bGroup = new ButtonGroup();
 		bGroup.add(meetingRoomButton);
@@ -169,19 +169,18 @@ public class NewAppointment extends JFrame {
 		participantNumberInput = new JComboBox<PartAmount>(participantAmount);
 		participantNumberInput.setBounds(100, 170, 100, 25);
 		participantNumberInput.addActionListener(new SuperEventListener());
+		participantNumberInput.setVisible(false);
 		add(participantNumberInput);
-
 
 		meetingRoomInput = new JComboBox<MeetingRoom>();
 		meetingRoomInput.setBounds(200, 170, 100, 25);
+		meetingRoomInput.setVisible(false);
         add(meetingRoomInput);
         findFreeMeetingRoomFunction();
-
 		
 		// if other is selected a JTextField for writing a location description is selected
 		locationInput = new JTextField();
 		locationInput.setBounds(100, 170, 200, 25);
-		locationInput.setVisible(false);
 		add(locationInput);
 
 		addedParticipantList = new ArrayList<Participant>();
@@ -316,7 +315,6 @@ public class NewAppointment extends JFrame {
 					app.setDescription(appDescription);
 					thisModel.addAppointment(app);
 	//				dispose();
-					System.out.println(app.getLocation());
 	
 				}
 				else {
@@ -416,12 +414,14 @@ public class NewAppointment extends JFrame {
 				startTime.setDate(startDateInput.getDate().getDate());
 				startTime.setMonth(startDateInput.getDate().getMonth());
 				startTime.setYear(startDateInput.getDate().getYear());
+				startDateInput.setDate(startTime);
 				findFreeMeetingRoomFunction();
 			}
 			if(event.getSource() == endDateInput){
 				endTime.setDate(endDateInput.getDate().getDate());
 				endTime.setMonth(endDateInput.getDate().getMonth());
 				endTime.setYear(endDateInput.getDate().getYear());
+				endDateInput.setDate(endTime);
 				findFreeMeetingRoomFunction();
 				
 			}
@@ -444,7 +444,7 @@ public class NewAppointment extends JFrame {
 					}
 					startTime.setHours(startH);
 					startTime.setMinutes(startM);
-					startTimeInput.setText(startH+":"+startM);
+					startTimeInput.setText((startH < 10 ? "0" : "") + startH+":"+(startM < 10 ? "0" : "") + startM);
 					findFreeMeetingRoomFunction();
 					
 				}
@@ -463,7 +463,7 @@ public class NewAppointment extends JFrame {
 					}
 					endTime.setHours(endH);
 					endTime.setMinutes(endM);
-					endTimeInput.setText(endH+":"+endM);
+					endTimeInput.setText((endH < 10 ? "0" : "") + endH+":"+(endM < 10 ? "0" : "") + endM);
 					findFreeMeetingRoomFunction();
 				}
 				catch (NumberFormatException wrongNumber) {
