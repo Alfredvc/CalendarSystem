@@ -64,8 +64,15 @@ public class MainCalendar extends JFrame {
 	
 	public void viewAppointment(Appointment appointment) {
 		if (appointment != null) {
-			//TODO: La oss bare vise en tom foreløpig
-			new ViewAppointment(appointment);
+			//TODO: bestemmer om ViewAppointment eller EditAppointment skal kjøres
+			if(Client.getCurrentEmployee() == appointment.getLeader().getEmployee()){
+			new EditAppointment(model, appointment);				
+			}
+			else{
+			new ViewAppointment(appointment);				
+			}
+			
+			
 		}
 	}
 	
