@@ -132,7 +132,7 @@ public class Model {
 				
 				if(app.getMeetingRoom()!=null){freeRooms.remove(app.getMeetingRoom());}
 			}
-			else if(app.getMeetingRoom().getCapacity()<capacity){
+			else if(app.getMeetingRoom()!=null && app.getMeetingRoom().getCapacity()<capacity){
 				freeRooms.remove(app.getMeetingRoom());
 			}
 		}
