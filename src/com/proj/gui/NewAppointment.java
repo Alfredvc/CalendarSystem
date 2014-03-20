@@ -291,6 +291,7 @@ public class NewAppointment extends JFrame {
 			if(nameInput.getText().length() == 0){
 				JOptionPane.showMessageDialog(warningWindow, "Please fill in the Name field",
 						"Name Error", JOptionPane.WARNING_MESSAGE);
+                return;
 			}
 			else{
 				if(startTime.before(endTime)){
@@ -303,6 +304,7 @@ public class NewAppointment extends JFrame {
 						if(locationInput.getText().length() == 0){
 							JOptionPane.showMessageDialog(warningWindow, "Please fill in the location field",
 									"Location Error", JOptionPane.WARNING_MESSAGE);
+                            return;
 						}
 						appLocation = locationInput.getText();
 						app = new Appointment( appLeader, appStartTime, appEndTime, appLocation);
@@ -320,6 +322,7 @@ public class NewAppointment extends JFrame {
 				else {
 					JOptionPane.showMessageDialog(warningWindow, "You cannot end an appointment before it has begun",
 							"Date Error", JOptionPane.WARNING_MESSAGE);
+                    return;
 				}
 			}
 			

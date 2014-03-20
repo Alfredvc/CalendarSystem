@@ -11,7 +11,7 @@ public class Employee implements Invitable, Serializable{
 
     public Employee(Employee employee){
         this.name = employee.getName();
-        this.email = employee.getName();
+        this.email = employee.getEmail();
         this.telephone = employee.getTelephone();
     }
 	

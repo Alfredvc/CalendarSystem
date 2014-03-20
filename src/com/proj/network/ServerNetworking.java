@@ -165,6 +165,8 @@ public class ServerNetworking extends Networking implements Runnable{
 
                         if (key.attachment() != null && key.attachment().equals(awaitingAllAppointments)){
                             key.attach(new ChannelAttachment(this));
+                            ((ChannelAttachment)key.attachment()).appointmentOutputHandler.sendInit(client,
+                                    new InitEnvelope(model.getEmployees(), model.getMeetingRooms(), model.getGroups()));
                             ((ChannelAttachment) key.attachment()).queue = getAllAppointmentsAsQueue();
                         }
 

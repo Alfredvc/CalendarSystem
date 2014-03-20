@@ -1,5 +1,8 @@
 package com.proj.network;
 
+import com.proj.model.Employee;
+import com.proj.model.Group;
+import com.proj.model.MeetingRoom;
 import com.proj.model.Model;
 
 import java.io.IOException;
@@ -145,7 +148,10 @@ public class ClientNetworking extends Networking implements Runnable, ByteBuffer
     }
 
     @Override
-    public void onLoad(){
+    public void onLoad(InitEnvelope initEnvelope){
+        for (Employee employee : initEnvelope.getEmployees()) model.addEmployee(employee);
+        for (Group group : initEnvelope.getGroups()) model.addGroup(group);
+        for (MeetingRoom meetingRoom : initEnvelope.getMeetingRooms()) model.addMeetingRoom(meetingRoom);
         System.out.println("\tClientNetwork notified, all appointments loaded");
         loginThread.interrupt();
     }
