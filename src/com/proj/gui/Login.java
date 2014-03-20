@@ -1,7 +1,5 @@
 package com.proj.gui;
 
-import java.awt.Dimension;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.security.MessageDigest;
@@ -23,7 +21,7 @@ import com.sun.org.apache.xml.internal.security.utils.Base64;
 
 public class Login extends JFrame{
 
-    static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize(); // Dimensions of client screen
+	public static String DOMAIN = "company.com";
     
     private JTextField emailInput;
 	private JPasswordField passwordInput;
@@ -38,9 +36,7 @@ public class Login extends JFrame{
 		// Setting up the Frame, setting the size, position and making it fixed size
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(420, 170);
-		int xLocation = (int) (screenSize.getWidth() - getWidth()) / 2;
-		int yLocation = (int) (screenSize.getHeight() - getHeight()) / 2;		
-		setLocation(xLocation, yLocation);
+		setLocationRelativeTo(null);
 		setResizable(false);
 		setLayout(null);
 		
@@ -115,6 +111,7 @@ public class Login extends JFrame{
 	 */
 	private void logIn() {
 		loadingDialog = new LoadingDialog(this, "We are trying to log you in!");
+		System.out.println(getPasswordHash());
 		
 		// Let's avoid freezing the ui
 		new Thread(new SwingWorker<Boolean, Void>() {
@@ -122,7 +119,7 @@ public class Login extends JFrame{
 			@Override
 			protected Boolean doInBackground() throws Exception {
 				return client.logIn(
-						emailInput.getText(),
+						emailInput.getText()  + "@" + DOMAIN,
 						getPasswordHash()
 					);
 			}

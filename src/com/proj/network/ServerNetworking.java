@@ -213,8 +213,7 @@ public class ServerNetworking extends Networking implements Runnable{
         String recv = new String(array);
         System.out.println("Received: " + recv);
         String[] login = recv.split(":");
-        server.requestLogin(login[0], login[1]);
-        return true;
+        return server.requestLogin(login[0], login[1]);
     }
 
 }
