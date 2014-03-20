@@ -1,14 +1,10 @@
 package com.proj.network;
 
-import com.proj.model.Appointment;
-
-import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.math.BigInteger;
-import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 
 /**
  * Created with IntelliJ IDEA.
@@ -19,21 +15,27 @@ import java.nio.ByteBuffer;
  */
 public class ByteBufferHandler {
 
-    private ByteBuffer internalBuffer;
     private Networking networking;
     private ByteBufferInputStream inStream;
     private ObjectInputStream in;
+    private NotifyOnLoadListener listener;
+    private int leftToNotify;
+
+    public void setNotifyOnLoadListener(NotifyOnLoadListener listener, int left){
+        if (listener == null || left < 1) return;
+        this.listener = listener;
+        this.leftToNotify = left;
+    }
 
     public ByteBufferHandler(Networking networking){
-        this.internalBuffer = ByteBuffer.allocate(1024 * 32);
         this.networking = networking;
         this.inStream = new ByteBufferInputStream(1024 * 64);
+        this.listener = null;
     }
 
     public void handleByteBuffer(ByteBuffer byteBuffer) {
         byteBuffer.flip();
         if (byteBuffer.limit() == 0) return;
-        //System.out.println("Pos: " + byteBuffer.position() + " Limit: " + byteBuffer.limit() + " Capacity: " + byteBuffer.capacity());
         inStream.addBuffer(byteBuffer);
         if (in == null){
             try {
@@ -54,6 +56,14 @@ public class ByteBufferHandler {
                 newAppointment = (AppointmentEnvelope) in.readObject();
                 if (newAppointment == null) throw new NullPointerException();
                 networking.receivedAppointment(newAppointment);
+                if (listener != null){
+                    if (leftToNotify > 1){
+                        leftToNotify--;
+                    } else{
+                        listener.onLoad();
+                        listener = null;
+                    }
+                }
             }
         } catch(EOFException e){
             System.out.println("All appointments extracted");
@@ -63,6 +73,10 @@ public class ByteBufferHandler {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
+    }
+
+    public interface NotifyOnLoadListener {
+        public void onLoad();
     }
 
 }
