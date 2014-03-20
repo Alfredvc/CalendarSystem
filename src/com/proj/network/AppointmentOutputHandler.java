@@ -36,5 +36,17 @@ public class AppointmentOutputHandler {
         }
         byteArrayOutputStream.reset();
     }
+    public void sendInit(SocketChannel channel, InitEnvelope initEnvelope) throws IOException {
+        System.out.println("Sending init evelope " + initEnvelope + "...");
+        objectOutputStream.writeObject(initEnvelope);
+        ByteBuffer buff = ByteBuffer.wrap(byteArrayOutputStream.toByteArray());
+        System.out.println("Sending " + buff.limit() + ":"+ buff);
+        while (buff.hasRemaining()){
+            channel.write(buff);
+        }
+        byteArrayOutputStream.reset();
+    }
+
+
 
 }
