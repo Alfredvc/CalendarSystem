@@ -24,7 +24,6 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 import com.proj.model.Appointment;
-import com.proj.test.RandomGenerator;
 
 public class CalendarView extends JPanel{
 
@@ -39,80 +38,70 @@ public class CalendarView extends JPanel{
 	 */
 	public TranslucentTextArea[] getAppointmentTextArea(int index) {
 		Appointment app = model.getElementAt(index);
+		
+		System.out.println(app.getStartTime());
+		System.out.println(app.getEndTime());
 
 		int[] startTimePixel = getPixelFromDate(app.getStartTime());
 		int[] endTimePixel = getPixelFromDate(app.getEndTime());
+
 		
-		//TODO: Support for appointments spanning multiple days
 		int numDays = ((endTimePixel[0]-startTimePixel[0])/134)+1;
-		if (numDays <0){
+		
+		if (numDays < 0){
 			numDays = 7+numDays;
 		}
 		
-		System.out.println("Number of spanning days: "+numDays);
-		System.out.println("");
-		
 		int appStartPixelX = 65+startTimePixel[0]; // X coordinate for appointment start
 		int appStartPixelY = startTimePixel[1]; // Y coordinate for appointment start
-		int appWidth = 115+(endTimePixel[0]-startTimePixel[0]); // 
-		int appLength = endTimePixel[1]-startTimePixel[1];
+		int appWidth = 115; // Width of appointment
+		int appLength = endTimePixel[1]-startTimePixel[1]; // Length of appointment
 		
 		TranslucentTextArea[] ttaArray = new TranslucentTextArea[numDays];
 		
-		for (int i = 0; i < numDays; i++){
-			
-			// The whole day is occupied
-			if (numDays>1 && i>0 && i<numDays-2){
-				//appStartPixelX = 65+(i*134);
-				//appStartPixelY = 30;
-				appWidth = (endTimePixel[0]-startTimePixel[0]);
-				appLength = 989 - 30;
-				
-				System.out.println("first if loop");
-			// The rest of the day is occupied
-			}else if (numDays>1 && i==0){
-				//appStartPixelX = 65+(i*134);
-				//appStartPixelY = startTimePixel[1];
-				appWidth = (endTimePixel[0]-startTimePixel[0]);
-				appLength = 989 - appStartPixelY;
-				
-				System.out.println("first if else loop");
-			// Normal appointment
-			}else{
-				//appStartPixelX = 65+(i*134);
-				//appStartPixelY = startTimePixel[1];
-				appWidth = (endTimePixel[0]-startTimePixel[0]);
-				appLength = endTimePixel[1]-startTimePixel[1];
-				
-				System.out.println("First else loop");
-			}
-			
-			// The start of the day is occupied
-			if (numDays > 1 && i > 0){
-				appStartPixelX = 65+(i*134);
-				appStartPixelY = 30;
-				
-				System.out.println("Second loop");
-			// Normal appointment
-			}else{
-				appStartPixelX = 65+(i*134);
-				appStartPixelY = startTimePixel[1];
-				
-				System.out.println("Second else loop");
-			}
-			
-			//appWidth = endTimePixel[0] - startTimePixel[0];
-			
+		//Support for appointments spanning multiple days
+		
+		// Normal appointment
+		if(numDays==1){
 			TranslucentTextArea appArea = new TranslucentTextArea(app.getDescription(), Color.BLUE);
 			appArea.addMouseListener(ml);
 			appArea.setForeground(Color.WHITE);
 			appArea.setFont(new Font("Lucida Grande", Font.BOLD, 13));
 			appArea.setEditable(false);
 			appArea.setBounds(appStartPixelX, appStartPixelY, appWidth, appLength);
-			
-			
-			ttaArray[i] = appArea;
-			
+			ttaArray[0] = appArea;
+
+		}else{
+			for (int i=0; i<numDays; i++){
+				// Ending at midnight
+				if(i==0){
+					appStartPixelX=65+startTimePixel[0];
+					appStartPixelY=startTimePixel[1];
+					appLength=989-startTimePixel[1];
+					
+				}
+				// Starting at midnight
+				else if(i==numDays-1){
+					appStartPixelX = 65+endTimePixel[0];
+					appStartPixelY = 30;
+					appLength = endTimePixel[1] - 30;
+				}
+				// Occupied all day
+				else{
+					appStartPixelX=startTimePixel[0]+i*134+65;
+					appStartPixelY=30;
+					appLength=989-30;
+				}
+				
+				TranslucentTextArea appArea = new TranslucentTextArea(app.getDescription(), Color.BLUE);
+				appArea.addMouseListener(ml);
+				appArea.setForeground(Color.WHITE);
+				appArea.setFont(new Font("Lucida Grande", Font.BOLD, 13));
+				appArea.setEditable(false);
+				appArea.setBounds(appStartPixelX, appStartPixelY, appWidth, appLength);
+				
+				ttaArray[i] = appArea;
+			}	
 		}
 
 		return ttaArray;
@@ -160,26 +149,18 @@ public class CalendarView extends JPanel{
 	 * Instructions: Each hour is 40 pixels long, and each minute is 2/3 pixels long
 	 * The 00:00 time slot lays on pixel 30
 	 * Each day is 134 pixels wide
-	 * Monday lays on pixel 65
+	 * Monday starts on pixel 65
 	 */
 	public int[] getPixelFromDate(Date d){
+		
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(d);
 		int weekday = cal.get(Calendar.DAY_OF_WEEK);
 		int hours = cal.get(Calendar.HOUR_OF_DAY);
 		int minutes = cal.get(Calendar.MINUTE);
 		
-		System.out.println("Weekday: "+weekday);
-		System.out.println("Hour: "+hours);
-		System.out.println("Minute: "+minutes);
-		
-		
 		int pixelX = (int) 134 * (weekday-1);
 		int pixelY = (int) (30 + (hours*40) + (minutes*(2.0/3)));
-		
-		System.out.println(pixelX);
-		System.out.println(pixelY);
-		System.out.println("");
 		
 		return new int[]{pixelX, pixelY};
 	}
@@ -208,7 +189,7 @@ public class CalendarView extends JPanel{
 		 * Separators for weekdays
 		 */
 		int dayLineCoord=50;
-		for(int i=0; i<7; i++){
+		for(int i=0; i<8; i++){
 			
 			JSeparator dayLine1 = new JSeparator();
 			dayLine1.setBounds(dayLineCoord, 0, 12, 1010);
@@ -331,14 +312,24 @@ public class CalendarView extends JPanel{
 	}
 	
 	/**
-	 * Handles clicks on appointments (that is textareas)
+	 * Handles clicks on appointments (that is text areas)
 	 */
 	private class ClickHandler extends MouseAdapter {
 
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			selected = textAreas.indexOf(e.getSource());
-			fireActionPerformed();
+			for (int i=0; i<textAreas.size(); i++){
+				TranslucentTextArea[] ta = textAreas.get(i);
+				for (TranslucentTextArea t: ta){
+					if (t == e.getSource()){
+						selected = i;
+						fireActionPerformed();
+						return;
+					}
+				}
+			}
+			
+			
 		}
 		
 	}
@@ -356,7 +347,7 @@ public class CalendarView extends JPanel{
 	        setOpaque(false);
 	        setLineWrap(true);
 	        setWrapStyleWord(true);
-	        color = new Color(col.getRed(), col.getGreen(), col.getBlue(), 128);
+	        color = new Color(col.getRed(), col.getGreen(), col.getBlue(), 64 );
 	    }
 
 	    @Override
