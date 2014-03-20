@@ -44,11 +44,10 @@ public class CalendarView extends JPanel{
 
 		int[] startTimePixel = getPixelFromDate(app.getStartTime());
 		int[] endTimePixel = getPixelFromDate(app.getEndTime());
+
 		
-		//TODO: Show the correct appointments when changing week
-		
-		//TODO: Support for appointments spanning multiple days
 		int numDays = ((endTimePixel[0]-startTimePixel[0])/134)+1;
+		
 		if (numDays < 0){
 			numDays = 7+numDays;
 		}
@@ -59,6 +58,8 @@ public class CalendarView extends JPanel{
 		int appLength = endTimePixel[1]-startTimePixel[1]; // Length of appointment
 		
 		TranslucentTextArea[] ttaArray = new TranslucentTextArea[numDays];
+		
+		//Support for appointments spanning multiple days
 		
 		// Normal appointment
 		if(numDays==1){
@@ -188,7 +189,7 @@ public class CalendarView extends JPanel{
 		 * Separators for weekdays
 		 */
 		int dayLineCoord=50;
-		for(int i=0; i<7; i++){
+		for(int i=0; i<8; i++){
 			
 			JSeparator dayLine1 = new JSeparator();
 			dayLine1.setBounds(dayLineCoord, 0, 12, 1010);
@@ -311,14 +312,24 @@ public class CalendarView extends JPanel{
 	}
 	
 	/**
-	 * Handles clicks on appointments (that is textareas)
+	 * Handles clicks on appointments (that is text areas)
 	 */
 	private class ClickHandler extends MouseAdapter {
 
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			selected = textAreas.indexOf(e.getSource());
-			fireActionPerformed();
+			for (int i=0; i<textAreas.size(); i++){
+				TranslucentTextArea[] ta = textAreas.get(i);
+				for (TranslucentTextArea t: ta){
+					if (t == e.getSource()){
+						selected = i;
+						fireActionPerformed();
+						return;
+					}
+				}
+			}
+			
+			
 		}
 		
 	}
