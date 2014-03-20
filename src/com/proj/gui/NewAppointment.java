@@ -314,7 +314,7 @@ public class NewAppointment extends JFrame {
 					}
 					app.setDescription(appDescription);
 					thisModel.addAppointment(app);
-	//				dispose();
+					dispose();
 	
 				}
 				else {
