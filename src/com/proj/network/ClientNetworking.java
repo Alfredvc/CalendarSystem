@@ -1,6 +1,5 @@
 package com.proj.network;
 
-import com.proj.model.Appointment;
 import com.proj.model.Model;
 
 import java.io.IOException;
@@ -9,10 +8,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.Deque;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * Created with IntelliJ IDEA.
@@ -21,7 +18,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
  * Time: 13:53
  * To change this template use File | Settings | File Templates.
  */
-public class ClientNetworking extends Networking implements Runnable{
+public class ClientNetworking extends Networking implements Runnable, ByteBufferHandler.NotifyOnLoadListener {
 
     String ipAddr = "127.0.0.1";
     int portNr = 8989;
@@ -29,6 +26,7 @@ public class ClientNetworking extends Networking implements Runnable{
     String password;
     Thread loginThread;
     boolean loggedIn;
+    int remainingAppointmentsToContinue = 0;
     SocketChannel clientChannel;
 
     final Object readyToLogIn = new Object();
@@ -111,15 +109,17 @@ public class ClientNetworking extends Networking implements Runnable{
                             inBuffer.get(array);
                             String received = new String(array);
                             System.out.println("Received: " + received);
-                            if (received.equals(loginSuccessful)){
+                            if (received.contains(loginSuccessful)){
+                                String[] recv = received.split(":");
                                 loggedIn = true;
                                 System.out.println("Login successful");
                                 key.attach(new ChannelAttachment(this));
+                                ((ChannelAttachment)key.attachment()).byteBufferHandler.setNotifyOnLoadListener(this, Integer.parseInt(recv[1]));
                             } else{
+                                System.out.println("Interrupting thread " + loginThread + " from thread "+ Thread.currentThread());
+                                loginThread.interrupt();
                                 System.out.println("Login failed, trying again");
                             }
-                            System.out.println("Interrupting thread " + loginThread + " from thread "+ Thread.currentThread());
-                            loginThread.interrupt();
                         }
 
                         if (key.attachment() != null && key.attachment() instanceof ChannelAttachment){
@@ -141,6 +141,12 @@ public class ClientNetworking extends Networking implements Runnable{
         }
     }
 
+    @Override
+    public void onLoad(){
+        System.out.println("\tClientNetwork notified, all appointments loaded");
+        loginThread.interrupt();
+    }
+
     public boolean logIn(String username, String password){
 
         System.out.println("Attempting login from thread " + Thread.currentThread());
@@ -150,10 +156,10 @@ public class ClientNetworking extends Networking implements Runnable{
         this.loginThread = Thread.currentThread();
         try{
             System.out.println("Sleeping thread " + loginThread + " from thread "+ Thread.currentThread());
-            loginThread.sleep(2000);
+            loginThread.sleep(8000);
             System.out.println("Login attempt timed out");
         } catch (InterruptedException e){
-            System.out.println("Login attempt from thread " + Thread.currentThread() + " finished");
+            System.out.println("\tAll appointments loaded");
         } finally {
             this.username = null;
             this.password = null;

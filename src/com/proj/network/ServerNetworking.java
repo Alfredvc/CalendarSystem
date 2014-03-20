@@ -141,7 +141,7 @@ public class ServerNetworking extends Networking implements Runnable{
 
                             //Sends response to client
 
-                            String response = successful ? Networking.loginSuccessful : Networking.loginFailed;
+                            String response = successful ? Networking.loginSuccessful +":"+ model.getAppointments().length : Networking.loginFailed;
 
                             System.out.println("Sending response " + response + " to client at " + client.socket().getInetAddress()
                                     + ":" + client.socket().getLocalPort());
