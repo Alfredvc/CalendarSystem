@@ -111,6 +111,9 @@ public class ServerNetworking extends Networking implements Runnable{
 
                         try{
                             readBytes = client.read(buffer);
+                            if (readBytes < 0) {
+                            	throw new IOException("forcibly closed");
+                            }
                         } catch (IOException e){
                             if (e.getMessage().contains("forcibly closed")){
                                 System.out.println("Client disconnected at " + client.socket().getInetAddress()

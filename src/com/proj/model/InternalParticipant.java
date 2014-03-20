@@ -1,7 +1,5 @@
 package com.proj.model;
 
-import com.sun.javaws.exceptions.InvalidArgumentException;
-
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
