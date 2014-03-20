@@ -37,7 +37,7 @@ public class Employee implements Invitable, Serializable{
 	public boolean equals(Object obj){
 		if(obj instanceof Employee){
 			
-			if(this.email==((Employee)obj).getEmail() && this.name==((Employee)obj).getName() 
+			if(this.email.equals(((Employee)obj).getEmail()) && this.name.equals(((Employee)obj).getName())
 					&& this.telephone==((Employee)obj).getTelephone()){
 				return true;
 			}
