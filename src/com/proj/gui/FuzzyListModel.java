@@ -61,6 +61,10 @@ class FuzzyListModel<E> extends AbstractListModel<E> {
         return EmailValidator.getInstance().isValid(in);
     }
 	
+	public ListModel<E> getBackingModel() {
+		return backingListModel;
+	}
+	
 	/**
 	 * Listens for changes in the underlying data to update the choices in the list on changes		 *
 	 */

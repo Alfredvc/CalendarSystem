@@ -21,6 +21,7 @@ public abstract class Storage implements ModelChangeSupport.ModelChangedListener
 
     @Override
     public void modelChanged(Appointment appointment, Appointment.Flag flag, PropertyChangeEvent evt) {
+        System.out.println("\tAppointment " + appointment + " changed " + evt);
         switch (flag){
             case DELETE:
                 delete(appointment);

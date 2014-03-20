@@ -54,7 +54,7 @@ public class CalendarView extends JPanel{
 		
 		int appStartPixelX = 65+startTimePixel[0]; // X coordinate for appointment start
 		int appStartPixelY = startTimePixel[1]; // Y coordinate for appointment start
-		int appWidth = 115+(endTimePixel[0]-startTimePixel[0]); // 
+		int appWidth = 115; // 
 		int appLength = endTimePixel[1]-startTimePixel[1];
 		
 		TranslucentTextArea[] ttaArray = new TranslucentTextArea[numDays];
