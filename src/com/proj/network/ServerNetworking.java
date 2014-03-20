@@ -79,6 +79,7 @@ public class ServerNetworking extends Networking implements Runnable{
                     run = false;
                     continue;
                 }
+                refreshQueues();
                 selector.select();
                 Set selectedKeys = selector.selectedKeys();
                 Iterator iterator = selectedKeys.iterator();
@@ -144,7 +145,7 @@ public class ServerNetworking extends Networking implements Runnable{
 
                             //Sends response to client
 
-                            String response = successful ? Networking.loginSuccessful +":"+ model.getAppointments().length : Networking.loginFailed;
+                            String response = successful ? Networking.loginSuccessful +":"+ model.getAppointments().length + ":" : Networking.loginFailed;
 
                             System.out.println("Sending response " + response + " to client at " + client.socket().getInetAddress()
                                     + ":" + client.socket().getLocalPort());
@@ -173,9 +174,6 @@ public class ServerNetworking extends Networking implements Runnable{
                                 + ":" + client.socket().getLocalPort());
 
                     }
-
-                    refreshQueues();
-
                 }
             } catch (IOException e) {
                 e.printStackTrace();

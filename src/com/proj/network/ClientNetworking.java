@@ -58,6 +58,7 @@ public class ClientNetworking extends Networking implements Runnable, ByteBuffer
     public void run(){
         try{
             while (run){
+                refreshQueues();
                 selector.select();
                 Set selectedKeys = selector.selectedKeys();
                 Iterator iterator = selectedKeys.iterator();
@@ -116,6 +117,9 @@ public class ClientNetworking extends Networking implements Runnable, ByteBuffer
                                 System.out.println("Login successful");
                                 key.attach(new ChannelAttachment(this));
                                 ((ChannelAttachment)key.attachment()).byteBufferHandler.setNotifyOnLoadListener(this, Integer.parseInt(recv[1]));
+                                if (recv.length >2 ){
+                                    ((ChannelAttachment)key.attachment()).byteBufferHandler.handleByteBuffer(ByteBuffer.wrap(recv[2].getBytes()));
+                                }
                             } else{
                                 System.out.println("Interrupting thread " + loginThread + " from thread "+ Thread.currentThread());
                                 loginThread.interrupt();
@@ -132,8 +136,6 @@ public class ClientNetworking extends Networking implements Runnable, ByteBuffer
                         }
 
                     }
-                    refreshQueues();
-
                 }
             }
         }

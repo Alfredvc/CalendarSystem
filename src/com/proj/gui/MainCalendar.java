@@ -15,7 +15,7 @@ import com.proj.model.Model;
 
 public class MainCalendar extends JFrame {
 	private Model model;
-	private Employee currentEmployee;
+	private static Employee currentEmployee;
 	private CalendarView calendarView;
 	private CalendarModel calendarModel;
 	private SelectedCalendarsListModel selectedCalendarsListModel;
@@ -73,7 +73,7 @@ public class MainCalendar extends JFrame {
 		//TODO: ...
 	}
 	
-	public Employee getCurrentEmployee() {
+	public static Employee getCurrentEmployee() {
 		return currentEmployee;
 	}
 	
