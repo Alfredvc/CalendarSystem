@@ -2,49 +2,49 @@
 INSERT INTO `Employee` VALUES
 	(
 		'marianne@company.com',
-		'A95CD349054E619B28F42F55D1F68D6AE8BB6E22',
+		'AV54vdnDqCJZa3iOqQXH1oTLz6o=',
 		'Marianne Viknes Gruppeløs',
 		47982234
 	),
 	(
 		'ola@company.com',
-		'A95CD349054E619B28F42F55D1F68D6AE8BB6E22',
+		'AV54vdnDqCJZa3iOqQXH1oTLz6o=',
 		'Marianne Viknes',
 		47233434
 	),
 	(
 		'eivind@company.com',
-		'A95CD349054E619B28F42F55D1F68D6AE8BB6E22',
+		'AV54vdnDqCJZa3iOqQXH1oTLz6o=',
 		'Eivind No Passion',
 		43234354
 	),
 	(
 		'alex@company.com',
-		'A95CD349054E619B28F42F55D1F68D6AE8BB6E22',
+		'AV54vdnDqCJZa3iOqQXH1oTLz6o=',
 		'Alexander Moholt',
 		93424532
 	),
 	(
 		'mina@company.com',
-		'A95CD349054E619B28F42F55D1F68D6AE8BB6E22',
+		'AV54vdnDqCJZa3iOqQXH1oTLz6o=',
 		'Mina Monsen',
 		47090912
 	),
 	(
 		'mons@company.com',
-		'A95CD349054E619B28F42F55D1F68D6AE8BB6E22',
+		'AV54vdnDqCJZa3iOqQXH1oTLz6o=',
 		'Mons Minason',
 		42984522
 	),
 	(
 		'tor@company.com',
-		'A95CD349054E619B28F42F55D1F68D6AE8BB6E22',
+		'AV54vdnDqCJZa3iOqQXH1oTLz6o=',
 		'Tor Varden',
 		41345423
 	),
 	(
 		'martin@company.com',
-		'A95CD349054E619B28F42F55D1F68D6AE8BB6E22',
+		'AV54vdnDqCJZa3iOqQXH1oTLz6o=',
 		'Martin Martinsen',
 		42435455
 	);

@@ -21,9 +21,9 @@ public class CalendarModel extends AbstractListModel<Appointment> {
 			WEEK_PROP = "week",
 			YEAR_PROP = "year";
 	
-	private Calendar week;
+	private Calendar week,calendar;
 	private Model model;
-
+	
 	private SelectedCalendarsListModel employeeListModel;
 	private ArrayList<Appointment> appointments = new ArrayList<>();
 	private ArrayList<Integer> counts = new ArrayList<>();
@@ -32,7 +32,7 @@ public class CalendarModel extends AbstractListModel<Appointment> {
 	public CalendarModel(Model model, SelectedCalendarsListModel employeeListModel) {
 		this.model = model;
 		this.employeeListModel = employeeListModel;
-		
+		this.calendar= Calendar.getInstance();
 		employeeListModel.addListDataListener(new EmployeeHandler());
 		week = Calendar.getInstance();
 		
@@ -72,7 +72,14 @@ public class CalendarModel extends AbstractListModel<Appointment> {
 	}
 	
 	private void updateAppointments() {
-		
+		int size=this.appointments.size();
+		this.appointments.clear();
+		this.counts.clear();
+		if(size!=0){
+		fireIntervalRemoved(this, 0, size-1);}
+		for(Employee emp: this.employeeListModel){
+			this.addCalendar(emp);
+		}
 	}
 
 	public int getWeek() {
@@ -82,18 +89,28 @@ public class CalendarModel extends AbstractListModel<Appointment> {
 	public int getYear() {
 		return week.get(Calendar.YEAR);
 	}
+	
+	public boolean filterWeek(Appointment app){
+		this.calendar.setTime(app.getStartTime());
+		if(this.getWeek()==this.calendar.get(Calendar.WEEK_OF_YEAR)){
+			return true;
+		}
+		return false;
+	}
 
 	private void addCalendar(Employee e) {
 			ArrayList<Appointment> appointments = model.getMyAppointments(e);
 			int startIndex = this.appointments.size() - 1;
 			
 			for (Appointment a : appointments) {
-				int index = this.appointments.indexOf(a);
-				if (index < 0) {
-					this.appointments.add(a);
-					counts.add(1);
-				} else {
-					counts.set(index, counts.get(index) + 1);
+					if(this.filterWeek(a)){
+						int index = this.appointments.indexOf(a);
+						if (index < 0) {
+							this.appointments.add(a);
+							counts.add(1);
+						} else {
+							counts.set(index, counts.get(index) + 1);
+						}
 				}
 			}
 			
@@ -137,22 +154,26 @@ public class CalendarModel extends AbstractListModel<Appointment> {
 	}
 	
 	private void handleNewAppointment(Appointment appointment) {
-		boolean contains = employeeListModel.contains(appointment.getLeader());
+		boolean contains = employeeListModel.contains(appointment.getLeader().getEmployee());
 		
-		if (!contains) {
-			for (Participant p : appointment.getParticipants()) {
-				if (p instanceof InternalParticipant
-						&& employeeListModel.contains(((InternalParticipant) p).getEmployee())) {
-					contains = true;
-					break;
+		if(this.filterWeek(appointment)){
+			if (!contains) {
+				for (Participant p : appointment.getParticipants()) {
+					if (p instanceof InternalParticipant
+							&& employeeListModel.contains(((InternalParticipant) p).getEmployee())) {
+						contains = true;
+						break;
+					}
 				}
 			}
-		}
 		
-		if (contains) {
-			appointments.add(appointment);
-			int index = appointments.size() - 1;
-			fireIntervalAdded(this, index, index);
+			if (contains) {
+				appointments.add(appointment);
+				//System.out.println("added appointment to calmodel");
+				counts.add(1);
+				int index = appointments.size() - 1;
+				fireIntervalAdded(this, index, index);
+			}
 		}
 	}
 	
@@ -163,6 +184,7 @@ public class CalendarModel extends AbstractListModel<Appointment> {
 		}
 		
 		appointments.remove(index);
+		counts.remove(index);
 		fireIntervalRemoved(this, index, index);
 	}
 	
@@ -176,9 +198,10 @@ public class CalendarModel extends AbstractListModel<Appointment> {
 			Object oldObj = evt.getOldValue();
 			Object newObj = evt.getNewValue();
 			
-			if (property.equals("notifications")) {
+			if (property.equals("appointments")) {
 				if (oldObj == null && newObj instanceof Appointment) {
 					handleNewAppointment((Appointment) newObj);
+					System.out.println("calendermodel");
 				} else if (newObj == null && oldObj instanceof Appointment) {
 					handleRemovedAppointment((Appointment) oldObj);
 				}
