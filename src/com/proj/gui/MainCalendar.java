@@ -70,7 +70,8 @@ public class MainCalendar extends JFrame {
 	}
 	
 	public void showNotifications() {
-		//TODO: ...
+		NotificationListModel nlm=new NotificationListModel(this.model,this.currentEmployee);
+		new Notifications(nlm);
 	}
 	
 	public static Employee getCurrentEmployee() {
