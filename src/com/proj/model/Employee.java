@@ -8,6 +8,12 @@ public class Employee implements Invitable, Serializable{
 		name,
 		email;
 	private int telephone;
+
+    public Employee(Employee employee){
+        this.name = employee.getName();
+        this.email = employee.getName();
+        this.telephone = employee.getTelephone();
+    }
 	
 	public Employee(String email, String name, int telephone) {
 		this.name = name;

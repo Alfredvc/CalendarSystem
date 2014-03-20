@@ -8,7 +8,6 @@ import java.util.Arrays;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JList;
@@ -16,18 +15,24 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListModel;
 
-import com.proj.model.*;
+import com.proj.model.Employee;
+import com.proj.model.Model;
 
 public class ChooseCalendar extends JFrame {
 	private FuzzyDropdown<Employee> fuzzyDropdown;
-	private DefaultListModel<Employee> selectedCalendars;
+	private SelectedCalendarsListModel selectedCalendars;
+	private SelectedCalendarsListModel shownCalendars;
 	
 	
-	public ChooseCalendar(Model model, CalendarModel calendarModel) {
+	public ChooseCalendar(Model model, SelectedCalendarsListModel shownCalendars) {
 		super("Choose Calendars");
+		this.shownCalendars = shownCalendars;
 		
 		setLayout(new GridBagLayout());
 		setSize(250, 300);
+		
+		// We need a "working model"
+		selectedCalendars = shownCalendars.clone();
 
 		// NOTICE: Only one constraints object
 		GridBagConstraints constraints = createGridBagConstraints();
@@ -75,12 +80,24 @@ public class ChooseCalendar extends JFrame {
 		dispose();
 	}
 	
-	public void addCalendar() {
+	private void addCalendar() {
 		Employee selected = fuzzyDropdown.getSelectedValue();
-		if (selected != null && !selectedCalendars.contains(selected)) {
-			selectedCalendars.addElement(selected);
+		if (selected != null && !shownCalendars.contains(selected)) {
+			shownCalendars.add(selected);
 			fuzzyDropdown.reset();
 		}
+	}
+	
+	private void save() {
+		// Quick and dirty!
+		shownCalendars.clear();
+		shownCalendars.addAll(selectedCalendars);
+
+		dispose();
+	}
+	
+	private void reset() {
+		selectedCalendars.reset();
 	}
 	
 	/**
@@ -119,9 +136,9 @@ public class ChooseCalendar extends JFrame {
 		public void actionPerformed(ActionEvent event) {
 			String action = event.getActionCommand();
 			switch (action) {
-			case "ok": /* TODO */ cancel(); break;
+			case "ok": save(); break;
 			case "cancel": cancel(); break;
-			case "reset": cancel(); break;
+			case "reset": reset(); break;
 			}
 		}
 	}
