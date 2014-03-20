@@ -22,6 +22,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
@@ -31,11 +32,13 @@ import javax.swing.SwingConstants;
 
 import org.jdesktop.swingx.JXDatePicker;
 
+import com.proj.deletableTests.GUItests;
 import com.proj.model.*;
 
 public class NewAppointment extends JFrame {
 
 	private Model thisModel;
+	private InternalParticipant appLeaderInternalParticipant;
 	static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize(); // Dimensions
 																				// of
 																				// client
@@ -50,10 +53,6 @@ public class NewAppointment extends JFrame {
 	private JXDatePicker endDateInput;
 	private Date startTime = new Date();
 	private Date endTime = new Date();
-	private Boolean startTimeSet = false;
-	private Boolean startDateSet = false;
-	private Boolean endTimeSet = false;
-	private Boolean endDateSet = false;
 	private JRadioButton meetingRoomButton;
 	private JRadioButton otherButton;
 	private JTextField locationInput;
@@ -80,12 +79,14 @@ public class NewAppointment extends JFrame {
 
 	public NewAppointment(Model model) {
 
-
+		
+//		appLeaderInternalParticipant = new InternalParticipant(MainCalendar.getCurrentEmployee());
+		appLeaderInternalParticipant = new InternalParticipant(GUItests.getCurrentEmployee());
 		thisModel = model;
 		// Setting up the Frame, setting the size, position and making it fixed size
 //		JFrame add = new JFrame();
 		setTitle("New Appointment");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		setSize(750, 300);
 
 		int xLocation = (int) (screenSize.getWidth() - getWidth()) / 2;
@@ -120,20 +121,17 @@ public class NewAppointment extends JFrame {
 		// Description / Name field
 		nameInput = new JTextField();
 		nameInput.setBounds(100, 20, 200, 25);
-		nameInput.setName("nameInput");
 		add(nameInput);
 
 		// Start and End time of the appointment
 		startTimeInput = new JTextField();
 		startTimeInput.setBounds(100, 60, 40, 25);
-		startTimeInput.setName("startTimeInput");
 		startTimeInput.setText("12:00");
 		stringToTimeHMS("12:00", startTime);
 		startTimeInput.addFocusListener(new SuperEventListener());
 		add(startTimeInput);
 		endTimeInput = new JTextField();
 		endTimeInput.setBounds(100, 100, 40, 25);
-		endTimeInput.setName("endTimeInput");
 		endTimeInput.setText("13:00");
 		stringToTimeHMS("13:00", endTime);
 		endTimeInput.addFocusListener(new SuperEventListener());
@@ -155,13 +153,11 @@ public class NewAppointment extends JFrame {
 
 		// Choosing if meetingRoom or other location
 		meetingRoomButton = new JRadioButton("Meeting Room");
-		meetingRoomButton.setName("meetingRoomButton");
 		meetingRoomButton.setBounds(100, 140, 110, 25);
 		meetingRoomButton.setSelected(true);
 		meetingRoomButton.addActionListener(new locationButtonAction());
 		add(meetingRoomButton);
 		otherButton = new JRadioButton("Other");
-		otherButton.setName("otherButton");
 		otherButton.setBounds(230, 140, 70, 25);
 		otherButton.addActionListener(new locationButtonAction());
 		add(otherButton);
@@ -171,7 +167,6 @@ public class NewAppointment extends JFrame {
 
 		// if meetingroom is selected two JCombBoxes with participant and meeting room
 		participantNumberInput = new JComboBox<PartAmount>(participantAmount);
-		participantNumberInput.setName("participantInput");
 		participantNumberInput.setBounds(100, 170, 100, 25);
 		participantNumberInput.addActionListener(new SuperEventListener());
 		add(participantNumberInput);
@@ -179,14 +174,12 @@ public class NewAppointment extends JFrame {
 
 		meetingRoomInput = new JComboBox<MeetingRoom>();
 		findFreeMeetingRoomFunction();
-		meetingRoomInput.setName("meetingroomInput");
 		meetingRoomInput.setBounds(200, 170, 100, 25);
 		add(meetingRoomInput);
 			
 		
 		// if other is selected a JTextField for writing a location description is selected
 		locationInput = new JTextField();
-		locationInput.setName("locationInput");
 		locationInput.setBounds(100, 170, 200, 25);
 		locationInput.setVisible(false);
 		add(locationInput);
@@ -285,15 +278,42 @@ public class NewAppointment extends JFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
+			JFrame warningWindow = new JFrame();
+			Appointment app;
 			Date appStartTime = startTime;
 			Date appEndTime = endTime;
-			MeetingRoom appMeetingRoom = freeMeetingRooms.get(meetingRoomInput.getSelectedIndex());
+			InternalParticipant appLeader = appLeaderInternalParticipant;
+			MeetingRoom appMeetingRoom;
+			String appLocation;
+			
+			if(startTime.before(endTime)){
+				if(meetingRoomButton.isSelected()){
+					appMeetingRoom = freeMeetingRooms.get(meetingRoomInput.getSelectedIndex());
+					app = new Appointment( appLeader, appStartTime, appEndTime, appMeetingRoom );	
+				}
+				else{
+					if(locationInput.getText().length() == 0){
+						JOptionPane.showMessageDialog(warningWindow, "Please fill in the location field",
+								"Location Error", JOptionPane.WARNING_MESSAGE);
+					}
+					appLocation = locationInput.getText();
+					app = new Appointment( appLeader, appStartTime, appEndTime, appLocation);
+				}
+				
+				for (int i = 0; i < addedParticipantList.size(); i++) {
+					app.addParticipant(addedParticipantList.get(i));
+				}
+				
+//				thisModel.addAppointment(app);
+//				dispose();
+				System.out.println(app.getLocation());
 
-
+			}
+			else {
+				JOptionPane.showMessageDialog(warningWindow, "You cannot end an appointment before it has begun",
+						"Date Error", JOptionPane.WARNING_MESSAGE);
+			}
 			
-			
-			
-//			Appointment app= new Appointment( leader, startTime, endTime, meetingRoom );
 			
 		}
 		
@@ -384,14 +404,12 @@ public class NewAppointment extends JFrame {
 				startTime.setDate(startDateInput.getDate().getDate());
 				startTime.setMonth(startDateInput.getDate().getMonth());
 				startTime.setYear(startDateInput.getDate().getYear());
-				startDateSet = true;
 				findFreeMeetingRoomFunction();
 			}
 			if(event.getSource() == endDateInput){
 				endTime.setDate(endDateInput.getDate().getDate());
 				endTime.setMonth(endDateInput.getDate().getMonth());
 				endTime.setYear(endDateInput.getDate().getYear());
-				endDateSet = true;	
 				findFreeMeetingRoomFunction();
 				
 			}
@@ -415,13 +433,11 @@ public class NewAppointment extends JFrame {
 					startTime.setHours(startH);
 					startTime.setMinutes(startM);
 					startTimeInput.setText(startH+":"+startM);
-					startTimeSet = true;
 					findFreeMeetingRoomFunction();
 					
 				}
 				catch (NumberFormatException e) {
 					startTimeInput.setBackground(Color.pink);
-					startTimeSet = false;
 				}
 			}
 			if(event.getComponent() == endTimeInput){
@@ -436,12 +452,10 @@ public class NewAppointment extends JFrame {
 					endTime.setHours(endH);
 					endTime.setMinutes(endM);
 					endTimeInput.setText(endH+":"+endM);
-					endTimeSet = true;
 					findFreeMeetingRoomFunction();
 				}
 				catch (NumberFormatException wrongNumber) {
 					endTimeInput.setBackground(Color.pink);
-					endTimeSet = false;
 				}
 			}
 		}
