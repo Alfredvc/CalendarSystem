@@ -74,26 +74,18 @@ public class ClientNetworking extends Networking implements Runnable, ByteBuffer
                         if (clientChannel.isConnectionPending()){
                             clientChannel.finishConnect();
                             key.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
-                            key.attach(readyToLogIn);
+                            key.attach(new ChannelAttachment(this, ChannelAttachment.Status.ReadyToLogIn));
                         }
                     }
 
                     if (key.isWritable()){
-                        if (key.attachment() != null && key.attachment().equals(readyToLogIn) && username != null && password != null){
+                        if (((ChannelAttachment)key.attachment()).status == ChannelAttachment.Status.ReadyToLogIn
+                                && username != null && password != null){
                             System.out.println("Starting login with as: " + username + ":" + password);
 
-                            try {
-                                System.out.println("Sending login request...");
-                                ByteBuffer outBuffer = ByteBuffer.wrap((username + ":" + password).getBytes());
-                                while (outBuffer.hasRemaining()){
-                                    clientChannel.write(outBuffer);
-                                    System.out.println("Request sent");
-                                }
-                                key.attach(awaitingLoginResponse);
-                            } catch (IOException e){
-                                e.printStackTrace();
-                            }
-
+                            ((ChannelAttachment) key.attachment()).appointmentOutputHandler
+                                    .send(clientChannel, new NetworkEnvelope().loginRequest(username, password));
+                            ((ChannelAttachment) key.attachment()).status = ChannelAttachment.Status.AwaitingLoginResponse;
                         }
 
                         sendPendingAppointments(clientChannel, key);
@@ -101,6 +93,11 @@ public class ClientNetworking extends Networking implements Runnable, ByteBuffer
                     }
 
                     if (key.isReadable()){
+                        System.out.println("Reading envelope...");
+                        ByteBuffer inBuffer = ByteBuffer.allocate(4098);
+                        int readBytes = clientChannel.read(inBuffer);
+                        if (readBytes == -1) throw new IOException("Server disconnected");
+                        ((ChannelAttachment) key.attachment()).byteBufferHandler.handleByteBuffer(inBuffer);
 
                         if (key.attachment()!= null && key.attachment().equals(awaitingLoginResponse)){
                             System.out.println("Reading response");

@@ -17,11 +17,17 @@ import java.util.concurrent.ConcurrentLinkedDeque;
  */
 public class ChannelAttachment {
 
+    public static enum Status{
+        ReadyToLogIn, AwaitingLoginResponse, AwaitingLogin, AwaitingAllAppointments
+    }
+
+    public Status status;
     public ConcurrentLinkedDeque<AppointmentEnvelope> queue;
     public ByteBufferHandler byteBufferHandler;
     public AppointmentOutputHandler appointmentOutputHandler;
 
-    public ChannelAttachment(Networking networking) throws IOException {
+    public ChannelAttachment(Networking networking, Status status) throws IOException {
+        this.status = status;
         queue = new ConcurrentLinkedDeque<AppointmentEnvelope>();
         byteBufferHandler = new ByteBufferHandler(networking);
         appointmentOutputHandler = new AppointmentOutputHandler();

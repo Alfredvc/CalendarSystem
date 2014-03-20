@@ -26,9 +26,9 @@ public class AppointmentOutputHandler {
         objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
     }
 
-    public void sendAppointment(SocketChannel channel, AppointmentEnvelope appointmentEnvelope) throws IOException {
-        System.out.println("Sending appointment " + appointmentEnvelope + "...");
-        objectOutputStream.writeObject(appointmentEnvelope);
+    public void send(SocketChannel channel, NetworkEnvelope networkEnvelope) throws IOException {
+        System.out.println("Sending envelope " + networkEnvelope + "...");
+        objectOutputStream.writeObject(networkEnvelope);
         ByteBuffer buff = ByteBuffer.wrap(byteArrayOutputStream.toByteArray());
         System.out.println("Sending " + buff.limit() + ":"+ buff);
         while (buff.hasRemaining()){
@@ -36,17 +36,4 @@ public class AppointmentOutputHandler {
         }
         byteArrayOutputStream.reset();
     }
-    public void sendInit(SocketChannel channel, InitEnvelope initEnvelope) throws IOException {
-        System.out.println("Sending init evelope " + initEnvelope + "...");
-        objectOutputStream.writeObject(initEnvelope);
-        ByteBuffer buff = ByteBuffer.wrap(byteArrayOutputStream.toByteArray());
-        System.out.println("Sending " + buff.limit() + ":"+ buff);
-        while (buff.hasRemaining()){
-            channel.write(buff);
-        }
-        byteArrayOutputStream.reset();
-    }
-
-
-
 }
