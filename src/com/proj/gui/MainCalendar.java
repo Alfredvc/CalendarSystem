@@ -61,7 +61,7 @@ public class MainCalendar extends JFrame {
 	public void viewAppointment(Appointment appointment) {
 		if (appointment != null) {
 			//TODO: La oss bare vise en tom foreløpig
-			new NewAppointment(model);
+			new ViewAppointment(appointment);
 		}
 	}
 	
