@@ -37,7 +37,7 @@ public class AppointmentHandler {
 					UUID.fromString(resultSet.getString(AppointmentColumns.Id.colNr())),
 					leader,
 					DateConverter.getDate(resultSet.getTimestamp(AppointmentColumns.Date.colNr())),
-					resultSet.getInt(AppointmentColumns.Duration.colNr()),
+					resultSet.getLong(AppointmentColumns.Duration.colNr()),
 					resultSet.getString(AppointmentColumns.Description.colNr())
 				);
 			
@@ -67,7 +67,7 @@ public class AppointmentHandler {
 		statement.setString(AppointmentColumns.Id.colNr(), appointment.getId().toString());
 		statement.setString(AppointmentColumns.Description.colNr(), appointment.getDescription());
 		statement.setTimestamp(AppointmentColumns.Date.colNr(), DateConverter.getSqlTimestamp(appointment.getStartTime()));
-		statement.setInt(AppointmentColumns.Duration.colNr(), appointment.getDuration());
+		statement.setLong(AppointmentColumns.Duration.colNr(), appointment.getDuration());
 		statement.setString(AppointmentColumns.Location.colNr(), appointment.getLocation());
         statement.setString(AppointmentColumns.MeetingRoom.colNr(), appointment.getMeetingRoom() == null
                 ? null : appointment.getMeetingRoom().getRoomNr());

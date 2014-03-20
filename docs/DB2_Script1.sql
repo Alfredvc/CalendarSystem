@@ -1,6 +1,6 @@
 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
-SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL';
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 
 
 -- -----------------------------------------------------
@@ -48,7 +48,7 @@ CREATE  TABLE IF NOT EXISTS `Appointment` (
   `ID` CHAR(36) NOT NULL ,
   `description` VARCHAR(255) NOT NULL ,
   `date` DATETIME NOT NULL ,
-  `duration` INT NOT NULL ,
+  `duration` BIGINT NOT NULL ,
   `location` VARCHAR(45) NULL ,
   `Meetingroom_roomNumber` VARCHAR(10) NULL ,
   `leaderEmail` VARCHAR(45) NOT NULL ,
@@ -142,7 +142,7 @@ CREATE  TABLE IF NOT EXISTS `ExternalParticipant` (
   `email` VARCHAR(45) NOT NULL ,
   `Appointment_ID` CHAR(36) NOT NULL ,
   PRIMARY KEY (`email`, `Appointment_ID`) ,
-  INDEX `fk_ExternalParticipants` (`Appointment_ID` ASC) ,
+  INDEX `fk_ExternalParticipants_idx` (`Appointment_ID` ASC) ,
   CONSTRAINT `fk_ExternalParticipants`
     FOREIGN KEY (`Appointment_ID` )
     REFERENCES `Appointment` (`ID` )

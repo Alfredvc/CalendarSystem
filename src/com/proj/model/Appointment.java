@@ -1,14 +1,12 @@
 package com.proj.model;
 
 import java.beans.PropertyChangeEvent;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
@@ -82,12 +80,9 @@ public class Appointment implements Serializable{
 		this.setMeetingRoom(meetingRoom);
 	}
 	
-	public Appointment(UUID id, InternalParticipant leader, Date startTime, int duration, String description) {
+	public Appointment(UUID id, InternalParticipant leader, Date startTime, long duration, String description) {
 		this(id, leader, startTime);
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(startTime);
-		calendar.add(Calendar.MINUTE, duration);
-		this.setEndTime(calendar.getTime());
+		this.setEndTime(new Date(startTime.getTime() + duration));
 		this.setDescription(description);
 	}
 	
@@ -265,9 +260,8 @@ public class Appointment implements Serializable{
         notifier.acs.removeAppointmentChangedListener(listener);
     }
 	
-	public int getDuration() {
-		//TODO: Implement this one! (needed by db)
-		return 10;
+	public long getDuration() {
+		return getEndTime().getTime() - getStartTime().getTime();
 	}
 	
 	
@@ -279,15 +273,11 @@ public class Appointment implements Serializable{
 	public void updateFrom(Appointment appointment) {
 		// Notifications is a collection! Special treatment needed
 		Notification[] newNotifications = appointment.getNotifications();
-		int oldSize = notifications.size();
-		int newSize = newNotifications.length;
-		int minSize = oldSize > newSize ? newSize : oldSize;
 
         notifications.addAll(Arrays.asList(newNotifications));
 
 		// Participants
 		List<Participant> newParticipants = Arrays.asList(appointment.getParticipants());
-        ArrayList<Participant> toAdd = new ArrayList<>();
         ArrayList<Participant> toRemove = new ArrayList<>();
         for (Participant p : getParticipants()){
             if (p instanceof InternalParticipant && newParticipants.contains(p)){
@@ -330,7 +320,7 @@ public class Appointment implements Serializable{
     
     @Override
     public int hashCode(){
-    	return this.endTime.getMinutes();
+    	return this.endTime.hashCode();
     }
 
     private class AppointmentChangeNotifier implements PropertyChangeListener, Serializable{

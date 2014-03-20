@@ -48,33 +48,38 @@ public class Login extends JFrame{
 		JLabel passwordLabel = new JLabel("Password:", SwingConstants.RIGHT);
 		passwordLabel.setBounds(10, 50, 80, 25);
 		add(passwordLabel);
+
+		ActionListener actionHandler = new ActionHandler();
 		
 		// Adding Username/Email and Password fields
 		emailInput = new JTextField();
 		emailInput.setName("emailInput");
 		emailInput.setBounds(100, 20, 160, 25);
+		emailInput.setActionCommand("login");
+		emailInput.addActionListener(actionHandler);
 		add(emailInput);
 		
 		passwordInput = new JPasswordField(); // NB JPasswordField, use getPassword()
 		passwordInput.setName("passwordInput");
 		passwordInput.setBounds(100, 50, 260, 25);
+		passwordInput.setActionCommand("login");
+		passwordInput.addActionListener(actionHandler);
 		add(passwordInput);
 
 		// Creating both the login and cancel buttons
-		ActionListener buttonActionHandler = new ButtonActionHandler();
 		
 		JButton loginButton = new JButton("Login");
 		loginButton.setName("loginButton");
 		loginButton.setBounds(100, 80, 100, 30);
 		loginButton.setActionCommand("login");
-		loginButton.addActionListener(buttonActionHandler);	
+		loginButton.addActionListener(actionHandler);	
 		add(loginButton);
 		
 		JButton cancelButton = new JButton("Cancel");
 		cancelButton.setName("cancelButton");
 		cancelButton.setBounds(260, 80, 100, 30);
 		cancelButton.setActionCommand("cancel");
-		cancelButton.addActionListener(buttonActionHandler);	
+		cancelButton.addActionListener(actionHandler);	
 		add(cancelButton);
 
 		setVisible(true);
@@ -166,13 +171,14 @@ public class Login extends JFrame{
 	
 	private void cancel() {
 		dispose();
+		System.exit(0);
 	}
 	
 	
 	/**
-	 * Handles the actions for the buttons.
+	 * Handles the actions for the buttons and text fields
 	 */
-	private class ButtonActionHandler implements ActionListener {
+	private class ActionHandler implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
