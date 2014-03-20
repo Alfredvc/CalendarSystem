@@ -45,7 +45,8 @@ public class Email {
         this.subject = "You have been invited to a meeting by " + appointment.getLeader()
                 + " the " + new SimpleDateFormat("dd-MM-YY HH:mm").format(appointment.getStartTime());
         this.message = "Meeting leader: " + appointment.getLeader() + "\nDescription: "
-                + appointment.getDescription() + "\nInvited: ";
+                + appointment.getDescription() +"\nLocation: " + (appointment.getLocation() == null
+                ? appointment.getMeetingRoom() : appointment.getLocation()) + "\nInvited: ";
         for (Participant participant : appointment.getParticipants()){
             if (participant.equals(externalParticipant)) continue;
             this.message += "\n" + participant.getDisplayName();
@@ -58,7 +59,8 @@ public class Email {
         this.subject = "You are no longer invited to a meeting by " + appointment.getLeader()
                 + " the " + new SimpleDateFormat("dd-MM-YY HH:mm").format(appointment.getStartTime());
         this.message = "Meeting leader: " + appointment.getLeader() + "\nDescription: "
-                + appointment.getDescription() + "\nInvited: ";
+                + appointment.getDescription() +"\nLocation: " + (appointment.getLocation() == null
+                ? appointment.getMeetingRoom() : appointment.getLocation()) + "\nInvited: ";
         for (Participant participant : appointment.getParticipants()){
             if (participant.equals(externalParticipant)) continue;
             this.message += "\n" + participant.getDisplayName();

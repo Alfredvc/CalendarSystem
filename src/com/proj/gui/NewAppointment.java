@@ -80,8 +80,8 @@ public class NewAppointment extends JFrame {
 	public NewAppointment(Model model) {
 
 		
-//		appLeaderInternalParticipant = new InternalParticipant(MainCalendar.getCurrentEmployee());
-		appLeaderInternalParticipant = new InternalParticipant(GUItests.getCurrentEmployee());
+		appLeaderInternalParticipant = new InternalParticipant(MainCalendar.getCurrentEmployee());
+		//appLeaderInternalParticipant = new InternalParticipant(GUItests.getCurrentEmployee());
 		thisModel = model;
 		// Setting up the Frame, setting the size, position and making it fixed size
 //		JFrame add = new JFrame();
@@ -173,10 +173,10 @@ public class NewAppointment extends JFrame {
 
 
 		meetingRoomInput = new JComboBox<MeetingRoom>();
-		findFreeMeetingRoomFunction();
 		meetingRoomInput.setBounds(200, 170, 100, 25);
-		add(meetingRoomInput);
-			
+        add(meetingRoomInput);
+        findFreeMeetingRoomFunction();
+
 		
 		// if other is selected a JTextField for writing a location description is selected
 		locationInput = new JTextField();
@@ -249,7 +249,7 @@ public class NewAppointment extends JFrame {
 		date.setSeconds(Integer.parseInt("00"));
 	}
 	public void findFreeMeetingRoomFunction(){
-		freeMeetingRooms = thisModel.getFreeMeetingRooms(startTime, endTime);
+		freeMeetingRooms = thisModel.getFreeMeetingRooms(startTime, endTime, ((PartAmount)participantNumberInput.getSelectedItem()).getValue());
 		meetingRoomInput.removeAllItems();
 		for (int i = 0; i < freeMeetingRooms.size(); i++) {
 			meetingRoomInput.addItem(freeMeetingRooms.get(i));
@@ -291,6 +291,7 @@ public class NewAppointment extends JFrame {
 			if(nameInput.getText().length() == 0){
 				JOptionPane.showMessageDialog(warningWindow, "Please fill in the Name field",
 						"Name Error", JOptionPane.WARNING_MESSAGE);
+                return;
 			}
 			else{
 				if(startTime.before(endTime)){
@@ -303,6 +304,7 @@ public class NewAppointment extends JFrame {
 						if(locationInput.getText().length() == 0){
 							JOptionPane.showMessageDialog(warningWindow, "Please fill in the location field",
 									"Location Error", JOptionPane.WARNING_MESSAGE);
+                            return;
 						}
 						appLocation = locationInput.getText();
 						app = new Appointment( appLeader, appStartTime, appEndTime, appLocation);
@@ -320,6 +322,7 @@ public class NewAppointment extends JFrame {
 				else {
 					JOptionPane.showMessageDialog(warningWindow, "You cannot end an appointment before it has begun",
 							"Date Error", JOptionPane.WARNING_MESSAGE);
+                    return;
 				}
 			}
 			

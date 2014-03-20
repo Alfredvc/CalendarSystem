@@ -1,5 +1,8 @@
 package com.proj.network;
 
+import com.proj.model.Employee;
+import com.proj.model.Group;
+import com.proj.model.MeetingRoom;
 import com.proj.model.Model;
 
 import java.io.IOException;
@@ -58,6 +61,7 @@ public class ClientNetworking extends Networking implements Runnable, ByteBuffer
     public void run(){
         try{
             while (run){
+                refreshQueues();
                 selector.select();
                 Set selectedKeys = selector.selectedKeys();
                 Iterator iterator = selectedKeys.iterator();
@@ -103,7 +107,8 @@ public class ClientNetworking extends Networking implements Runnable, ByteBuffer
                         if (key.attachment()!= null && key.attachment().equals(awaitingLoginResponse)){
                             System.out.println("Reading response");
                             ByteBuffer inBuffer = ByteBuffer.allocate(128);
-                            clientChannel.read(inBuffer);
+                            int read = clientChannel.read(inBuffer);
+                            if (read == -1) throw new IOException("Server disconnected");
                             inBuffer.flip();
                             byte[] array = new byte[inBuffer.limit()];
                             inBuffer.get(array);
@@ -115,6 +120,9 @@ public class ClientNetworking extends Networking implements Runnable, ByteBuffer
                                 System.out.println("Login successful");
                                 key.attach(new ChannelAttachment(this));
                                 ((ChannelAttachment)key.attachment()).byteBufferHandler.setNotifyOnLoadListener(this, Integer.parseInt(recv[1]));
+                                if (recv.length >2 ){
+                                    ((ChannelAttachment)key.attachment()).byteBufferHandler.handleByteBuffer(ByteBuffer.wrap(recv[2].getBytes()));
+                                }
                             } else{
                                 System.out.println("Interrupting thread " + loginThread + " from thread "+ Thread.currentThread());
                                 loginThread.interrupt();
@@ -126,13 +134,11 @@ public class ClientNetworking extends Networking implements Runnable, ByteBuffer
                             System.out.println("Reading appointment...");
                             ByteBuffer inBuffer = ByteBuffer.allocate(4098);
                             int readBytes = clientChannel.read(inBuffer);
-                            //TODO: FIX WHEN SERVER DISCONNECTS
+                            if (readBytes == -1) throw new IOException("Server disconnected");
                             ((ChannelAttachment) key.attachment()).byteBufferHandler.handleByteBuffer(inBuffer);
                         }
 
                     }
-                    refreshQueues();
-
                 }
             }
         }
@@ -142,7 +148,10 @@ public class ClientNetworking extends Networking implements Runnable, ByteBuffer
     }
 
     @Override
-    public void onLoad(){
+    public void onLoad(InitEnvelope initEnvelope){
+        for (Employee employee : initEnvelope.getEmployees()) model.addEmployee(employee);
+        for (Group group : initEnvelope.getGroups()) model.addGroup(group);
+        for (MeetingRoom meetingRoom : initEnvelope.getMeetingRooms()) model.addMeetingRoom(meetingRoom);
         System.out.println("\tClientNetwork notified, all appointments loaded");
         loginThread.interrupt();
     }
