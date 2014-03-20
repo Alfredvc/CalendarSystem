@@ -38,9 +38,6 @@ public class CalendarView extends JPanel{
 	 */
 	public TranslucentTextArea[] getAppointmentTextArea(int index) {
 		Appointment app = model.getElementAt(index);
-		
-		System.out.println(app.getStartTime());
-		System.out.println(app.getEndTime());
 
 		int[] startTimePixel = getPixelFromDate(app.getStartTime());
 		int[] endTimePixel = getPixelFromDate(app.getEndTime());
@@ -122,10 +119,10 @@ public class CalendarView extends JPanel{
 		for (int i = index1; i >= index0; i--) {
 			TranslucentTextArea[] removed = textAreas.remove(i);
 			for (TranslucentTextArea t : removed){
-				remove(t);
+				remove(t);	
 			}
-			
 		}
+		repaint();
 	}
 	
 	private void updateListInterval(int index0, int index1) {

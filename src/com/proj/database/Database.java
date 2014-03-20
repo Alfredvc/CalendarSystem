@@ -261,7 +261,6 @@ public class Database extends Storage {
 	}
 
     public boolean checkLogin(String username, String password){
-    	System.out.println("nthn");
     	try {
     		PreparedStatement statement = connection.prepareStatement("SELECT * FROM `Employee` WHERE email=? AND password=?;");
     		statement.setString(1, username);

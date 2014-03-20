@@ -76,8 +76,10 @@ public class CalendarModel extends AbstractListModel<Appointment> {
 		this.appointments.clear();
 		this.counts.clear();
 		if(size!=0){
-		fireIntervalRemoved(this, 0, size-1);}
+			fireIntervalRemoved(this, 0, size-1);
+		}
 		for(Employee emp: this.employeeListModel){
+			System.out.println("Legger til!");
 			this.addCalendar(emp);
 		}
 	}
@@ -117,7 +119,7 @@ public class CalendarModel extends AbstractListModel<Appointment> {
 			// Should we fire an event?
 			int endIndex = this.appointments.size() - 1;
 			if (endIndex > startIndex) {
-				fireIntervalAdded(this, startIndex, this.appointments.size() - 1);
+				fireIntervalAdded(this, startIndex < 0 ? 0 : startIndex, this.appointments.size() - 1);
 			}
 	}
 	

@@ -111,7 +111,6 @@ public class Login extends JFrame{
 	 */
 	private void logIn() {
 		loadingDialog = new LoadingDialog(this, "We are trying to log you in!");
-		System.out.println(getPasswordHash());
 		
 		// Let's avoid freezing the ui
 		new Thread(new SwingWorker<Boolean, Void>() {
