@@ -1,33 +1,27 @@
 package com.proj.gui;
 
-import java.awt.Dialog;
-import java.awt.Dimension;
-import java.awt.Frame;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.ExecutionException;
 
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JPasswordField;
-import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
 
 import com.proj.client.Client;
+import com.sun.org.apache.xml.internal.security.utils.Base64;
 
 
 public class Login extends JFrame{
 
-    static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize(); // Dimensions of client screen
+	public static String DOMAIN = "company.com";
     
     private JTextField emailInput;
 	private JPasswordField passwordInput;
@@ -42,9 +36,7 @@ public class Login extends JFrame{
 		// Setting up the Frame, setting the size, position and making it fixed size
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(420, 170);
-		int xLocation = (int) (screenSize.getWidth() - getWidth()) / 2;
-		int yLocation = (int) (screenSize.getHeight() - getHeight()) / 2;		
-		setLocation(xLocation, yLocation);
+		setLocationRelativeTo(null);
 		setResizable(false);
 		setLayout(null);
 		
@@ -90,11 +82,36 @@ public class Login extends JFrame{
 		setVisible(true);
 	}
 	
+	private String getPasswordHash() {
+		MessageDigest md;
+		try {
+			md = MessageDigest.getInstance("sha-1");
+		} catch (NoSuchAlgorithmException e) {
+			JOptionPane.showMessageDialog(this,
+					"Mangler vital krypteringskomponent! Ta kontakt med \n" + 
+					"din nærmeste datakyndige og be han/hun sørge for at \n" +
+					" javas MessageDigest støtter sha-1!",
+					"Uff, da...",
+					JOptionPane.ERROR_MESSAGE
+				);
+			return null;
+		}
+		
+		return Base64.encode(
+			md.digest(
+				new String(
+					passwordInput.getPassword()
+				).getBytes()
+			)
+		);
+	}
+	
 	/**
 	 * Tries to log the user in.
 	 */
 	private void logIn() {
 		loadingDialog = new LoadingDialog(this, "We are trying to log you in!");
+		System.out.println(getPasswordHash());
 		
 		// Let's avoid freezing the ui
 		new Thread(new SwingWorker<Boolean, Void>() {
@@ -102,8 +119,8 @@ public class Login extends JFrame{
 			@Override
 			protected Boolean doInBackground() throws Exception {
 				return client.logIn(
-						emailInput.getText(),
-						new String(passwordInput.getPassword())
+						emailInput.getText()  + "@" + DOMAIN,
+						getPasswordHash()
 					);
 			}
 			

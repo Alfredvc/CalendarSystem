@@ -13,9 +13,7 @@ import com.proj.network.ClientNetworking;
  * To change this template use File | Settings | File Templates.
  */
 public class Client {
-	public static String DOMAIN = "company.com";
-
-    Model model;
+    private Model model;
     public ClientNetworking networking;
     private String username;
 
@@ -40,7 +38,7 @@ public class Client {
     		throw new IllegalStateException("Must be logged in to use this method.");
     	}
     	
-    	new MainCalendar(model, model.getEmployee(username + "@" + DOMAIN));
+    	new MainCalendar(model, model.getEmployee(username));
     }
     
     public static void main(String[] args) {
