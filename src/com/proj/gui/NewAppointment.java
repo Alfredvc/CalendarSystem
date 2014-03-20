@@ -10,10 +10,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,8 +17,6 @@ import java.util.Calendar;
 import java.util.Date;
 
 import javax.swing.ButtonGroup;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -207,7 +201,7 @@ public class NewAppointment extends JFrame {
 		addedParticipantScrollPane.setViewportView(addedParticipantView);
 		add(addedParticipantScrollPane);
 		addedParticipantView.setLayout(new GridBagLayout());
-		createAddedParticipantView(); // Funksjonen som lager addedParticipants, kjøres ved alle endringer.
+		createAddedParticipantView(); // Funksjonen som lager addedParticipants, kjï¿½res ved alle endringer.
 
 		fuzzyDropdown = getFuzzyDropdown(model);
 		fuzzyDropdown.setBounds(400, 20, 300, 25);
