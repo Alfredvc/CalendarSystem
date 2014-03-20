@@ -112,6 +112,7 @@ public class CalendarView extends JPanel{
 				add(t);
 			}
 		}
+		repaint();
 	}
 
 	private void removeListInterval(int index0, int index1) {
@@ -140,6 +141,7 @@ public class CalendarView extends JPanel{
 				add(t);
 			}
 		}
+		repaint();
 	}
 
 	/**
