@@ -3,15 +3,18 @@ package com.proj.gui;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
 
 import javax.swing.BoxLayout;
-import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 
 import com.proj.model.Appointment;
+import com.proj.model.Appointment.Flag;
 import com.proj.model.Employee;
 import com.proj.model.Model;
+import com.proj.model.ModelChangeSupport.ModelChangedListener;
+import com.proj.model.Notification;
 
 public class MainCalendar extends JFrame {
 	private Model model;
@@ -28,6 +31,8 @@ public class MainCalendar extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		setSize(new Dimension(1000, 600));
+		
+		model.addModelChangeListener(new ModelChangeHandler());
 
 		// Instantiate models
 		selectedCalendarsListModel = new SelectedCalendarsListModel(getCurrentEmployee());
@@ -81,10 +86,13 @@ public class MainCalendar extends JFrame {
 	public Model getModel() {
 		return model;
 	}
+	
+	private void displayNotification(Notification notification) {
+		new NotificationToast(notification);
+	}
 
 	
 	private class ActionHandler implements ActionListener {
-
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			String command = arg0.getActionCommand();
@@ -94,6 +102,44 @@ public class MainCalendar extends JFrame {
 			case "newAppointment": newAppointment(); break;
 			case "itemSelected": viewAppointment(calendarView.getSelectedItem()); break;
 			}
+		}
+	}
+
+
+	/**
+	 * Handles changes to model and displays notification when notification appears
+	 */
+	private class ModelChangeHandler implements ModelChangedListener {
+
+		@Override
+		public void modelChanged(Appointment appointment, Flag flag, PropertyChangeEvent event) {
+			String property = event.getPropertyName();
+			Object oldObj = event.getOldValue();
+			Object newObj = event.getNewValue();
+			
+			switch (property) {
+			
+			case "notifications":
+				if (oldObj == null && newObj instanceof Notification) {
+					Notification notification = (Notification) newObj;
+					if (notification.isRelevantFor(getCurrentEmployee())) {
+						displayNotification(notification);
+					}
+				}
+				break;
+				
+			case "appointments":
+				if (oldObj == null && newObj instanceof Appointment) {
+					Notification[] notifications = ((Appointment) newObj).getNotifications();
+					for (Notification n : notifications) {
+						if (n.isRelevantFor(getCurrentEmployee())) {
+							displayNotification(n);
+							return; // Let's assume we're only interested in the first...
+						}
+					}
+				}
+				break;
+			}			
 		}
 		
 	}

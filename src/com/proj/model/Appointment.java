@@ -184,6 +184,29 @@ public class Appointment implements Serializable{
 		return (Participant[]) participants.toArray(new Participant[participants.size()]);
 	}
 	
+
+	/**
+	 * Checks if this appointment in some way is relevant for the given employee
+	 */
+	public boolean involves(Employee employee) {
+		// Is (s)he the leader?
+		if (getLeader().getEmployee().equals(employee)) {
+			return true;
+		}
+		
+		// Regular participant?
+		for (Participant p : participants) {
+			if (p instanceof InternalParticipant &&
+					((InternalParticipant) p).getEmployee().equals(employee)) {
+				return true;
+			}
+		}
+		
+		// No sigar!
+		return false;
+	}
+	
+	
 	public void addParticipant(Participant participant) {
 		if (participants.add(participant)) {
 			pcs.firePropertyChange("participants", null, participant);
