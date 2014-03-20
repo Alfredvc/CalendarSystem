@@ -1,18 +1,20 @@
 package com.proj.gui;
 
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Calendar;
 
 import javax.swing.AbstractListModel;
-import javax.swing.ListModel;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 import com.proj.model.Appointment;
 import com.proj.model.Employee;
+import com.proj.model.InternalParticipant;
 import com.proj.model.Model;
+import com.proj.model.Participant;
 
 public class CalendarModel extends AbstractListModel<Appointment> {
 	public static String
@@ -22,17 +24,19 @@ public class CalendarModel extends AbstractListModel<Appointment> {
 	private Calendar week;
 	private Model model;
 
-	private ListModel<Employee> employeeListModel;
+	private SelectedCalendarsListModel employeeListModel;
 	private ArrayList<Appointment> appointments = new ArrayList<>();
 	private ArrayList<Integer> counts = new ArrayList<>();
 	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 	
-	public CalendarModel(Model model, ListModel<Employee> employeeListModel) {
+	public CalendarModel(Model model, SelectedCalendarsListModel employeeListModel) {
 		this.model = model;
-		//TODO: Listen to the model for new or removed appointments!!
 		this.employeeListModel = employeeListModel;
-		employeeListModel.addListDataListener(new EmployeeDataListener());
+		
+		employeeListModel.addListDataListener(new EmployeeHandler());
 		week = Calendar.getInstance();
+		
+		model.addPropertyChangeListener(new ModelPropertyChangeHandler());
 	}
 	
 	public void resetWeek() {
@@ -40,7 +44,10 @@ public class CalendarModel extends AbstractListModel<Appointment> {
 		int oldYear = getYear();
 		week = Calendar.getInstance();
 		pcs.firePropertyChange(WEEK_PROP, oldWeek, getWeek());
-		pcs.firePropertyChange(YEAR_PROP, oldYear, getYear());	}
+		pcs.firePropertyChange(YEAR_PROP, oldYear, getYear());
+		
+		updateAppointments();
+	}
 	
 	public void setWeek(int week) {
 		if (week < 1 || week > 52) {
@@ -51,6 +58,8 @@ public class CalendarModel extends AbstractListModel<Appointment> {
 		this.week.set(Calendar.WEEK_OF_YEAR, week);
 		pcs.firePropertyChange(WEEK_PROP, oldWeek, getWeek());
 		pcs.firePropertyChange(YEAR_PROP, oldYear, getYear());
+		
+		updateAppointments();
 	}
 	
 	public void setWeekRelative(int dist) {
@@ -59,6 +68,11 @@ public class CalendarModel extends AbstractListModel<Appointment> {
 		week.add(Calendar.WEEK_OF_YEAR, dist);
 		pcs.firePropertyChange(WEEK_PROP, oldWeek, getWeek());
 		pcs.firePropertyChange(YEAR_PROP, oldYear, getYear());
+		updateAppointments();
+	}
+	
+	private void updateAppointments() {
+		
 	}
 
 	public int getWeek() {
@@ -121,13 +135,62 @@ public class CalendarModel extends AbstractListModel<Appointment> {
 	public int getSize() {
 		return appointments.size();
 	}
-
+	
+	private void handleNewAppointment(Appointment appointment) {
+		boolean contains = employeeListModel.contains(appointment.getLeader());
+		
+		if (!contains) {
+			for (Participant p : appointment.getParticipants()) {
+				if (p instanceof InternalParticipant
+						&& employeeListModel.contains(((InternalParticipant) p).getEmployee())) {
+					contains = true;
+					break;
+				}
+			}
+		}
+		
+		if (contains) {
+			appointments.add(appointment);
+			int index = appointments.size() - 1;
+			fireIntervalAdded(this, index, index);
+		}
+	}
+	
+	private void handleRemovedAppointment(Appointment appointment) {
+		int index = appointments.indexOf(appointment);
+		if (index < 0) {
+			return;
+		}
+		
+		appointments.remove(index);
+		fireIntervalRemoved(this, index, index);
+	}
+	
+	/**
+	 * Listens to changes from model and updates this model
+	 */
+	private class ModelPropertyChangeHandler implements PropertyChangeListener {
+		@Override
+		public void propertyChange(PropertyChangeEvent evt) {
+			String property = evt.getPropertyName();
+			Object oldObj = evt.getOldValue();
+			Object newObj = evt.getNewValue();
+			
+			if (property.equals("notifications")) {
+				if (oldObj == null && newObj instanceof Appointment) {
+					handleNewAppointment((Appointment) newObj);
+				} else if (newObj == null && oldObj instanceof Appointment) {
+					handleRemovedAppointment((Appointment) oldObj);
+				}
+			}
+		}
+	}
 	
 	/**
 	 * This class listens to the employee list model and updates the appointments in
 	 * this calendar model!
 	 */
-	private class EmployeeDataListener implements ListDataListener {
+	private class EmployeeHandler implements ListDataListener {
 
 		@Override
 		public void contentsChanged(ListDataEvent arg0) {

@@ -77,6 +77,8 @@ public abstract class Networking extends Storage{
 
         outgoingAppointments.push(toSend);
 
+        selector.wakeup();
+
         return true;
     }
 

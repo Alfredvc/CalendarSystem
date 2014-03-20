@@ -2,11 +2,8 @@ package com.proj.server;
 
 import java.beans.PropertyChangeEvent;
 
-import com.proj.model.ExternalParticipant;
-import com.proj.model.Model;
-import com.proj.model.Appointment;
+import com.proj.model.*;
 import com.proj.database.Database;
-import com.proj.model.ModelChangeSupport;
 import com.proj.network.ServerNetworking;
 
 /**
@@ -69,12 +66,17 @@ public class Server implements ModelChangeSupport.ModelChangedListener{
 
     @Override
     public void modelChanged(Appointment appointment, Appointment.Flag flag, PropertyChangeEvent event) {
-        if (event.getPropertyName().equals("participant")){
+        System.out.println("Model changed: " + event);
+        if (event.getPropertyName().equals("participants")){
             if (event.getNewValue() != null && event.getNewValue() instanceof ExternalParticipant && event.getOldValue() == null){
                 sendInviteEmail(appointment, (ExternalParticipant) event.getNewValue());
             }
             else if (event.getOldValue() != null && event.getOldValue() instanceof ExternalParticipant && event.getNewValue() == null){
                 sendDisinviteEmail(appointment, (ExternalParticipant) event.getOldValue());
+            }
+        } else if(event.getPropertyName().equals("appointments") && event.getOldValue() == null){
+            for (Participant participant : appointment.getParticipants()){
+                if (participant instanceof ExternalParticipant) sendInviteEmail(appointment, (ExternalParticipant) participant);
             }
         }
     }

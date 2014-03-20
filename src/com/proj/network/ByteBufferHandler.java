@@ -20,6 +20,7 @@ public class ByteBufferHandler {
     private ObjectInputStream in;
     private NotifyOnLoadListener listener;
     private int leftToNotify;
+    private InitEnvelope initEnvelope;
 
     public void setNotifyOnLoadListener(NotifyOnLoadListener listener, int left){
         if (listener == null || left < 1) return;
@@ -53,17 +54,23 @@ public class ByteBufferHandler {
         AppointmentEnvelope newAppointment = null;
         try {
             for(;;){
-                newAppointment = (AppointmentEnvelope) in.readObject();
-                if (newAppointment == null) throw new NullPointerException();
-                networking.receivedAppointment(newAppointment);
-                if (listener != null){
-                    if (leftToNotify > 1){
-                        leftToNotify--;
-                    } else{
-                        listener.onLoad();
-                        listener = null;
+                Object object = in.readObject();
+                if (object instanceof InitEnvelope){
+                    this.initEnvelope = (InitEnvelope) object;
+                } else{
+                    newAppointment = (AppointmentEnvelope) object;
+                    if (newAppointment == null) throw new NullPointerException();
+                    networking.receivedAppointment(newAppointment);
+                    if (listener != null){
+                        if (leftToNotify > 1){
+                            leftToNotify--;
+                        } else{
+                            listener.onLoad(initEnvelope);
+                            listener = null;
+                        }
                     }
                 }
+
             }
         } catch(EOFException e){
             System.out.println("All appointments extracted");
@@ -76,7 +83,7 @@ public class ByteBufferHandler {
     }
 
     public interface NotifyOnLoadListener {
-        public void onLoad();
+        public void onLoad(InitEnvelope initEnvelope);
     }
 
 }

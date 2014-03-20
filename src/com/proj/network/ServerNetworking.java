@@ -79,6 +79,7 @@ public class ServerNetworking extends Networking implements Runnable{
                     run = false;
                     continue;
                 }
+                refreshQueues();
                 selector.select();
                 Set selectedKeys = selector.selectedKeys();
                 Iterator iterator = selectedKeys.iterator();
@@ -111,6 +112,9 @@ public class ServerNetworking extends Networking implements Runnable{
 
                         try{
                             readBytes = client.read(buffer);
+                            if (readBytes < 0) {
+                            	throw new IOException("forcibly closed");
+                            }
                         } catch (IOException e){
                             if (e.getMessage().contains("forcibly closed")){
                                 System.out.println("Client disconnected at " + client.socket().getInetAddress()
@@ -141,7 +145,7 @@ public class ServerNetworking extends Networking implements Runnable{
 
                             //Sends response to client
 
-                            String response = successful ? Networking.loginSuccessful +":"+ model.getAppointments().length : Networking.loginFailed;
+                            String response = successful ? Networking.loginSuccessful +":"+ model.getAppointments().length + ":" : Networking.loginFailed;
 
                             System.out.println("Sending response " + response + " to client at " + client.socket().getInetAddress()
                                     + ":" + client.socket().getLocalPort());
@@ -161,6 +165,8 @@ public class ServerNetworking extends Networking implements Runnable{
 
                         if (key.attachment() != null && key.attachment().equals(awaitingAllAppointments)){
                             key.attach(new ChannelAttachment(this));
+                            ((ChannelAttachment)key.attachment()).appointmentOutputHandler.sendInit(client,
+                                    new InitEnvelope(model.getEmployees(), model.getMeetingRooms(), model.getGroups()));
                             ((ChannelAttachment) key.attachment()).queue = getAllAppointmentsAsQueue();
                         }
 
@@ -170,9 +176,6 @@ public class ServerNetworking extends Networking implements Runnable{
                                 + ":" + client.socket().getLocalPort());
 
                     }
-
-                    refreshQueues();
-
                 }
             } catch (IOException e) {
                 e.printStackTrace();
