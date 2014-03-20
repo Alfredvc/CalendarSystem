@@ -1,31 +1,18 @@
 package com.proj.network;
 
 import com.proj.model.Appointment;
-import com.proj.model.Employee;
-import com.proj.model.Model;
-import com.proj.model.Participant;
 import com.proj.server.Server;
-import com.proj.test.RandomGenerator;
 
-import java.beans.PropertyChangeEvent;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.Arrays;
-import java.util.Deque;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * Created with IntelliJ IDEA.
@@ -98,12 +85,11 @@ public class ServerNetworking extends Networking implements Runnable{
                                 + ":" + client.socket().getLocalPort());
 
                         client.configureBlocking(false);
-                        client.register(selector, SelectionKey.OP_READ, awaitingLogin);
+                        client.register(selector, SelectionKey.OP_READ, new ChannelAttachment(ChannelAttachment.Status.AwaitingLogin));
 
                     }
                     if(key.isReadable()){
                         SocketChannel client = (SocketChannel) key.channel();
-                        Socket socket = client.socket();
                         ByteBuffer buffer = ByteBuffer.allocate(4096);
 
                         System.out.println("Reading from client at " + client.socket().getInetAddress()
@@ -117,9 +103,7 @@ public class ServerNetworking extends Networking implements Runnable{
                             }
                         } catch (IOException e){
                             if (e.getMessage().contains("forcibly closed")){
-                                System.out.println("Client disconnected at " + client.socket().getInetAddress()
-                                        + ":" + client.socket().getLocalPort());
-                                client.close();
+                                disconnectClient(client);
                                 continue;
                             } else{
                                 e.printStackTrace();
@@ -128,54 +112,15 @@ public class ServerNetworking extends Networking implements Runnable{
 
                         System.out.println("Read " + readBytes + " bytes");
 
-
-                        System.out.println("Finished reading from client at " + client.socket().getInetAddress()
-                                + ":" + client.socket().getLocalPort());
-
-                        if (key.attachment().equals(awaitingLogin)){
-                            System.out.println("Attempting login from client at " + client.socket().getInetAddress()
-                                    + ":" + client.socket().getLocalPort());
-
-                            boolean successful = requestLogin(buffer);
-
-                            if (successful){
-                                key.attach(awaitingAllAppointments);
-                                key.interestOps(SelectionKey.OP_WRITE);
-                            }
-
-                            //Sends response to client
-
-                            String response = successful ? Networking.loginSuccessful +":"+ model.getAppointments().length + ":" : Networking.loginFailed;
-
-                            System.out.println("Sending response " + response + " to client at " + client.socket().getInetAddress()
-                                    + ":" + client.socket().getLocalPort());
-
-                            client.write( ByteBuffer.wrap(response.getBytes()));
-                        }
-                        else {
-                            ((ChannelAttachment)key.attachment()).byteBufferHandler.handleByteBuffer(buffer);
-                        }
+                        ((ChannelAttachment)key.attachment()).byteBufferHandler.handleByteBuffer(buffer);
 
                     }
                     if (key.isWritable()){
                         SocketChannel client = (SocketChannel) key.channel();
 
-                        System.out.println("Sending to client at " + client.socket().getInetAddress()
-                                + ":" + client.socket().getLocalPort());
-
-                        if (key.attachment() != null && key.attachment().equals(awaitingAllAppointments)){
-                            key.attach(new ChannelAttachment(this));
-                            ((ChannelAttachment)key.attachment()).appointmentOutputHandler.sendInit(client,
-                                    new InitEnvelope(model.getEmployees(), model.getMeetingRooms(), model.getGroups()));
-                            ((ChannelAttachment) key.attachment()).queue = getAllAppointmentsAsQueue();
-                        }
-
-                        sendPendingAppointments(client, key);
-
-                        System.out.println("Finished sending to client at " + client.socket().getInetAddress()
-                                + ":" + client.socket().getLocalPort());
-
+                        sendPendingEnvelopes(client, key);
                     }
+                    handleReceivedEnvelopes();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -196,24 +141,66 @@ public class ServerNetworking extends Networking implements Runnable{
 
     }
 
-    private ConcurrentLinkedDeque<AppointmentEnvelope> getAllAppointmentsAsQueue(){
-        ConcurrentLinkedDeque<AppointmentEnvelope> result = new ConcurrentLinkedDeque<>();
-        for (Appointment appointment : model.getAppointments()){
-            result.add(new AppointmentEnvelope(appointment, Appointment.Flag.UPDATE));
+    private void disconnectClient(SocketChannel client){
+        System.out.println("Client disconnected at " + client.socket().getInetAddress()
+                + ":" + client.socket().getLocalPort());
+        try {
+            client.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        return result;
     }
 
-    private boolean requestLogin(ByteBuffer buffer){
+
+    @Override
+    protected void handleReceivedEnvelope(SelectionKey key) {
+        if (key.attachment() != null && key.attachment() instanceof ChannelAttachment){
+            NetworkEnvelope currentEnvelope = ((ChannelAttachment) key.attachment()).inQueue.poll();
+            if (currentEnvelope == null) return;
+            while (currentEnvelope != null){
+                switch (((ChannelAttachment)key.attachment()).status){
+                    case Established:
+                        if (currentEnvelope.getType() == NetworkEnvelope.Type.SendingAppointment){
+                            receivedAppointment(currentEnvelope.getAppointment(), currentEnvelope.getFlag());
+                        } else if (currentEnvelope.getType() == NetworkEnvelope.Type.DisconnectionRequest){
+                            disconnectClient((SocketChannel)key.channel());
+                        } else throw new RuntimeException("Impossible combination");
+                        break;
+                    case AwaitingLogin:
+                        if (currentEnvelope.getType() == NetworkEnvelope.Type.LoginRequest){
+                            if (requestLogin(currentEnvelope.getUsername(), currentEnvelope.getPassword())){
+                                sendSuccessResponse(key);
+                                ((ChannelAttachment) key.attachment()).status = ChannelAttachment.Status.Established;
+                            } else sendFailureResponse(key);
+                        } else throw new RuntimeException("Not expecting login request");
+                        break;
+                }
+                currentEnvelope = ((ChannelAttachment) key.attachment()).inQueue.poll();
+            }
+        }
+    }
+
+    private void sendSuccessResponse(SelectionKey key){
+        ((ChannelAttachment) key.attachment()).channelOutputHandler.send((SocketChannel)key.channel(),
+                new NetworkEnvelope().loginResponse(Networking.loginSuccessful, model.getEmployees(), model.getGroups(),
+                        model.getMeetingRooms()));
+        for (Appointment appointment : model.getAppointments()){
+            ((ChannelAttachment) key.attachment()).channelOutputHandler.send((SocketChannel)key.channel(),
+                    new NetworkEnvelope().sendingAppointment(new Appointment(appointment), Appointment.Flag.UPDATE));
+        }
+        ((ChannelAttachment) key.attachment()).channelOutputHandler.send((SocketChannel)key.channel(),
+                new NetworkEnvelope().doneSendingAppointments());
+    }
+
+    private void sendFailureResponse(SelectionKey key){
+        ((ChannelAttachment) key.attachment()).channelOutputHandler.send((SocketChannel)key.channel(),
+                new NetworkEnvelope().loginResponse(Networking.loginFailed, null, null, null));
+    }
+
+
+    private boolean requestLogin(String username, String password){
         System.out.println("Starting log in");
-        buffer.flip();
-        byte[] array = new byte[buffer.limit()];
-        buffer.get(array);
-        String recv = new String(array);
-        System.out.println("Received: " + recv);
-        String[] login = recv.split(":");
-        return server.requestLogin(login[0], login[1]);
+        return server.requestLogin(username, password);
     }
 
 }

@@ -15,23 +15,13 @@ import java.util.ArrayList;
  */
 public class ByteBufferHandler {
 
-    private Networking networking;
     private ByteBufferInputStream inStream;
     private ObjectInputStream in;
-    private NotifyOnLoadListener listener;
-    private int leftToNotify;
-    private InitEnvelope initEnvelope;
+    private NetworkEnvelopeListener listener;
 
-    public void setNotifyOnLoadListener(NotifyOnLoadListener listener, int left){
-        if (listener == null || left < 1) return;
-        this.listener = listener;
-        this.leftToNotify = left;
-    }
-
-    public ByteBufferHandler(Networking networking){
-        this.networking = networking;
+    public ByteBufferHandler(NetworkEnvelopeListener listener){
         this.inStream = new ByteBufferInputStream(1024 * 64);
-        this.listener = null;
+        this.listener = listener;
     }
 
     public void handleByteBuffer(ByteBuffer byteBuffer) {
@@ -46,34 +36,17 @@ public class ByteBufferHandler {
             }
         }
 
-        extractAppointments();
+        extractEnvelopes();
     }
 
-    private void extractAppointments(){
-        System.out.println("Extracting appointments");
-        AppointmentEnvelope newAppointment = null;
+    private void extractEnvelopes(){
+        System.out.println("Extracting envelopes");
         try {
             for(;;){
-                Object object = in.readObject();
-                if (object instanceof InitEnvelope){
-                    this.initEnvelope = (InitEnvelope) object;
-                } else{
-                    newAppointment = (AppointmentEnvelope) object;
-                    if (newAppointment == null) throw new NullPointerException();
-                    networking.receivedAppointment(newAppointment);
-                    if (listener != null){
-                        if (leftToNotify > 1){
-                            leftToNotify--;
-                        } else{
-                            listener.onLoad(initEnvelope);
-                            listener = null;
-                        }
-                    }
-                }
-
+                listener.onNewEnvelope((NetworkEnvelope) in.readObject());
             }
         } catch(EOFException e){
-            System.out.println("All appointments extracted");
+            System.out.println("\tAll envelopes extracted");
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -82,8 +55,8 @@ public class ByteBufferHandler {
         }
     }
 
-    public interface NotifyOnLoadListener {
-        public void onLoad(InitEnvelope initEnvelope);
+    public interface NetworkEnvelopeListener {
+        public void onNewEnvelope(NetworkEnvelope networkEnvelope);
     }
 
 }

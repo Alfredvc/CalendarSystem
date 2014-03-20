@@ -1,11 +1,6 @@
 package com.proj.network;
 
-import com.proj.model.Appointment;
-
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.nio.channels.SocketChannel;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
@@ -15,16 +10,28 @@ import java.util.concurrent.ConcurrentLinkedDeque;
  * Time: 13:34
  * To change this template use File | Settings | File Templates.
  */
-public class ChannelAttachment {
+public class ChannelAttachment implements ByteBufferHandler.NetworkEnvelopeListener {
 
-    public ConcurrentLinkedDeque<AppointmentEnvelope> queue;
-    public ByteBufferHandler byteBufferHandler;
-    public AppointmentOutputHandler appointmentOutputHandler;
-
-    public ChannelAttachment(Networking networking) throws IOException {
-        queue = new ConcurrentLinkedDeque<AppointmentEnvelope>();
-        byteBufferHandler = new ByteBufferHandler(networking);
-        appointmentOutputHandler = new AppointmentOutputHandler();
+    public static enum Status{
+        ReadyToLogIn, AwaitingLoginResponse, AwaitingLogin, Established, AwaitingAllAppointments
     }
 
+    public Status status;
+    public ConcurrentLinkedDeque<NetworkEnvelope> outQueue;
+    public ConcurrentLinkedDeque<NetworkEnvelope> inQueue;
+    public ByteBufferHandler byteBufferHandler;
+    public ChannelOutputHandler channelOutputHandler;
+
+    public ChannelAttachment(Status status) throws IOException {
+        this.status = status;
+        outQueue = new ConcurrentLinkedDeque<NetworkEnvelope>();
+        inQueue = new ConcurrentLinkedDeque<NetworkEnvelope>();
+        byteBufferHandler = new ByteBufferHandler(this);
+        channelOutputHandler = new ChannelOutputHandler();
+    }
+
+    @Override
+    public void onNewEnvelope(NetworkEnvelope networkEnvelope) {
+        inQueue.push(networkEnvelope);
+    }
 }

@@ -2,7 +2,6 @@ package com.proj.network;
 
 import com.proj.model.Appointment;
 import com.proj.model.Model;
-import com.proj.model.ModelChangeSupport;
 
 import java.io.*;
 import java.nio.channels.SelectionKey;
@@ -24,7 +23,7 @@ public abstract class Networking extends Storage{
     Model model;
     boolean run;
     final int selectionTimeout = 1000;
-    protected ConcurrentLinkedDeque<AppointmentEnvelope> outgoingAppointments;
+    protected ConcurrentLinkedDeque<NetworkEnvelope> outgoingEnvelopes;
     public static final String loginFailed = "fail";
     public static final String loginSuccessful = "success";
 
@@ -32,50 +31,17 @@ public abstract class Networking extends Storage{
         this.model = model;
         model.addModelChangeListener(this);
         this.run = true;
-        this.outgoingAppointments = new ConcurrentLinkedDeque<AppointmentEnvelope>();
-    }
-
-    public static byte[] appointmentToByteArray(Appointment appointment, SocketChannel channel)
-            throws IOException{
-
-        System.out.println("Transforming appointment " + appointment + " to byte array");
-
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ObjectOutput out = null;
-        byte[] result;
-        try {
-            out = new ObjectOutputStream(bos);
-            out.writeObject(appointment);
-            result = bos.toByteArray();
-
-        } catch (IOException e){
-            throw e;
-        }
-
-        finally {
-            try {
-                if (out != null) {
-                    out.close();
-                }
-            } catch (IOException ex) {
-            }
-            try {
-                bos.close();
-            } catch (IOException ex) {
-            }
-        }
-        System.out.println("Transformed into " +result.length +":"+ result);
-        return result;
+        this.outgoingEnvelopes = new ConcurrentLinkedDeque<>();
     }
 
     //Must add a flag, either DELETE, CREATE or CHANGE to the appointment being sent.
     private boolean sendAppointment(Appointment appointment, Appointment.Flag flag){
 
-        AppointmentEnvelope toSend = new AppointmentEnvelope(appointment, flag);
+        NetworkEnvelope toSend = new NetworkEnvelope().sendingAppointment(new Appointment(appointment), flag);
 
-        System.out.println("Pushing appointment envelope " + toSend + " to outgoing queue");
+        System.out.println("Pushing envelope " + toSend + " to outQueue");
 
-        outgoingAppointments.push(toSend);
+        outgoingEnvelopes.push(toSend);
 
         selector.wakeup();
 
@@ -94,42 +60,38 @@ public abstract class Networking extends Storage{
 
     protected void refreshQueues(){
 
-        AppointmentEnvelope currentAppointment = outgoingAppointments.poll();
-        if (currentAppointment == null) return;
+        NetworkEnvelope currentEnvelope = outgoingEnvelopes.poll();
+        if (currentEnvelope == null) return;
         System.out.println("Refreshing queues for thread " + Thread.currentThread());
         for (SelectionKey key : selector.keys()){
             if (key.channel() instanceof ServerSocketChannel) continue;
             System.out.println("Updating interestOps for key ");
             key.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
         }
-        while (currentAppointment != null){
+        while (currentEnvelope != null){
             for (SelectionKey key : selector.keys()){
                 if (key.attachment() != null && key.attachment() instanceof ChannelAttachment){
-                    ((ChannelAttachment) key.attachment()).queue.push(currentAppointment);
+                    ((ChannelAttachment) key.attachment()).outQueue.push(currentEnvelope);
                 }
             }
-            currentAppointment = outgoingAppointments.poll();
+            currentEnvelope = outgoingEnvelopes.poll();
         }
     }
 
-    protected void sendPendingAppointments(SocketChannel channel, SelectionKey key){
+    protected void sendPendingEnvelopes(SocketChannel channel, SelectionKey key){
 
         if (key.attachment() != null && key.attachment() instanceof ChannelAttachment){
-            System.out.println("Sending pending appointments to " + channel.socket().getInetAddress()
+            System.out.println("Sending pending envelopes to " + channel.socket().getInetAddress()
                     + ":" + channel.socket().getLocalPort());
-            ConcurrentLinkedDeque<AppointmentEnvelope> queue = ((ChannelAttachment) key.attachment()).queue;
-            AppointmentEnvelope currentAppointment = queue.poll();
-            while (currentAppointment != null){
+            ConcurrentLinkedDeque<NetworkEnvelope> queue = ((ChannelAttachment) key.attachment()).outQueue;
+            NetworkEnvelope currentEnvelope = queue.poll();
+            while (currentEnvelope != null){
                 if (!(key.attachment() instanceof ChannelAttachment)) throw new RuntimeException();
-                try {
-                    ((ChannelAttachment) key.attachment()).appointmentOutputHandler.sendAppointment(channel, currentAppointment);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                currentAppointment = queue.poll();
+                ((ChannelAttachment) key.attachment()).channelOutputHandler.send(channel, currentEnvelope);
+                currentEnvelope = queue.poll();
             }
             key.interestOps(SelectionKey.OP_READ);
-            System.out.println("Finished sending pending appointments to " + channel.socket().getInetAddress()
+            System.out.println("Finished sending pending envelopes to " + channel.socket().getInetAddress()
                     + ":" + channel.socket().getLocalPort());
         }
     }
@@ -171,17 +133,23 @@ public abstract class Networking extends Storage{
         return result;
     }
 
-    protected void receivedAppointment(AppointmentEnvelope appointmentEnvelope){
-        System.out.println("Received appointment envelope " + appointmentEnvelope );
-        switch (appointmentEnvelope.getFlag()){
+    protected void receivedAppointment(Appointment appointment, Appointment.Flag flag){
+        System.out.println("Received appointment " + appointment + " " + flag );
+        switch (flag){
             case UPDATE:
-                model.updateAppointment(appointmentEnvelope.getAppointment());
+                model.updateAppointment(appointment);
                 break;
             case DELETE:
-                model.deleteAppointment(appointmentEnvelope.getAppointment().getId());
+                model.deleteAppointment(appointment.getId());
                 break;
         }
     }
+
+    protected void handleReceivedEnvelopes(){
+        for (SelectionKey key : selector.keys()) handleReceivedEnvelope(key);
+    }
+
+    protected abstract void handleReceivedEnvelope(SelectionKey key);
 
     public void close(){
         run = false;
