@@ -1,14 +1,22 @@
 package com.proj.database;
 
-import com.proj.model.*;
-import com.proj.network.Storage;
-
-import java.io.*;
-import java.util.Properties;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Properties;
+
+import com.proj.model.Appointment;
+import com.proj.model.ExternalParticipant;
+import com.proj.model.InternalParticipant;
+import com.proj.model.Model;
+import com.proj.model.Notification;
+import com.proj.model.Participant;
+import com.proj.network.Storage;
 
 
 public class Database extends Storage {
@@ -253,6 +261,15 @@ public class Database extends Storage {
 	}
 
     public boolean checkLogin(String username, String password){
-        return true;
+    	try {
+    		PreparedStatement statement = connection.prepareStatement("SELECT * FROM `Employee` WHERE email=? AND password=?;");
+    		statement.setString(1, username);
+    		statement.setString(2, password);
+    		return statement.executeQuery().next();
+    	} catch (SQLException e) {
+    		System.err.println("Could not check username and password :'(\n" + e.getMessage());
+    	}
+ 
+    	return false;
     }
 }
