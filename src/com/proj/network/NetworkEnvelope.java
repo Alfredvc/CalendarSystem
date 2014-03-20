@@ -5,6 +5,8 @@ import com.proj.model.Employee;
 import com.proj.model.Group;
 import com.proj.model.MeetingRoom;
 
+import java.io.Serializable;
+
 /**
  * Created with IntelliJ IDEA.
  * User: Alfredo
@@ -12,22 +14,26 @@ import com.proj.model.MeetingRoom;
  * Time: 17:25
  * To change this template use File | Settings | File Templates.
  */
-public class NetworkEnvelope {
+public class NetworkEnvelope implements Serializable{
 
     public static enum Type{
-        LoginRequest, LoginResponse, SendingAppointment, DisconnectionRequest
+        LoginRequest, LoginResponse, SendingAppointment, DisconnectionRequest, DoneSendingAppointments
     }
 
     private Type type;
     private String username;
     private String password;
     private String loginResponse;
-    private int incomingAppointments;
     private Appointment appointment;
     private Appointment.Flag flag;
     private Employee[] employees;
     private Group[] groups;
     private MeetingRoom[] meetingRooms;
+
+    public NetworkEnvelope doneSendingAppointments(){
+        this.type = Type.DoneSendingAppointments;
+        return this;
+    }
 
     public NetworkEnvelope loginRequest(String username, String password){
         this.type = Type.LoginRequest;
@@ -37,13 +43,12 @@ public class NetworkEnvelope {
     }
 
     public NetworkEnvelope loginResponse(String loginResponse, Employee[] employees, Group[] groups,
-                                         MeetingRoom[] meetingRooms, int incomingAppointments){
+                                         MeetingRoom[] meetingRooms){
         this.type = Type.LoginResponse;
         this.loginResponse = loginResponse;
         this.employees = employees;
         this.groups = groups;
         this.meetingRooms = meetingRooms;
-        this.incomingAppointments = incomingAppointments;
         return this;
     }
 
@@ -73,10 +78,6 @@ public class NetworkEnvelope {
 
     public String getLoginResponse() {
         return loginResponse;
-    }
-
-    public int getIncomingAppointments() {
-        return incomingAppointments;
     }
 
     public Appointment getAppointment() {

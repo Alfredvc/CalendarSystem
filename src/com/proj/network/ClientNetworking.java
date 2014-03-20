@@ -1,9 +1,6 @@
 package com.proj.network;
 
-import com.proj.model.Employee;
-import com.proj.model.Group;
-import com.proj.model.MeetingRoom;
-import com.proj.model.Model;
+import com.proj.model.*;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -21,7 +18,7 @@ import java.util.Set;
  * Time: 13:53
  * To change this template use File | Settings | File Templates.
  */
-public class ClientNetworking extends Networking implements Runnable, ByteBufferHandler.NotifyOnLoadListener {
+public class ClientNetworking extends Networking implements Runnable {
 
     String ipAddr = "127.0.0.1";
     int portNr = 8989;
@@ -29,7 +26,7 @@ public class ClientNetworking extends Networking implements Runnable, ByteBuffer
     String password;
     Thread loginThread;
     boolean loggedIn;
-    int remainingAppointmentsToContinue = 0;
+    ChannelAttachment attachment;
     SocketChannel clientChannel;
 
     final Object readyToLogIn = new Object();
@@ -74,21 +71,13 @@ public class ClientNetworking extends Networking implements Runnable, ByteBuffer
                         if (clientChannel.isConnectionPending()){
                             clientChannel.finishConnect();
                             key.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
-                            key.attach(new ChannelAttachment(this, ChannelAttachment.Status.ReadyToLogIn));
+                            attachment = new ChannelAttachment(ChannelAttachment.Status.ReadyToLogIn);
+                            key.attach(attachment);
                         }
                     }
 
                     if (key.isWritable()){
-                        if (((ChannelAttachment)key.attachment()).status == ChannelAttachment.Status.ReadyToLogIn
-                                && username != null && password != null){
-                            System.out.println("Starting login with as: " + username + ":" + password);
-
-                            ((ChannelAttachment) key.attachment()).appointmentOutputHandler
-                                    .send(clientChannel, new NetworkEnvelope().loginRequest(username, password));
-                            ((ChannelAttachment) key.attachment()).status = ChannelAttachment.Status.AwaitingLoginResponse;
-                        }
-
-                        sendPendingAppointments(clientChannel, key);
+                        sendPendingEnvelopes(clientChannel, key);
 
                     }
 
@@ -98,43 +87,8 @@ public class ClientNetworking extends Networking implements Runnable, ByteBuffer
                         int readBytes = clientChannel.read(inBuffer);
                         if (readBytes == -1) throw new IOException("Server disconnected");
                         ((ChannelAttachment) key.attachment()).byteBufferHandler.handleByteBuffer(inBuffer);
-
-                        if (key.attachment()!= null && key.attachment().equals(awaitingLoginResponse)){
-                            System.out.println("Reading response");
-                            ByteBuffer inBuffer = ByteBuffer.allocate(128);
-                            int read = clientChannel.read(inBuffer);
-                            if (read == -1) throw new IOException("Server disconnected");
-                            inBuffer.flip();
-                            byte[] array = new byte[inBuffer.limit()];
-                            inBuffer.get(array);
-                            String received = new String(array);
-                            System.out.println("Received: " + received);
-                            if (received.contains(loginSuccessful)){
-                                String[] recv = received.split(":");
-                                loggedIn = true;
-                                System.out.println("Login successful");
-                                key.attach(new ChannelAttachment(this));
-                                ((ChannelAttachment)key.attachment()).byteBufferHandler.setNotifyOnLoadListener(this, Integer.parseInt(recv[1]));
-                                if (recv.length >2 ){
-                                    ((ChannelAttachment)key.attachment()).byteBufferHandler.handleByteBuffer(ByteBuffer.wrap(recv[2].getBytes()));
-                                }
-                            } else{
-                                key.attach(readyToLogIn);
-                                System.out.println("Interrupting thread " + loginThread + " from thread "+ Thread.currentThread());
-                                loginThread.interrupt();
-                                System.out.println("Login failed, trying again");
-                            }
-                        }
-
-                        if (key.attachment() != null && key.attachment() instanceof ChannelAttachment){
-                            System.out.println("Reading appointment...");
-                            ByteBuffer inBuffer = ByteBuffer.allocate(4098);
-                            int readBytes = clientChannel.read(inBuffer);
-                            if (readBytes == -1) throw new IOException("Server disconnected");
-                            ((ChannelAttachment) key.attachment()).byteBufferHandler.handleByteBuffer(inBuffer);
-                        }
-
                     }
+                    handleReceivedEnvelopes();
                 }
             }
         }
@@ -144,12 +98,58 @@ public class ClientNetworking extends Networking implements Runnable, ByteBuffer
     }
 
     @Override
-    public void onLoad(InitEnvelope initEnvelope){
-        for (Employee employee : initEnvelope.getEmployees()) model.addEmployee(employee);
-        for (Group group : initEnvelope.getGroups()) model.addGroup(group);
-        for (MeetingRoom meetingRoom : initEnvelope.getMeetingRooms()) model.addMeetingRoom(meetingRoom);
-        System.out.println("\tClientNetwork notified, all appointments loaded");
-        loginThread.interrupt();
+    protected void handleReceivedEnvelope(SelectionKey key) {
+        if (key.attachment() != null && key.attachment() instanceof ChannelAttachment){
+            NetworkEnvelope currentEnvelope = ((ChannelAttachment) key.attachment()).inQueue.poll();
+            if (currentEnvelope == null) return;
+            while (currentEnvelope != null){
+                switch (((ChannelAttachment)key.attachment()).status){
+                    case Established:
+                        if (currentEnvelope.getType() == NetworkEnvelope.Type.SendingAppointment){
+                            receivedAppointment(currentEnvelope.getAppointment(), currentEnvelope.getFlag());
+                        } else if (currentEnvelope.getType() == NetworkEnvelope.Type.DisconnectionRequest){
+                            disconnect();
+                        } else throw new RuntimeException("Impossible combination");
+                        break;
+                    case AwaitingLoginResponse:
+                        if (currentEnvelope.getType() == NetworkEnvelope.Type.LoginResponse){
+                            if (currentEnvelope.getLoginResponse().equals(Networking.loginSuccessful)){
+                                loadModel(currentEnvelope.getEmployees(), currentEnvelope.getGroups(),
+                                        currentEnvelope.getMeetingRooms());
+                                loggedIn = true;
+                                ((ChannelAttachment) key.attachment()).status = ChannelAttachment.Status.AwaitingAllAppointments;
+                            } else {
+                                ((ChannelAttachment) key.attachment()).status = ChannelAttachment.Status.ReadyToLogIn;
+                                loginThread.interrupt();
+                            }
+                        } else throw new RuntimeException("Not expecting login response");
+                        break;
+                    case AwaitingAllAppointments:
+                        if (currentEnvelope.getType() == NetworkEnvelope.Type.DoneSendingAppointments){
+                            ((ChannelAttachment) key.attachment()).status = ChannelAttachment.Status.Established;
+                            loginThread.interrupt();
+                        } else if (currentEnvelope.getType() == NetworkEnvelope.Type.SendingAppointment){
+                            receivedAppointment(currentEnvelope.getAppointment(), currentEnvelope.getFlag());
+                        } else if (currentEnvelope.getType() == NetworkEnvelope.Type.DisconnectionRequest){
+                            disconnect();
+                        } else throw new RuntimeException("Impossible combination");
+                        break;
+                    case ReadyToLogIn:
+                        throw new RuntimeException("Not expecting envelopes");
+                }
+                currentEnvelope = ((ChannelAttachment) key.attachment()).inQueue.poll();
+            }
+        }
+    }
+
+    private void loadModel(Employee[] employees, Group[] groups, MeetingRoom[] meetingRooms){
+        for (Employee employee : employees) model.addEmployee(employee);
+        for (Group group : groups) model.addGroup(group);
+        for (MeetingRoom meetingRoom : meetingRooms) model.addMeetingRoom(meetingRoom);
+    }
+
+    private void disconnect(){
+
     }
 
     public boolean logIn(String username, String password){
@@ -160,7 +160,14 @@ public class ClientNetworking extends Networking implements Runnable, ByteBuffer
         this.password = password;
         this.loginThread = Thread.currentThread();
         try{
-            System.out.println("Sleeping thread " + loginThread + " from thread "+ Thread.currentThread());
+            System.out.println("Sleeping thread " + loginThread + " from thread " + Thread.currentThread());
+
+            if (attachment.status == ChannelAttachment.Status.ReadyToLogIn
+                    && username != null && password != null){
+                System.out.println("Starting login with as: " + username + ":" + password);
+                attachment.channelOutputHandler.send(clientChannel, new NetworkEnvelope().loginRequest(username, password));
+                attachment.status = ChannelAttachment.Status.AwaitingLoginResponse;
+            }
             loginThread.sleep(8000);
             System.out.println("Login attempt timed out");
         } catch (InterruptedException e){
