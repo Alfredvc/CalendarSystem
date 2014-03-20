@@ -280,38 +280,47 @@ public class NewAppointment extends JFrame {
 		public void actionPerformed(ActionEvent arg0) {
 			JFrame warningWindow = new JFrame();
 			Appointment app;
+			String appDescription = nameInput.getText();
 			Date appStartTime = startTime;
 			Date appEndTime = endTime;
 			InternalParticipant appLeader = appLeaderInternalParticipant;
 			MeetingRoom appMeetingRoom;
 			String appLocation;
 			
-			if(startTime.before(endTime)){
-				if(meetingRoomButton.isSelected()){
-					appMeetingRoom = freeMeetingRooms.get(meetingRoomInput.getSelectedIndex());
-					app = new Appointment( appLeader, appStartTime, appEndTime, appMeetingRoom );	
-				}
-				else{
-					if(locationInput.getText().length() == 0){
-						JOptionPane.showMessageDialog(warningWindow, "Please fill in the location field",
-								"Location Error", JOptionPane.WARNING_MESSAGE);
-					}
-					appLocation = locationInput.getText();
-					app = new Appointment( appLeader, appStartTime, appEndTime, appLocation);
-				}
-				
-				for (int i = 0; i < addedParticipantList.size(); i++) {
-					app.addParticipant(addedParticipantList.get(i));
-				}
-				
-//				thisModel.addAppointment(app);
-//				dispose();
-				System.out.println(app.getLocation());
-
+			
+			if(nameInput.getText().length() == 0){
+				JOptionPane.showMessageDialog(warningWindow, "Please fill in the Name field",
+						"Name Error", JOptionPane.WARNING_MESSAGE);
 			}
-			else {
-				JOptionPane.showMessageDialog(warningWindow, "You cannot end an appointment before it has begun",
-						"Date Error", JOptionPane.WARNING_MESSAGE);
+			else{
+				if(startTime.before(endTime)){
+					
+					if(meetingRoomButton.isSelected()){
+						appMeetingRoom = freeMeetingRooms.get(meetingRoomInput.getSelectedIndex());
+						app = new Appointment( appLeader, appStartTime, appEndTime, appMeetingRoom );	
+					}
+					else{
+						if(locationInput.getText().length() == 0){
+							JOptionPane.showMessageDialog(warningWindow, "Please fill in the location field",
+									"Location Error", JOptionPane.WARNING_MESSAGE);
+						}
+						appLocation = locationInput.getText();
+						app = new Appointment( appLeader, appStartTime, appEndTime, appLocation);
+					}
+					
+					for (int i = 0; i < addedParticipantList.size(); i++) {
+						app.addParticipant(addedParticipantList.get(i));
+					}
+					app.setDescription(appDescription);
+					thisModel.addAppointment(app);
+	//				dispose();
+					System.out.println(app.getLocation());
+	
+				}
+				else {
+					JOptionPane.showMessageDialog(warningWindow, "You cannot end an appointment before it has begun",
+							"Date Error", JOptionPane.WARNING_MESSAGE);
+				}
 			}
 			
 			
