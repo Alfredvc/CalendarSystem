@@ -304,8 +304,8 @@ public class NewAppointment extends JFrame {
 					app.addParticipant(addedParticipantList.get(i));
 				}
 				
-//				thisModel.addAppointment(app);
-//				dispose();
+				thisModel.addAppointment(app);
+				dispose();
 				System.out.println(app.getLocation());
 
 			}

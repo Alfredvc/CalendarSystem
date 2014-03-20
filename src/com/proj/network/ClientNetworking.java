@@ -103,7 +103,8 @@ public class ClientNetworking extends Networking implements Runnable, ByteBuffer
                         if (key.attachment()!= null && key.attachment().equals(awaitingLoginResponse)){
                             System.out.println("Reading response");
                             ByteBuffer inBuffer = ByteBuffer.allocate(128);
-                            clientChannel.read(inBuffer);
+                            int read = clientChannel.read(inBuffer);
+                            if (read == -1) throw new IOException("Server disconnected");
                             inBuffer.flip();
                             byte[] array = new byte[inBuffer.limit()];
                             inBuffer.get(array);
@@ -126,7 +127,7 @@ public class ClientNetworking extends Networking implements Runnable, ByteBuffer
                             System.out.println("Reading appointment...");
                             ByteBuffer inBuffer = ByteBuffer.allocate(4098);
                             int readBytes = clientChannel.read(inBuffer);
-                            //TODO: FIX WHEN SERVER DISCONNECTS
+                            if (readBytes == -1) throw new IOException("Server disconnected");
                             ((ChannelAttachment) key.attachment()).byteBufferHandler.handleByteBuffer(inBuffer);
                         }
 
