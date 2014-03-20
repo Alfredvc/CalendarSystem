@@ -9,6 +9,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 
+import com.proj.client.Client;
 import com.proj.model.Appointment;
 import com.proj.model.Appointment.Flag;
 import com.proj.model.Employee;
@@ -18,7 +19,6 @@ import com.proj.model.Notification;
 
 public class MainCalendar extends JFrame {
 	private Model model;
-	private static Employee currentEmployee;
 	private CalendarView calendarView;
 	private CalendarModel calendarModel;
 	private SelectedCalendarsListModel selectedCalendarsListModel;
@@ -26,7 +26,6 @@ public class MainCalendar extends JFrame {
 	
 	public MainCalendar(Model model, Employee currentEmployee) {
 		this.model = model;
-		this.currentEmployee = currentEmployee;
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
@@ -35,7 +34,7 @@ public class MainCalendar extends JFrame {
 		model.addModelChangeListener(new ModelChangeHandler());
 
 		// Instantiate models
-		selectedCalendarsListModel = new SelectedCalendarsListModel(getCurrentEmployee());
+		selectedCalendarsListModel = new SelectedCalendarsListModel(Client.getCurrentEmployee());
 		calendarModel = new CalendarModel(getModel(), selectedCalendarsListModel);
 		
 		// Add tool bar
@@ -75,12 +74,8 @@ public class MainCalendar extends JFrame {
 	}
 	
 	public void showNotifications() {
-		NotificationListModel nlm=new NotificationListModel(this.model,this.currentEmployee);
+		NotificationListModel nlm = new NotificationListModel(this.model, Client.getCurrentEmployee());
 		new Notifications(nlm);
-	}
-	
-	public static Employee getCurrentEmployee() {
-		return currentEmployee;
 	}
 	
 	public Model getModel() {
@@ -122,7 +117,7 @@ public class MainCalendar extends JFrame {
 			case "notifications":
 				if (oldObj == null && newObj instanceof Notification) {
 					Notification notification = (Notification) newObj;
-					if (notification.isRelevantFor(getCurrentEmployee())) {
+					if (notification.isRelevantFor(Client.getCurrentEmployee())) {
 						displayNotification(notification);
 					}
 				}
@@ -132,7 +127,7 @@ public class MainCalendar extends JFrame {
 				if (oldObj == null && newObj instanceof Appointment) {
 					Notification[] notifications = ((Appointment) newObj).getNotifications();
 					for (Notification n : notifications) {
-						if (n.isRelevantFor(getCurrentEmployee())) {
+						if (n.isRelevantFor(Client.getCurrentEmployee())) {
 							displayNotification(n);
 							return; // Let's assume we're only interested in the first...
 						}

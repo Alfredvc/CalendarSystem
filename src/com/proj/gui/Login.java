@@ -25,13 +25,11 @@ public class Login extends JFrame{
     
     private JTextField emailInput;
 	private JPasswordField passwordInput;
-	private Client client;
 	private LoadingDialog loadingDialog;
 
 	
 	
-	public Login(Client client) {
-		this.client = client;
+	public Login() {
 		
 		// Setting up the Frame, setting the size, position and making it fixed size
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -117,7 +115,7 @@ public class Login extends JFrame{
 
 			@Override
 			protected Boolean doInBackground() throws Exception {
-				return client.logIn(
+				return Client.logIn(
 						emailInput.getText()  + "@" + DOMAIN,
 						getPasswordHash()
 					);
@@ -147,7 +145,7 @@ public class Login extends JFrame{
 		
 		if (successful) {
 			dispose();
-			client.continueStartup();
+			Client.continueStartup();
 		} else {
 			showLoginError();
 		}

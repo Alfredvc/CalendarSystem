@@ -2,6 +2,7 @@ package com.proj.client;
 
 import com.proj.gui.Login;
 import com.proj.gui.MainCalendar;
+import com.proj.model.Employee;
 import com.proj.model.Model;
 import com.proj.network.ClientNetworking;
 
@@ -13,35 +14,37 @@ import com.proj.network.ClientNetworking;
  * To change this template use File | Settings | File Templates.
  */
 public class Client {
-    private Model model;
-    public ClientNetworking networking;
-    private String username;
+    private static Model model;
+    public static ClientNetworking networking;
+    private static String username;
+    private static Employee currentEmployee;
 
-    public Client(Model model){
-        this.model = model;
+    public static void main(String[] args){
+        model = new Model();
         networking = new ClientNetworking(model);
         new Thread(networking).start();
         
-        new Login(this);
+        new Login();
     }
 
-    public boolean logIn(String username, String password) {
+    public static boolean logIn(String username, String password) {
     	boolean success = networking.logIn(username, password);
     	if (success) {
-    		this.username = username;
+    		Client.username = username;
     	}
     	return success;
     }
     
-    public void continueStartup() {
+    public static void continueStartup() {
     	if (username == null) {
     		throw new IllegalStateException("Must be logged in to use this method.");
     	}
     	
-    	new MainCalendar(model, model.getEmployee(username));
+    	Client.currentEmployee = model.getEmployee(username);
+    	new MainCalendar(model, currentEmployee);
     }
     
-    public static void main(String[] args) {
-    	new Client(new Model());
+    public static Employee getCurrentEmployee() {
+    	return currentEmployee;
     }
 }

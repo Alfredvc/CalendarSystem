@@ -32,6 +32,7 @@ import javax.swing.SwingConstants;
 
 import org.jdesktop.swingx.JXDatePicker;
 
+import com.proj.client.Client;
 import com.proj.deletableTests.GUItests;
 import com.proj.model.*;
 
@@ -80,7 +81,7 @@ public class NewAppointment extends JFrame {
 	public NewAppointment(Model model) {
 
 		
-		appLeaderInternalParticipant = new InternalParticipant(MainCalendar.getCurrentEmployee());
+		appLeaderInternalParticipant = new InternalParticipant(Client.getCurrentEmployee());
 		//appLeaderInternalParticipant = new InternalParticipant(GUItests.getCurrentEmployee());
 		thisModel = model;
 		// Setting up the Frame, setting the size, position and making it fixed size

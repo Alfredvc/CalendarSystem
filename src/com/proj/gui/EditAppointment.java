@@ -32,6 +32,7 @@ import javax.swing.SwingConstants;
 
 import org.jdesktop.swingx.JXDatePicker;
 
+import com.proj.client.Client;
 import com.proj.model.*;
 
 public class EditAppointment extends JFrame {
@@ -78,7 +79,7 @@ public class EditAppointment extends JFrame {
 	public EditAppointment(Model model, Appointment appointment) {
 
 		
-		new InternalParticipant(MainCalendar.getCurrentEmployee());
+		new InternalParticipant(Client.getCurrentEmployee());
 		thisModel = model;
 		thisApp = appointment;
 		// Setting up the Frame, setting the size, position and making it fixed size
