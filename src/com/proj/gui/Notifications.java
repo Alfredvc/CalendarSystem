@@ -58,15 +58,7 @@ public class Notifications extends JFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if (e.getSource() == closeButton) {
-				System.exit(ABORT);
-				System.out.println("Closing");
-				
-			}
-			if(e.getSource()==addButton){
-				notifications.add(new Notification("adding new notification"));
-			}
-
+			dispose();
 		}
 	}
 
