@@ -25,6 +25,7 @@ public class Model {
     }
 	
 	public void deleteAppointment(UUID id){
+        if (!(appointments.containsKey(id))) return;
         appointments.get(id).removeAppointmentChangeListener(notifier);
 		Appointment oldValue=this.appointments.remove(id);
 		pcs.firePropertyChange("appointments",oldValue ,null);
