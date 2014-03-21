@@ -71,7 +71,7 @@ public class MainCalendar extends JFrame {
 			new EditAppointment(model, appointment);				
 			}
 			else{
-			new ViewAppointment(appointment);				
+			new ViewAppointment(model, appointment);				
 			}
 			
 			

@@ -3,6 +3,7 @@ package com.proj.gui;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -25,10 +26,12 @@ import javax.swing.SwingConstants;
 
 import org.jdesktop.swingx.JXDatePicker;
 
+import com.proj.client.Client;
 import com.proj.model.*;
 
 public class ViewAppointment extends JFrame {
 
+	private Model thisModel;
 	private Appointment thisAppointment;
 	static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
@@ -43,6 +46,8 @@ public class ViewAppointment extends JFrame {
 	private Date endTime = new Date();
 	private JRadioButton meetingRoomButton;
 	private JRadioButton otherButton;
+	private JRadioButton attendingButton;
+	private JRadioButton notAttendingButton;
 	private JTextField locationInput;
 	private JTextField meetingRoomInput;
 	private JScrollPane addedParticipantScrollPane;
@@ -55,8 +60,9 @@ public class ViewAppointment extends JFrame {
 	private JButton cancelButton;
 
 	@SuppressWarnings("deprecation")
-	public ViewAppointment(Appointment currentApp) {
+	public ViewAppointment(Model model, Appointment currentApp) {
 
+		thisModel = model;
 		thisAppointment = currentApp;
 		// Setting up the Frame, setting the size, position and making it fixed
 		// size
@@ -183,7 +189,7 @@ public class ViewAppointment extends JFrame {
 		addedParticipantScrollPane = new JScrollPane();
 		addedParticipantScrollPane
 				.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		addedParticipantScrollPane.setBounds(350, 50, 300, 130);
+		addedParticipantScrollPane.setBounds(350, 50, 300, 120);
 		addedParticipantView = new JPanel();
 		addedParticipantScrollPane.setViewportView(addedParticipantView);
 		add(addedParticipantScrollPane);
@@ -194,6 +200,18 @@ public class ViewAppointment extends JFrame {
 		reminderCheckBox = new JCheckBox("Remind me of this appointment");
 		reminderCheckBox.setBounds(95, 210, 250, 25);
 		add(reminderCheckBox);
+		
+		attendingButton = new JRadioButton("Attending");
+		attendingButton.setBounds(400, 180, 100, 25);
+		add(attendingButton);
+		notAttendingButton = new JRadioButton("Not Attending");
+		notAttendingButton.setBounds(500, 180, 120, 25);
+		notAttendingButton.setSelected(true);
+		add(notAttendingButton);
+		ButtonGroup bGroupAtt = new ButtonGroup();
+		bGroupAtt.add(attendingButton);
+		bGroupAtt.add(notAttendingButton);
+		
 
 		deleteButton = new JButton("Delete");
 		deleteButton.setBounds(365, 210, 90, 25);
@@ -205,6 +223,32 @@ public class ViewAppointment extends JFrame {
 		saveButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				if(attendingButton.isSelected()){
+					// attending action
+					System.out.println("\t\t\tAttending : ");
+					for (int i = 0; i < thisAppointment.getParticipants().length; i++) {
+						Participant currentPart = thisAppointment.getParticipants()[i];
+						if(currentPart instanceof InternalParticipant){
+							if(Client.getCurrentEmployee().equals(currentPart)){
+								((InternalParticipant) currentPart).setStatus(Status.Attending);
+							}
+							
+						}
+					}
+				}
+				else {
+					// not attending action
+					System.out.println("\t\t\tNot Attending : ");
+					for (int i = 0; i < thisAppointment.getParticipants().length; i++) {
+						Participant currentPart = thisAppointment.getParticipants()[i];
+						if(currentPart instanceof InternalParticipant){
+							if(Client.getCurrentEmployee().equals(currentPart)){
+								((InternalParticipant) currentPart).setStatus(Status.Declined);
+							}
+							
+						}
+					}
+				}
 				dispose();
 			}
 		});
