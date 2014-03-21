@@ -310,7 +310,10 @@ public class EditAppointment extends JFrame {
 			Date appEndTime = endTime;
 			MeetingRoom appMeetingRoom;
 			String appLocation;
-			
+			Notification newDescription;
+			Notification newMeetingRoom;
+			Notification newLocation;
+			Notification changeTime;
 			
 			if(nameInput.getText().length() == 0){
 				JOptionPane.showMessageDialog(warningWindow, "Please fill in the Name field",
@@ -320,11 +323,21 @@ public class EditAppointment extends JFrame {
 			else{
 				if(startTime.before(endTime)){
 					
+					if(thisApp.getDescription() != appDescription){
+						newDescription = new Notification("Changed Description");
+					}
 					thisApp.setDescription(appDescription);
+					if(thisApp.getStartTime() != appStartTime || thisApp.getEndTime() != appEndTime){
+						changeTime = new Notification("Changed Time");
+					}
 					thisApp.setStartEndTime(appStartTime, appEndTime);
 					
 					if(meetingRoomButton.isSelected()){
 						appMeetingRoom = (MeetingRoom) meetingRoomInput.getSelectedItem();
+						if(thisApp.getMeetingRoom() != appMeetingRoom){
+							newMeetingRoom = new Notification("Changed MeetingRoom");
+							thisApp.addNotification(newMeetingRoom);
+						}
 						thisApp.setLocation(null);
 						thisApp.setMeetingRoom(appMeetingRoom);
 					}
@@ -335,6 +348,10 @@ public class EditAppointment extends JFrame {
                             return;
 						}
 						appLocation = locationInput.getText();
+						if(thisApp.getLocation() != appLocation){
+							newLocation = new Notification("Changed Location");
+							thisApp.addNotification(newLocation);
+						}
 						thisApp.setMeetingRoom(null);
 						thisApp.setLocation(appLocation);
 					}
@@ -343,12 +360,7 @@ public class EditAppointment extends JFrame {
 						thisApp.addParticipant(addedParticipantList.get(i));
 					}
 					
-					
-					for (int i = 0; i < thisApp.getParticipants().length; i++) {
-						System.out.println("Part: " + thisApp.getParticipants()[i]);
-					}
-
-					
+										
 					dispose();
 	
 				}
