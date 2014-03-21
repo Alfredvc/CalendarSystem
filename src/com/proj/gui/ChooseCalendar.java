@@ -82,8 +82,8 @@ public class ChooseCalendar extends JFrame {
 	
 	private void addCalendar() {
 		Employee selected = fuzzyDropdown.getSelectedValue();
-		if (selected != null && !shownCalendars.contains(selected)) {
-			shownCalendars.add(selected);
+		if (selected != null && !selectedCalendars.contains(selected)) {
+			selectedCalendars.add(selected);
 			fuzzyDropdown.reset();
 		}
 	}
