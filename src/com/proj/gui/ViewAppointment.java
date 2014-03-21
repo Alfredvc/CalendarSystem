@@ -53,7 +53,8 @@ public class ViewAppointment extends JFrame {
 	private JPanel addedParticipantView;
 	private ArrayList<Participant> addedParticipantList;
 
-	private JCheckBox reminderCheckBox;
+	private JCheckBox alarmCheckBox;
+	private JCheckBox hiddenCheckBox;
 	private JButton deleteButton;
 	private JButton saveButton;
 	private JButton cancelButton;
@@ -196,9 +197,12 @@ public class ViewAppointment extends JFrame {
 		createAddedParticipantView(); // Funksjonen som lager addedParticipants,
 										// kj�res ved alle endringer.
 
-		reminderCheckBox = new JCheckBox("Remind me of this appointment");
-		reminderCheckBox.setBounds(95, 210, 250, 25);
-		add(reminderCheckBox);
+		alarmCheckBox = new JCheckBox("Alarm");
+		alarmCheckBox.setBounds(100, 200, 100, 25);
+		add(alarmCheckBox);
+		hiddenCheckBox = new JCheckBox("Hide");
+		hiddenCheckBox.setBounds(200, 200, 100, 25);
+		add(hiddenCheckBox);
 		
 		attendingButton = new JRadioButton("Attending");
 		attendingButton.setBounds(400, 180, 100, 25);
@@ -219,6 +223,9 @@ public class ViewAppointment extends JFrame {
 					else{
 						notAttendingButton.setSelected(true);
 					}
+					alarmCheckBox.setSelected(((InternalParticipant) currentPart).isAlarm());
+					hiddenCheckBox.setSelected(((InternalParticipant) currentPart).isHidden());
+					
 				}
 			}
 		}
@@ -241,6 +248,8 @@ public class ViewAppointment extends JFrame {
 						if(currentPart instanceof InternalParticipant){
 							if(Client.getCurrentEmployee().equals(((InternalParticipant) currentPart).getEmployee())){
 								((InternalParticipant) currentPart).setStatus(Status.Attending);
+								((InternalParticipant) currentPart).setAlarm(alarmCheckBox.isSelected());
+								((InternalParticipant) currentPart).setHidden(hiddenCheckBox.isSelected());								
 							}
 							
 						}
@@ -253,11 +262,14 @@ public class ViewAppointment extends JFrame {
 						if(currentPart instanceof InternalParticipant){
 							if(Client.getCurrentEmployee().equals(((InternalParticipant) currentPart).getEmployee())){
 								((InternalParticipant) currentPart).setStatus(Status.Declined);
+								((InternalParticipant) currentPart).setAlarm(alarmCheckBox.isSelected());
+								((InternalParticipant) currentPart).setHidden(hiddenCheckBox.isSelected());								
 							}
 							
 						}
 					}
 				}
+				
 				dispose();
 			}
 		});
