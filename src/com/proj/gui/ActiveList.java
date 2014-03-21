@@ -2,7 +2,6 @@ package com.proj.gui;
 
 import java.awt.Component;
 
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.ListModel;
@@ -31,10 +30,7 @@ public class ActiveList<C extends Component, E> extends JComponent {
 		int size = listModel.getSize();
 		for (int i = 0; i < size; i++) {
 			addListElement(i);
-			System.out.println(i);
 		}
-		System.out.println("Whaat?");
-		add(Box.createVerticalGlue(), 4);
 	}
 	
 	private void addListElement(int index) {
