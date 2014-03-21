@@ -11,12 +11,11 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 import com.proj.model.Appointment;
-import com.proj.model.Appointment.Flag;
 import com.proj.model.Employee;
 import com.proj.model.InternalParticipant;
 import com.proj.model.Model;
-import com.proj.model.Participant;
 import com.proj.model.ModelChangeSupport;
+import com.proj.model.Participant;
 
 public class CalendarModel extends AbstractListModel<Appointment>  {
 	public static String
@@ -80,7 +79,6 @@ public class CalendarModel extends AbstractListModel<Appointment>  {
 			fireIntervalRemoved(this, 0, size-1);
 		}
 		for(Employee emp: this.employeeListModel){
-			System.out.println("Legger til!");
 			this.addCalendar(emp);
 		}
 	}
@@ -244,10 +242,8 @@ public class CalendarModel extends AbstractListModel<Appointment>  {
 
 		@Override
 		public void intervalRemoved(ListDataEvent arg0) {
-			int endIndex = arg0.getIndex1();
-			for (int i = arg0.getIndex0(); i < endIndex; i++) {
-				removeCalendar(employeeListModel.getElementAt(i));
-			}
+			// Quickfix :S
+			updateAppointments();
 		}
 		
 	}

@@ -52,6 +52,8 @@ public class Appointment implements Serializable{
             this.meetingRoom = null;
             this.location = appointment.getLocation();
         }
+        
+        addPropertyChangeListener(notifier);
     }
 	
 	public Appointment(UUID id, InternalParticipant leader,Date startTime){
