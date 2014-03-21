@@ -180,6 +180,7 @@ public class ViewAppointment extends JFrame {
 			meetingRoomButton.setSelected(true);
 		}
 		addedParticipantList = new ArrayList<Participant>();
+		addedParticipantList.add(thisAppointment.getLeader());
 		for (int i = 0; i < thisAppointment.getParticipants().length; i++) {
 			addedParticipantList.add(thisAppointment.getParticipants()[i]);
 		}
@@ -204,11 +205,23 @@ public class ViewAppointment extends JFrame {
 		add(attendingButton);
 		notAttendingButton = new JRadioButton("Not Attending");
 		notAttendingButton.setBounds(500, 180, 120, 25);
-		notAttendingButton.setSelected(true);
 		add(notAttendingButton);
 		ButtonGroup bGroupAtt = new ButtonGroup();
 		bGroupAtt.add(attendingButton);
 		bGroupAtt.add(notAttendingButton);
+		for (int i = 0; i < thisAppointment.getParticipants().length; i++) {
+			Participant currentPart = thisAppointment.getParticipants()[i];
+			if(currentPart instanceof InternalParticipant){
+				if(Client.getCurrentEmployee().equals(((InternalParticipant) currentPart).getEmployee())){
+					if(((InternalParticipant) currentPart).getStatus().equals(Status.Attending)){
+						attendingButton.setSelected(true);
+					}
+					else{
+						notAttendingButton.setSelected(true);
+					}
+				}
+			}
+		}
 		
 
 		deleteButton = new JButton("Delete");
@@ -223,11 +236,10 @@ public class ViewAppointment extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				if(attendingButton.isSelected()){
 					// attending action
-					System.out.println("\t\t\tAttending : ");
 					for (int i = 0; i < thisAppointment.getParticipants().length; i++) {
 						Participant currentPart = thisAppointment.getParticipants()[i];
 						if(currentPart instanceof InternalParticipant){
-							if(Client.getCurrentEmployee().equals(currentPart)){
+							if(Client.getCurrentEmployee().equals(((InternalParticipant) currentPart).getEmployee())){
 								((InternalParticipant) currentPart).setStatus(Status.Attending);
 							}
 							
@@ -236,11 +248,10 @@ public class ViewAppointment extends JFrame {
 				}
 				else {
 					// not attending action
-					System.out.println("\t\t\tNot Attending : ");
 					for (int i = 0; i < thisAppointment.getParticipants().length; i++) {
 						Participant currentPart = thisAppointment.getParticipants()[i];
 						if(currentPart instanceof InternalParticipant){
-							if(Client.getCurrentEmployee().equals(currentPart)){
+							if(Client.getCurrentEmployee().equals(((InternalParticipant) currentPart).getEmployee())){
 								((InternalParticipant) currentPart).setStatus(Status.Declined);
 							}
 							
@@ -295,10 +306,15 @@ public class ViewAppointment extends JFrame {
 					+ ((Participant) participant).getDisplayName(), JLabel.LEFT);
 			nameLabel.setPreferredSize(new Dimension(185, 25));
 			add(nameLabel);
-			statusLabel = new JLabel(
+			if(participant instanceof InternalParticipant && thisAppointment.getLeader().equals(participant)){
+				statusLabel = new JLabel( "Leader" );
+			}
+			else {
+				statusLabel = new JLabel(
 					participant instanceof ExternalParticipant ? "Invited"
 							: ((InternalParticipant) participant).getStatus()
 									.toString(), JLabel.LEFT);
+			}
 			statusLabel.setPreferredSize(new Dimension(70, 25));
 			add(statusLabel);
 		}
