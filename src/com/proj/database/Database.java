@@ -248,12 +248,12 @@ public class Database extends Storage {
 		
 		try {
 			PreparedStatement statement = connection.prepareStatement(
-					"DELETE FROM `Appointment` WHERE ID='?';"
+					"DELETE FROM `Appointment` WHERE ID=?;"
 			);
-			statement.setString(0, appointment.getId().toString());
+			statement.setString(1, appointment.getId().toString());
 			statement.execute();
 		} catch (SQLException e) {
-			System.err.println("Could not delete appointment!");
+			System.err.println("Could not delete appointment!\n" + e.getMessage());
 			return false;
 		}
 		

@@ -81,8 +81,8 @@ public class ServerNetworking extends Networking implements Runnable{
 
                         SocketChannel client = serverSocketChannel.accept();
 
-                        System.out.println("New client at " + client.socket().getInetAddress()
-                                + ":" + client.socket().getLocalPort());
+                        //System.out.println("New client at " + client.socket().getInetAddress()
+                                //+ ":" + client.socket().getLocalPort());
 
                         client.configureBlocking(false);
                         client.register(selector, SelectionKey.OP_READ, new ChannelAttachment(ChannelAttachment.Status.AwaitingLogin));
@@ -92,8 +92,8 @@ public class ServerNetworking extends Networking implements Runnable{
                         SocketChannel client = (SocketChannel) key.channel();
                         ByteBuffer buffer = ByteBuffer.allocate(4096);
 
-                        System.out.println("Reading from client at " + client.socket().getInetAddress()
-                                + ":" + client.socket().getLocalPort());
+                        //System.out.println("Reading from client at " + client.socket().getInetAddress()
+                                //+ ":" + client.socket().getLocalPort());
                         int readBytes = -2;
 
                         try{
@@ -199,7 +199,7 @@ public class ServerNetworking extends Networking implements Runnable{
 
 
     private boolean requestLogin(String username, String password){
-        System.out.println("Starting log in");
+        System.out.println("Registering " + username);
         return server.requestLogin(username, password);
     }
 

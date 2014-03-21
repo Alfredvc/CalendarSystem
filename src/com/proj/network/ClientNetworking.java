@@ -82,7 +82,7 @@ public class ClientNetworking extends Networking implements Runnable {
                     }
 
                     if (key.isReadable()){
-                        System.out.println("Reading envelope...");
+                        //System.out.println("Reading envelope...");
                         ByteBuffer inBuffer = ByteBuffer.allocate(4098);
                         int readBytes = clientChannel.read(inBuffer);
                         if (readBytes == -1) throw new IOException("Server disconnected");
@@ -165,7 +165,7 @@ public class ClientNetworking extends Networking implements Runnable {
         this.password = password;
         this.loginThread = Thread.currentThread();
         try{
-            System.out.println("Sleeping thread " + loginThread + " from thread " + Thread.currentThread());
+            //System.out.println("Sleeping thread " + loginThread + " from thread " + Thread.currentThread());
 
             if (attachment.status == ChannelAttachment.Status.ReadyToLogIn
                     && username != null && password != null){

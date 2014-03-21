@@ -56,14 +56,4 @@ public class ByteBufferInputStream extends InputStream implements ObjectStreamCo
         return internalBuffer.remaining();
     }
 
-    //Removes stream header, must be called before each object read after the first
-    public void removeStreamHeader(){
-        internalBuffer.position(internalBuffer.position() + 4);
-        byte[] header = new byte[8];
-        for (int i = 0; i < 8; i++){
-            header[i] = internalBuffer.get();
-        }
-        internalBuffer.position(internalBuffer.position() - 8);
-    }
-
 }

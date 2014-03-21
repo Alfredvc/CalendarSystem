@@ -40,7 +40,7 @@ public abstract class Networking extends Storage{
 
         NetworkEnvelope toSend = new NetworkEnvelope().sendingAppointment(new Appointment(appointment), flag);
 
-        System.out.println("Pushing envelope " + toSend + " to outQueue");
+        //System.out.println("Pushing envelope " + toSend + " to outQueue");
 
         outgoingEnvelopes.add(toSend);
 
@@ -63,10 +63,10 @@ public abstract class Networking extends Storage{
 
         NetworkEnvelope currentEnvelope = outgoingEnvelopes.poll();
         if (currentEnvelope == null) return;
-        System.out.println("Refreshing queues for thread " + Thread.currentThread());
+        //System.out.println("Refreshing queues for thread " + Thread.currentThread());
         for (SelectionKey key : selector.keys()){
             if (key.channel() instanceof ServerSocketChannel) continue;
-            System.out.println("Updating interestOps for key ");
+            //System.out.println("Updating interestOps for key ");
             key.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
         }
         while (currentEnvelope != null){
@@ -82,8 +82,8 @@ public abstract class Networking extends Storage{
     protected void sendPendingEnvelopes(SocketChannel channel, SelectionKey key){
 
         if (key.attachment() != null && key.attachment() instanceof ChannelAttachment){
-            System.out.println("Sending pending envelopes to " + channel.socket().getInetAddress()
-                    + ":" + channel.socket().getLocalPort());
+            //System.out.println("Sending pending envelopes to " + channel.socket().getInetAddress()
+                    //+ ":" + channel.socket().getLocalPort());
             ConcurrentLinkedQueue<NetworkEnvelope> queue = ((ChannelAttachment) key.attachment()).outQueue;
             NetworkEnvelope currentEnvelope = queue.poll();
             while (currentEnvelope != null){
@@ -92,46 +92,9 @@ public abstract class Networking extends Storage{
                 currentEnvelope = queue.poll();
             }
             key.interestOps(SelectionKey.OP_READ);
-            System.out.println("Finished sending pending envelopes to " + channel.socket().getInetAddress()
-                    + ":" + channel.socket().getLocalPort());
+            //System.out.println("Finished sending pending envelopes to " + channel.socket().getInetAddress()
+                    //+ ":" + channel.socket().getLocalPort());
         }
-    }
-
-    public static Appointment byteArrayToAppointment(byte[] array)
-    throws IOException, ClassNotFoundException{
-
-
-        System.out.println("Transforming " +array.length +":"+ array + " into appointment");
-        ByteArrayInputStream bis = new ByteArrayInputStream(array);
-        ObjectInput in = null;
-        Appointment result;
-        try {
-            in = new ObjectInputStream(bis);
-            result = (Appointment) in.readObject();
-
-        } catch (IOException e){
-            throw e;
-        } catch (ClassNotFoundException a){
-            throw a;
-        }
-
-        finally {
-            try {
-                bis.close();
-            } catch (IOException ex) {
-                // ignore close exception
-            }
-            try {
-                if (in != null) {
-                    in.close();
-                }
-            } catch (IOException ex) {
-                // ignore close exception
-            }
-        }
-
-        System.out.println("Transformed to " + result);
-        return result;
     }
 
     protected void receivedAppointment(Appointment appointment, Appointment.Flag flag){
