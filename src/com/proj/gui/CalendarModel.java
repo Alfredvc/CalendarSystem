@@ -202,7 +202,7 @@ public class CalendarModel extends AbstractListModel<Appointment>  {
 			Object oldObj = evt.getOldValue();
 			Object newObj = evt.getNewValue();
 			//System.out.println("detected changeasdfasdljfhasljdhfjhaslhfahsjlfhjasjdhfasdlfhasjkldhfjasjkdfhlashfalskdfalshjhaksldf");
-			if (property.equals("appointments")) {
+			
 				
 				if (oldObj == null && newObj instanceof Appointment) {
 					handleNewAppointment((Appointment) newObj);
@@ -210,7 +210,7 @@ public class CalendarModel extends AbstractListModel<Appointment>  {
 				} else if (newObj == null && oldObj instanceof Appointment) {
 					handleRemovedAppointment((Appointment) oldObj);
 				}
-			}
+			
 		}
 
 
