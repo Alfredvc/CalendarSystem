@@ -45,7 +45,9 @@ public class MainCalendar extends JFrame {
 		// Add calendar view
 		calendarView = new CalendarView(calendarModel);
 		calendarView.addActionListener(actionHandler);
-		add(new JScrollPane(calendarView));
+		JScrollPane scrollPane = new JScrollPane(calendarView);
+		scrollPane.getVerticalScrollBar().setUnitIncrement(5);
+		add(scrollPane);
 		
 		setVisible(true);
 		

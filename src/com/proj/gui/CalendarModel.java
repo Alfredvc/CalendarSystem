@@ -11,12 +11,14 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 import com.proj.model.Appointment;
+import com.proj.model.Appointment.Flag;
 import com.proj.model.Employee;
 import com.proj.model.InternalParticipant;
 import com.proj.model.Model;
 import com.proj.model.Participant;
+import com.proj.model.ModelChangeSupport;
 
-public class CalendarModel extends AbstractListModel<Appointment> {
+public class CalendarModel extends AbstractListModel<Appointment>  {
 	public static String
 			WEEK_PROP = "week",
 			YEAR_PROP = "year";
@@ -35,8 +37,7 @@ public class CalendarModel extends AbstractListModel<Appointment> {
 		this.calendar= Calendar.getInstance();
 		employeeListModel.addListDataListener(new EmployeeHandler());
 		week = Calendar.getInstance();
-		
-		model.addPropertyChangeListener(new ModelPropertyChangeHandler());
+		model.addModelChangeListener(new ModelChangeHandler());
 	}
 	
 	public void resetWeek() {
@@ -193,22 +194,27 @@ public class CalendarModel extends AbstractListModel<Appointment> {
 	/**
 	 * Listens to changes from model and updates this model
 	 */
-	private class ModelPropertyChangeHandler implements PropertyChangeListener {
+	private class ModelChangeHandler implements ModelChangeSupport.ModelChangedListener {
 		@Override
-		public void propertyChange(PropertyChangeEvent evt) {
+		public void modelChanged(Appointment appointment, Appointment.Flag flag, PropertyChangeEvent evt){
 			String property = evt.getPropertyName();
+			System.out.println("proooooopertyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyysadfasdfasdf:"+property);
 			Object oldObj = evt.getOldValue();
 			Object newObj = evt.getNewValue();
+			//System.out.println("detected changeasdfasdljfhasljdhfjhaslhfahsjlfhjasjdhfasdlfhasjkldhfjasjkdfhlashfalskdfalshjhaksldf");
 			
-			if (property.equals("appointments")) {
+				
 				if (oldObj == null && newObj instanceof Appointment) {
 					handleNewAppointment((Appointment) newObj);
-					System.out.println("calendermodel");
+					
 				} else if (newObj == null && oldObj instanceof Appointment) {
 					handleRemovedAppointment((Appointment) oldObj);
 				}
-			}
+			
 		}
+
+
+		
 	}
 	
 	/**
@@ -245,4 +251,8 @@ public class CalendarModel extends AbstractListModel<Appointment> {
 		}
 		
 	}
+
+
+
+
 }
