@@ -167,11 +167,17 @@ public class Appointment implements Serializable{
 	}
 	
 	public void setStartEndTime(Date startTime, Date endTime) {
-		if (startTime == null && endTime == null) {
+		if (startTime == null || endTime == null) {
 			throw new NullPointerException("End or start time cannot be null!");
 		}
-		if (startTime != null && endTime != null && startTime.after(endTime)) {
-			throw new IllegalArgumentException("Start time cannot be after end time!");
+
+		// Set in the correct order...
+		if (startTime.after(this.endTime)) {
+			setEndTime(endTime);
+			setStartTime(startTime);
+		} else {
+			setStartTime(startTime);
+			setEndTime(endTime);
 		}
 	}
 	
