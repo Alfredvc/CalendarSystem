@@ -28,7 +28,7 @@ public class Client {
     	arguments = Arrays.asList(args);
     	Properties props = new Properties();
         model = new Model();
-        
+
         String host = getArgument(new String[] {"-a", "--address"});
         if (host != null) {
         	props.put("server", host);
@@ -48,7 +48,7 @@ public class Client {
     private static String getArgument(String[] names) {
     	for (String n : names) {
     		int index = arguments.indexOf(n);
-    		if (index > 0 && index < arguments.size() - 1) {
+    		if (index >= 0 && index < arguments.size() - 1) {
     			return arguments.get(index + 1);
     		}
     	}
