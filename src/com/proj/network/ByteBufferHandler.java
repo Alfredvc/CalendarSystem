@@ -3,6 +3,7 @@ package com.proj.network;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.StreamCorruptedException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
@@ -49,6 +50,8 @@ public class ByteBufferHandler {
             }
         } catch(EOFException e){
             //System.out.println("\tAll envelopes extracted");
+        } catch (StreamCorruptedException e){
+            //e.printStackTrace();
         }
         catch (IOException e) {
             e.printStackTrace();
