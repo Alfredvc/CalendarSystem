@@ -9,6 +9,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
+import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -20,8 +21,8 @@ import java.util.Set;
  */
 public class ClientNetworking extends Networking implements Runnable {
 
-    String ipAddr = "127.0.0.1";
-    int portNr = 8989;
+    String ipAddr;
+    int portNr;
     String username;
     String password;
     Thread loginThread;
@@ -31,9 +32,23 @@ public class ClientNetworking extends Networking implements Runnable {
 
     final Object readyToLogIn = new Object();
     final Object awaitingLoginResponse = new Object();
+    
+    public ClientNetworking(Model model) {
+    	this(model, new Properties());
+    }
 
-    public ClientNetworking(Model model){
+    public ClientNetworking(Model model, Properties props){
         super(model);
+        this.ipAddr = props.containsKey("server") ?
+        		props.getProperty("server") : "127.0.0.1";
+        
+        try {
+	        this.portNr = props.containsKey("port") ?
+	        		Integer.parseInt(props.getProperty("port")) : 8989;
+        } catch (NumberFormatException e) {
+        	System.out.println("Could not recognize port number! Running on 8989!");
+        	this.portNr = 8989;
+        }
 
         loggedIn = false;
 
