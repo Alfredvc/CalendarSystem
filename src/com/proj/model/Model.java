@@ -126,15 +126,17 @@ public class Model {
 	
 	public ArrayList<MeetingRoom> getFreeMeetingRooms(Date startTime, Date endTime, int capacity){
 		ArrayList<MeetingRoom> freeRooms= new ArrayList<MeetingRoom>(Arrays.asList(this.getMeetingRooms()));
-		for(UUID key: appointments.keySet()){
-			Appointment app=appointments.get(key);
-			if((app.getStartTime().before(endTime) && app.getEndTime().after(endTime)) ||
-					(app.getStartTime().before(startTime) && app.getEndTime().after(startTime))){
-				
-				if(app.getMeetingRoom()!=null){freeRooms.remove(app.getMeetingRoom());}
+		for(Appointment app : appointments.values()){
+			if (app.getMeetingRoom() == null) {
+				continue;
 			}
-			else if(app.getMeetingRoom()!=null && app.getMeetingRoom().getCapacity()<capacity){
-				freeRooms.remove(app.getMeetingRoom());
+			
+			if((app.getStartTime().before(endTime) && app.getEndTime().after(endTime)) ||
+					(app.getStartTime().before(startTime) && app.getEndTime().after(startTime)) ||
+					(app.getStartTime().after(startTime) && app.getEndTime().before(endTime)) ||
+					app.getMeetingRoom().getCapacity()<capacity){
+
+					freeRooms.remove(app.getMeetingRoom());
 			}
 		}
 		return freeRooms;
