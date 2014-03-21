@@ -28,6 +28,7 @@ public class MainCalendar extends JFrame {
 		this.model = model;
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setTitle("Supremee Calendar - You are logged in as: " + Client.getCurrentEmployee());
 		setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		setSize(new Dimension(1000, 600));
 		
