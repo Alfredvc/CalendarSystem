@@ -150,7 +150,11 @@ public class ClientNetworking extends Networking implements Runnable {
     }
 
     private void disconnect(){
-
+        try {
+            clientChannel.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public boolean logIn(String username, String password){

@@ -152,6 +152,10 @@ public abstract class Networking extends Storage{
 
     protected abstract void handleReceivedEnvelope(SelectionKey key);
 
+    public void closeConnection(){
+        outgoingEnvelopes.add(new NetworkEnvelope().disconnectRequest());
+    }
+
     public void close(){
         run = false;
         selector.wakeup();
