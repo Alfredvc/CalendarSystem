@@ -5,6 +5,8 @@ import com.proj.model.Model;
 import com.proj.model.ModelChangeSupport;
 
 import java.beans.PropertyChangeEvent;
+import java.util.ArrayList;
+import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.

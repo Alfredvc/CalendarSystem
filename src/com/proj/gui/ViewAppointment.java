@@ -247,10 +247,15 @@ public class ViewAppointment extends JFrame {
 						Participant currentPart = thisAppointment.getParticipants()[i];
 						if(currentPart instanceof InternalParticipant){
 							if(Client.getCurrentEmployee().equals(((InternalParticipant) currentPart).getEmployee())){
-								((InternalParticipant) currentPart).setStatus(Status.Attending);
-								((InternalParticipant) currentPart).setAlarm(alarmCheckBox.isSelected());
-								((InternalParticipant) currentPart).setHidden(hiddenCheckBox.isSelected());								
-							}
+                                /*if (((InternalParticipant) currentPart).isHidden()){
+                                    thisAppointment.removeParticipant(currentPart);
+                                    break;
+                                }
+                                ((InternalParticipant) currentPart).setAlarm(alarmCheckBox.isSelected());
+                                ((InternalParticipant) currentPart).setHidden(hiddenCheckBox.isSelected());
+                                */
+                                ((InternalParticipant) currentPart).setStatus(Status.Attending);
+                            }
 							
 						}
 					}
@@ -261,10 +266,15 @@ public class ViewAppointment extends JFrame {
 						Participant currentPart = thisAppointment.getParticipants()[i];
 						if(currentPart instanceof InternalParticipant){
 							if(Client.getCurrentEmployee().equals(((InternalParticipant) currentPart).getEmployee())){
-								((InternalParticipant) currentPart).setStatus(Status.Declined);
+                                /*if (((InternalParticipant) currentPart).isHidden()){
+                                    thisAppointment.removeParticipant(currentPart);
+                                    break;
+                                }
 								((InternalParticipant) currentPart).setAlarm(alarmCheckBox.isSelected());
-								((InternalParticipant) currentPart).setHidden(hiddenCheckBox.isSelected());								
-							}
+                                ((InternalParticipant) currentPart).setHidden(hiddenCheckBox.isSelected());
+                                */
+                                ((InternalParticipant) currentPart).setStatus(Status.Declined);
+                            }
 							
 						}
 					}
