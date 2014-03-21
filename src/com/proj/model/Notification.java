@@ -51,8 +51,7 @@ public class Notification implements Serializable {
     @Override
     public boolean equals(Object other){
         return (other instanceof Notification && ((Notification)other).getText().equals(this.text)
-        && ((Notification)other).getTimestamp().equals(timestamp) &&
-                ((Notification)other).getAppointment().equals(appointment));
+        && ((Notification)other).getTimestamp().equals(timestamp));
     }
 
     @Override
