@@ -126,6 +126,7 @@ public class ClientNetworking extends Networking implements Runnable {
                         break;
                     case AwaitingAllAppointments:
                         if (currentEnvelope.getType() == NetworkEnvelope.Type.DoneSendingAppointments){
+                            System.out.println("\tEnd of appointment stream detected");
                             ((ChannelAttachment) key.attachment()).status = ChannelAttachment.Status.Established;
                             loginThread.interrupt();
                         } else if (currentEnvelope.getType() == NetworkEnvelope.Type.SendingAppointment){

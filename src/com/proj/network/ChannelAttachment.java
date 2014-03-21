@@ -2,6 +2,7 @@ package com.proj.network;
 
 import java.io.IOException;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Created with IntelliJ IDEA.
@@ -17,21 +18,21 @@ public class ChannelAttachment implements ByteBufferHandler.NetworkEnvelopeListe
     }
 
     public Status status;
-    public ConcurrentLinkedDeque<NetworkEnvelope> outQueue;
-    public ConcurrentLinkedDeque<NetworkEnvelope> inQueue;
+    public ConcurrentLinkedQueue<NetworkEnvelope> outQueue;
+    public ConcurrentLinkedQueue<NetworkEnvelope> inQueue;
     public ByteBufferHandler byteBufferHandler;
     public ChannelOutputHandler channelOutputHandler;
 
     public ChannelAttachment(Status status) throws IOException {
         this.status = status;
-        outQueue = new ConcurrentLinkedDeque<NetworkEnvelope>();
-        inQueue = new ConcurrentLinkedDeque<NetworkEnvelope>();
+        outQueue = new ConcurrentLinkedQueue<NetworkEnvelope>();
+        inQueue = new ConcurrentLinkedQueue<NetworkEnvelope>();
         byteBufferHandler = new ByteBufferHandler(this);
         channelOutputHandler = new ChannelOutputHandler();
     }
 
     @Override
     public void onNewEnvelope(NetworkEnvelope networkEnvelope) {
-        inQueue.push(networkEnvelope);
+        inQueue.add(networkEnvelope);
     }
 }
