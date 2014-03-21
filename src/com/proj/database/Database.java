@@ -230,14 +230,15 @@ public class Database extends Storage {
 			appointmentHandler.mapAppointment(appointment, statement);
 			
 			// Execute query and save relations
-			return statement.execute() &&
-					saveParticipants(appointment) &&
-					saveNotifications(appointment);
+			statement.execute();
+			saveParticipants(appointment);
+			saveNotifications(appointment);
 			
+			return true;
 		} catch (SQLException e) {
 			System.err.println("Could not save appointment to database:\n" + e.getMessage());
-			return false;
 		}
+		return false;
 	}
 	
 	
