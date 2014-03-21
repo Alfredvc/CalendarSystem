@@ -83,7 +83,7 @@ public class EditAppointment extends JFrame {
 		thisModel = model;
 		thisApp = appointment;
 		// Setting up the Frame, setting the size, position and making it fixed size
-		setTitle("New Appointment");
+		setTitle("Edit Appointment");
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		setSize(750, 300);
 
