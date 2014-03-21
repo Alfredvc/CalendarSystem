@@ -158,7 +158,7 @@ public class CalendarView extends JPanel{
 		int hours = cal.get(Calendar.HOUR_OF_DAY);
 		int minutes = cal.get(Calendar.MINUTE);
 		
-		int pixelX = (int) 134 * (weekday-1);
+		int pixelX = (int) 134 * (weekday-2);
 		int pixelY = (int) (30 + (hours*40) + (minutes*(2.0/3)));
 		
 		return new int[]{pixelX, pixelY};
