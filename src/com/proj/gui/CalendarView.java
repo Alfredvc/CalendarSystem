@@ -168,12 +168,7 @@ public class CalendarView extends JPanel{
 	 * Creates the calendar view
 	 */
 	public CalendarView(ListModel<Appointment> model) {
-		this.model = model;
-		model.addListDataListener(new DataChangeHandler());
-		if (model.getSize() > 0) {
-			addListInterval(0, model.getSize() - 1);
-		}
-		
+		this.model = model;		
 		
 		/**
 		 * Modifies the scrollpanel
@@ -264,6 +259,12 @@ public class CalendarView extends JPanel{
 			}
 			timeCoord+=40;
 		}
+		
+		model.addListDataListener(new DataChangeHandler());
+		if (model.getSize() > 0) {
+			addListInterval(0, model.getSize() - 1);
+		}
+		repaint();
 
 	}
 	
