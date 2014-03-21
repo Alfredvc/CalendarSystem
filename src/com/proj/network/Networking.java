@@ -9,6 +9,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Created with IntelliJ IDEA.
@@ -23,7 +24,7 @@ public abstract class Networking extends Storage{
     Model model;
     boolean run;
     final int selectionTimeout = 1000;
-    protected ConcurrentLinkedDeque<NetworkEnvelope> outgoingEnvelopes;
+    protected ConcurrentLinkedQueue<NetworkEnvelope> outgoingEnvelopes;
     public static final String loginFailed = "fail";
     public static final String loginSuccessful = "success";
 
@@ -31,7 +32,7 @@ public abstract class Networking extends Storage{
         this.model = model;
         model.addModelChangeListener(this);
         this.run = true;
-        this.outgoingEnvelopes = new ConcurrentLinkedDeque<>();
+        this.outgoingEnvelopes = new ConcurrentLinkedQueue<>();
     }
 
     //Must add a flag, either DELETE, CREATE or CHANGE to the appointment being sent.
@@ -41,7 +42,7 @@ public abstract class Networking extends Storage{
 
         System.out.println("Pushing envelope " + toSend + " to outQueue");
 
-        outgoingEnvelopes.push(toSend);
+        outgoingEnvelopes.add(toSend);
 
         selector.wakeup();
 
@@ -71,7 +72,7 @@ public abstract class Networking extends Storage{
         while (currentEnvelope != null){
             for (SelectionKey key : selector.keys()){
                 if (key.attachment() != null && key.attachment() instanceof ChannelAttachment){
-                    ((ChannelAttachment) key.attachment()).outQueue.push(currentEnvelope);
+                    ((ChannelAttachment) key.attachment()).outQueue.add(currentEnvelope);
                 }
             }
             currentEnvelope = outgoingEnvelopes.poll();
@@ -83,7 +84,7 @@ public abstract class Networking extends Storage{
         if (key.attachment() != null && key.attachment() instanceof ChannelAttachment){
             System.out.println("Sending pending envelopes to " + channel.socket().getInetAddress()
                     + ":" + channel.socket().getLocalPort());
-            ConcurrentLinkedDeque<NetworkEnvelope> queue = ((ChannelAttachment) key.attachment()).outQueue;
+            ConcurrentLinkedQueue<NetworkEnvelope> queue = ((ChannelAttachment) key.attachment()).outQueue;
             NetworkEnvelope currentEnvelope = queue.poll();
             while (currentEnvelope != null){
                 if (!(key.attachment() instanceof ChannelAttachment)) throw new RuntimeException();
@@ -150,6 +151,10 @@ public abstract class Networking extends Storage{
     }
 
     protected abstract void handleReceivedEnvelope(SelectionKey key);
+
+    public void closeConnection(){
+        outgoingEnvelopes.add(new NetworkEnvelope().disconnectRequest());
+    }
 
     public void close(){
         run = false;

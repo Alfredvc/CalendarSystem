@@ -41,9 +41,11 @@ public class ByteBufferHandler {
 
     private void extractEnvelopes(){
         System.out.println("Extracting envelopes");
+        NetworkEnvelope envelope = null;
         try {
             for(;;){
-                listener.onNewEnvelope((NetworkEnvelope) in.readObject());
+                envelope = (NetworkEnvelope) in.readObject();
+                listener.onNewEnvelope(envelope);
             }
         } catch(EOFException e){
             System.out.println("\tAll envelopes extracted");
