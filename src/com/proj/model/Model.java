@@ -150,7 +150,8 @@ public class Model {
 				myApps.add(a);
 			} else {
 				for (Participant parti: a.getParticipants()){
-					if(parti instanceof InternalParticipant && ((InternalParticipant)parti).getEmployee().equals(emp)) {
+					if(parti instanceof InternalParticipant && ((InternalParticipant)parti).getEmployee().equals(emp)
+                            && !((InternalParticipant) parti).isHidden()) {
 						myApps.add(a);
 					}
 				}

@@ -39,7 +39,10 @@ public class Appointment implements Serializable{
     public Appointment(Appointment appointment){
         this.id = appointment.getId();
         this.leader = new InternalParticipant(appointment.getLeader());
-        this.participants = new HashSet<>(Arrays.asList(appointment.getParticipants()));
+        for (Participant participant : appointment.getParticipants()){
+            if (participant instanceof InternalParticipant) addParticipant(new InternalParticipant((InternalParticipant)participant));
+            else addParticipant(participant);
+        }
         this.notifications = new HashSet<>(Arrays.asList(appointment.getNotifications()));
         for (Notification n : notifications) n.setAppointment(this);
         this.startTime = new Date(appointment.getStartTime().getTime());
@@ -212,6 +215,7 @@ public class Appointment implements Serializable{
 	
 	public void addParticipant(Participant participant) {
 		if (participants.add(participant)) {
+            if (participant instanceof InternalParticipant) ((InternalParticipant) participant).addPropertyChangeListener(notifier);
 			pcs.firePropertyChange("participants", null, participant);
 		}
 	}
@@ -220,7 +224,8 @@ public class Appointment implements Serializable{
 		if(participant.equals(this.leader)){ 		//passer på at møtelederen ikke kan slettes
 			throw new IllegalArgumentException("Cannot delete the meeting leader from an appointment!");
 		}
-		
+
+        if (participant instanceof InternalParticipant) ((InternalParticipant) participant).addPropertyChangeListener(notifier);
 		participants.remove(participant);
 		pcs.firePropertyChange("participants", participant, null);
 	}
