@@ -31,7 +31,6 @@ import com.proj.model.*;
 
 public class ViewAppointment extends JFrame {
 
-	private Model thisModel;
 	private Appointment thisAppointment;
 	static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
@@ -60,9 +59,8 @@ public class ViewAppointment extends JFrame {
 	private JButton cancelButton;
 
 	@SuppressWarnings("deprecation")
-	public ViewAppointment(Model model, Appointment currentApp) {
+	public ViewAppointment(Appointment currentApp) {
 
-		thisModel = model;
 		thisAppointment = currentApp;
 		// Setting up the Frame, setting the size, position and making it fixed
 		// size
