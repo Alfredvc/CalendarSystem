@@ -1,5 +1,9 @@
 package com.proj.client;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
+
 import com.proj.gui.Login;
 import com.proj.gui.MainCalendar;
 import com.proj.model.Employee;
@@ -18,13 +22,37 @@ public class Client {
     public static ClientNetworking networking;
     private static String username;
     private static Employee currentEmployee;
+    private static List<String> arguments;
 
     public static void main(String[] args){
+    	arguments = Arrays.asList(args);
+    	Properties props = new Properties();
         model = new Model();
-        networking = new ClientNetworking(model);
+        
+        String host = getArgument(new String[] {"-a", "--address"});
+        if (host != null) {
+        	props.put("server", host);
+        }
+        
+        String port = getArgument(new String[] {"-p", "--port"});
+        if (port != null) {
+        	props.put("port", port);
+        }
+        
+        networking = new ClientNetworking(model, props);
         new Thread(networking).start();
         
         new Login();
+    }
+    
+    private static String getArgument(String[] names) {
+    	for (String n : names) {
+    		int index = arguments.indexOf(n);
+    		if (index > 0 && index < arguments.size() - 1) {
+    			return arguments.get(index + 1);
+    		}
+    	}
+    	return null;
     }
 
     public static boolean logIn(String username, String password) {
