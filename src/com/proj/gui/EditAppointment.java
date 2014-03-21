@@ -79,7 +79,6 @@ public class EditAppointment extends JFrame {
 	public EditAppointment(Model model, Appointment appointment) {
 
 		
-		new InternalParticipant(Client.getCurrentEmployee());
 		thisModel = model;
 		thisApp = appointment;
 		// Setting up the Frame, setting the size, position and making it fixed size
@@ -325,10 +324,12 @@ public class EditAppointment extends JFrame {
 					
 					if(thisApp.getDescription() != appDescription){
 						newDescription = new Notification("Changed Description");
+						thisApp.addNotification(newDescription);
 					}
 					thisApp.setDescription(appDescription);
 					if(thisApp.getStartTime() != appStartTime || thisApp.getEndTime() != appEndTime){
 						changeTime = new Notification("Changed Time");
+						thisApp.addNotification(changeTime);
 					}
 					thisApp.setStartEndTime(appStartTime, appEndTime);
 					
